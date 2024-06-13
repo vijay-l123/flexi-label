@@ -1,0 +1,296 @@
+@import "./_variables";
+html {
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  font-family: $fontFamily;
+  text-transform: capitalize;
+  overflow: hidden;
+}
+
+.sidebar {
+  background-color: $white;
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  // padding: 1rem 2rem;
+  width: 15rem;
+  height: 100vh;
+  transition: 0.5s all;
+  display: flex;
+  flex-direction: column;
+  //flex: 1;
+
+  .logoContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 2rem 0.5rem 0 0.5rem;
+    width: -webkit-fill-available;
+
+    .title {
+      font-size: 24px;
+      font-weight: $heavyFont;
+      line-height: 30px;
+      color: $fontBlackColor;
+      padding: 0;
+    }
+    .titleAfter {
+      font-size: 24px;
+      font-weight: $heavyFont;
+      line-height: 30px;
+      color: $fontBlueColor;
+    }
+    .icon {
+      svg {
+        width: 48px;
+        height: 56px;
+      }
+    }
+  }
+
+  .burgerContainer {
+    content: "";
+    background-color: $bgBgSite;
+    position: absolute;
+    right: (-24px / 2);
+    top: 46px;
+    width: 26px;
+    height: 26px;
+    border-radius: 2rem;
+    z-index: 1;
+    cursor: pointer;
+    .MuiSvgIcon-root {
+      padding-top: 1px;
+    }
+  }
+
+  .profileContainer {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    padding: 4rem 0;
+    background-color: $bgLightBlue;
+
+    .profileGroup {
+      display: flex;
+      padding: 0 1rem;
+    }
+    .icon {
+      svg {
+        width: 42px;
+        height: 42px;
+        color: #828282;
+      }
+    }
+
+    .logout {
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    .profileContents {
+      padding: 0 0 0 0.25rem;
+      p.name {
+        padding: 0;
+        margin: 0;
+        font-size: 16.7px;
+        color: $darkGrey;
+        text-transform: capitalize;
+        font-weight: $heavyFont;
+      }
+
+      p {
+        padding: 0;
+        margin: 0;
+        font-size: 13.9px;
+        color: $darkGrey;
+        text-transform: lowercase;
+      }
+    }
+  }
+
+  .contentsContainer {
+    margin: 2rem 0 0 0;
+
+    .MuiList-root {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-direction: column;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      .MuiListItem-root {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-direction: row;
+        height: 50px;
+        // margin: 0.75rem 0;
+        // padding: 0.75rem 0;
+        width: 100%;
+        //border-radius: 1rem;
+        cursor: pointer;
+
+        .MuiListItemIcon-root {
+          // padding: 0 1rem 0 0.5rem;
+          min-width: 40px;
+        }
+
+        .MuiListItemText-root {
+          .MuiTypography-root {
+            text-decoration: none;
+            color: $fontBlackColor;
+            font-weight: $mediumFont;
+            line-height: 18px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            //margin: 0 0 0 0.5rem;
+          }
+        }
+      }
+      .MuiListItem-root.active {
+        .MuiListItemIcon-root {
+          svg {
+            color: #13a7c8;
+          }
+        }
+        .MuiListItemText-root {
+          .MuiTypography-root {
+            font-weight: $xMediumFont;
+          }
+        }
+      }
+
+      // .MuiListItem-root.active {
+      //   background-color: $veryLightGreen;
+
+      //   .MuiListItemText-root {
+      //     color: $green;
+      //   }
+      // }
+
+      .MuiListItem-root:hover {
+        background-color: $lightGrey;
+        transition: 0.25s;
+      }
+    }
+  }
+}
+
+.sidebar.active {
+  width: 5rem;
+  transition: 0.5s all;
+
+  .logoContainer.active {
+    .title {
+      opacity: 0;
+    }
+    .titleAfter {
+      opacity: 0;
+    }
+  }
+
+  .burgerContainer.active {
+    transition: 0.5s all;
+  }
+
+  .profileContainer {
+    .profileGroup {
+      opacity: 0;
+      transition: 0.5s all;
+    }
+    .logout {
+      display: flex;
+      padding-right: 1rem;
+      padding-left: 0.5rem;
+      transition: 0.5s all;
+    }
+  }
+
+  .contentsContainer {
+    .MuiListItemText-root {
+      opacity: 0;
+    }
+  }
+}
+
+.appContent {
+  padding: 1rem 2rem;
+}
+.title {
+  padding: 2rem;
+  display: flex;
+  align-items: baseline;
+  color: $fontBlackColor;
+  font-size: 26px;
+  font-weight: $heavyFont;
+}
+// .title::after {
+//   content: "";
+//   position: absolute;
+//   z-index: 0;
+//   top: 45px;
+//   width: calc(100vw - 10rem);
+//   background-color: $stripLine;
+//   height: 1px;
+//   transition: 0.5s all;
+// }
+.stripLine {
+  background-color: $stripLine;
+  height: 1px;
+  transition: 0.5s all;
+}
+
+.loginImg {
+  svg {
+    width: 100%;
+    height: 100vh;
+    background: radial-gradient(
+      163.1% 163.1% at 50% 50%,
+      #f2fbfe 2.6%,
+      rgba(48, 167, 205, 0.5) 100%
+    );
+  }
+}
+
+.loginScreen {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100vh;
+
+  .loginContent {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 10rem 9rem;
+    .loginLogo {
+      svg {
+        width: 100%;
+        height: 75px;
+      }
+    }
+    .loginAccount {
+      display: flex;
+      align-items: baseline;
+      color: $fontBlackColor;
+      font-size: 26px;
+      font-weight: $heavyFont;
+    }
+  }
+
+  .loginBottom {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+  }
+}

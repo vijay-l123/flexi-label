@@ -1,0 +1,10 @@
+.hasReview {
+  /* color: white; */
+  background-color: #f6b9b994 !important;
+  font-weight: 500;
+}
+.hasNoReview {
+  /* color: white; */
+  background-color: rgba(161, 235, 178, 0.566) !important;
+  font-weight: 500;
+}
