@@ -105,6 +105,36 @@ const tabData = [
   },
 ];
 
+const LookupDropdownData = [
+  {
+    label: "Customer Code",
+    value: 1,
+  },
+  {
+    label: "Printer",
+    value: 2,
+  },
+  {
+    label: "Proof number",
+    value: 3,
+  },
+  {
+    label: "Flat size",
+    value: 4,
+  },
+  {
+    label: "Fold size",
+    value: 5,
+  },
+  {
+    label: "No of colors",
+    value: 6,
+  },
+  {
+    label: "Serialization",
+    value: 7,
+  },
+];
 const masterTabData = [
   {
     label: "Anda",
@@ -123,6 +153,10 @@ const masterTabData = [
   {
     label: "Label Types",
     value: 4,
+  },
+  {
+    label: "Lookup",
+    value: 6,
   },
   {
     label: "Labels",
@@ -188,6 +222,7 @@ const common = {
   roles,
   tabData,
   masterTabData,
+  LookupDropdownData,
   fetchConfirmationTitle,
   camelizeKeys,
   fetchColRow,

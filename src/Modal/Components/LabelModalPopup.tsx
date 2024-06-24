@@ -73,6 +73,10 @@ const types = [
     value: 4,
   },
   {
+    name: "Lookup",
+    value: 6,
+  },
+  {
     name: "Labels",
     value: 5,
   },
@@ -192,9 +196,11 @@ function LabelModalPopup(props: IModalProps) {
     isCreateNewVersion,
   } = props;
   const { updateLabelsData } = useLabelsContext();
-  const { updateMasterData } = useMasterAuthContext();
+  const { updateMasterData,lookupvalue,setLookupvalue } = useMasterAuthContext();
   console.log("rowstate", rowState);
   console.log("modalprops", props);
+  console.log("lookupvalue", lookupvalue);
+  console.log("isCreateNewVersion", isCreateNewVersion);
 
   const [andaList, setAndaList] = React.useState<IAndaTypes[]>([]);
   const [productList, setProductList] = React.useState<any[]>([]);
@@ -238,6 +244,7 @@ function LabelModalPopup(props: IModalProps) {
   const handleClose = () => {
     resetValidationState();
     closeModal(false);
+    setLookupvalue(0)
   };
 
   const closePasswordConfirmationPopup = (val: boolean) => {
@@ -1430,7 +1437,7 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {isCreateNewVersion && (
+            {isCreateNewVersion || lookupvalue == 2 && (
               <FormControl
                 required
                 variant="filled"
@@ -1503,7 +1510,7 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {isCreateNewVersion && (
+            {isCreateNewVersion || lookupvalue === 3 && (
               <FormControl
                 required
                 variant="filled"
@@ -1577,7 +1584,7 @@ function LabelModalPopup(props: IModalProps) {
               </FormControl>
             )}
 
-            {isCreateNewVersion && (
+            {isCreateNewVersion || lookupvalue == 5 && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -1611,7 +1618,7 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {isCreateNewVersion && (
+            {isCreateNewVersion || lookupvalue == 4 && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
