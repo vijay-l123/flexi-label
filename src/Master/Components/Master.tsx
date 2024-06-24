@@ -1,4 +1,4 @@
-import { Tabs, Tab, Box } from "@mui/material";
+import { Tabs, Tab, Box, FormControl, Select, MenuItem } from "@mui/material";
 import React, { ReactNode } from "react";
 import useAuthContext from "../../Authentication/AuthProvider";
 import useMasterAuthContext from "../../Context/MasterAuthContext";
@@ -15,7 +15,9 @@ import ActionCellRenderer from "../../AppContainer/Components/ActionCellRenderer
 
 const { TRoleType } = common;
 function Master(): JSX.Element {
-  const { tabValue, handleTabChange, gridData, updateMasterData } =
+  const { tabValue, handleTabChange, gridData, updateMasterData,setLookupvalue,lookupvalue
+    // handleLookupChange 
+  } =
     useMasterAuthContext();
   const { authData } = useAuthContext();
 
@@ -26,7 +28,8 @@ function Master(): JSX.Element {
   const isNewVersionClicked = React.useRef(false);
 
   //
-  const { masterTabData } = common;
+  const { masterTabData,LookupDropdownData } = common;
+console.log("masterTabData",masterTabData,tabValue,LookupDropdownData);
 
   const editClickEvent = (params: any): void => {
     setModalState(true);
@@ -41,7 +44,10 @@ function Master(): JSX.Element {
     setEdit(true);
     isNewVersionClicked.current = true;
   };
+// const handleLookupChange = (e:any) : void => {
+// console.log("111",e.target.value);
 
+// }
   const gridProps = {
     colDefs: [
       //...hiddenColDef,
@@ -120,7 +126,8 @@ function Master(): JSX.Element {
           </Controls.Button>
         </Box>
       )}
-      <Tabs
+    <Box sx={{display:'flex',justifyContent:"space-between",alignItems:'center'}}>
+    <Tabs
         value={tabValue}
         onChange={(event, value) => handleTabChange(value)}
         variant="scrollable"
@@ -130,6 +137,39 @@ function Master(): JSX.Element {
           <Tab key={tab.value} label={tab.label} value={tab.value} />
         ))}
       </Tabs>
+  {tabValue === 6 && 
+      <FormControl sx={{ minWidth: "11%" }}>
+      <Select
+        required
+        fullWidth
+        // displayEmpty
+        size="small"
+        label='Select Lookup'
+        labelId="select-types-label"
+        id="Select Lookup"
+        name="Select Lookup"
+        // value={newType}
+        // defaultValue={lookupvalue[0]}
+        onChange={(e) =>setLookupvalue(e.target.value)}
+        // disabled={true}
+        // sx={{
+        //   backgroundColor: CustomTheme.CustomColor.Common.white,
+        // }}
+
+        // error={formValues.roles.error}
+      >
+        {LookupDropdownData.map((item, index) => (
+          <MenuItem key={item.value} value={item.value}>
+            {item.label}
+          </MenuItem>
+        ))}
+      </Select>
+      {/* <FormHelperText sx={{ color: "#D32F2F" }}>
+          {formValues.roles.error && formValues.roles.errorMessage}
+        </FormHelperText> */}
+    </FormControl>
+  }
+    </Box>
       <DisplayGrid {...gridProps} />
     </React.Fragment>
   );
