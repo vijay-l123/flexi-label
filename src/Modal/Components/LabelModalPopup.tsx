@@ -244,7 +244,7 @@ function LabelModalPopup(props: IModalProps) {
   const handleClose = () => {
     resetValidationState();
     closeModal(false);
-    setLookupvalue(0)
+    // setLookupvalue('1')
   };
 
   const closePasswordConfirmationPopup = (val: boolean) => {
@@ -515,7 +515,8 @@ function LabelModalPopup(props: IModalProps) {
     const currKeys = [...new FormData(event.currentTarget).keys()];
 
     const temp: any[] = [];
-
+    console.log("values xyz", values);
+    
     currKeys.forEach((key) => {
       temp.push({ [key]: data.get(key) });
     });
@@ -978,7 +979,7 @@ function LabelModalPopup(props: IModalProps) {
               </FormControl>
             )}
 
-            {/* {newType === 3 && (
+            {lookupvalue == '1' && newType === 6 && (
               <FormControl
                 required
                 variant="filled"
@@ -996,12 +997,12 @@ function LabelModalPopup(props: IModalProps) {
                     width: "25%",
                   }}
                 >
-                  Code:
+                  Customer Code:
                 </FormLabel>
                 <Controls.Input
                   required
                   name="code"
-                  label="Code"
+                  label="Customer Code"
                   type="text"
                   id="code"
                   size={"small"}
@@ -1011,7 +1012,7 @@ function LabelModalPopup(props: IModalProps) {
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
               </FormControl>
-            )} */}
+            )}
             {newType === 4 && (
               <FormControl
                 required
@@ -1437,7 +1438,7 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {isCreateNewVersion || lookupvalue == 2 && (
+            {(isCreateNewVersion || (lookupvalue == '3' && newType === 6) || (lookupvalue == '3' && newType === 6 && editState)) && (
               <FormControl
                 required
                 variant="filled"
@@ -1510,7 +1511,7 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {isCreateNewVersion || lookupvalue === 3 && (
+            {(isCreateNewVersion || (lookupvalue == '4' && newType === 6) || (lookupvalue == '4' && newType === 6 && editState)) && (
               <FormControl
                 required
                 variant="filled"
@@ -1547,7 +1548,7 @@ function LabelModalPopup(props: IModalProps) {
               </FormControl>
             )}
 
-            {isCreateNewVersion && (
+            {(isCreateNewVersion || (lookupvalue == '2' && newType == 6) || (lookupvalue == '2' && newType == 6 && editState)) && (
               <FormControl
                 required
                 variant="filled"
@@ -1584,7 +1585,7 @@ function LabelModalPopup(props: IModalProps) {
               </FormControl>
             )}
 
-            {isCreateNewVersion || lookupvalue == 5 && (
+            {(isCreateNewVersion || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)) && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -1618,7 +1619,7 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {isCreateNewVersion || lookupvalue == 4 && (
+            {(isCreateNewVersion || (lookupvalue == '5' && newType === 6) || (lookupvalue == '5' && newType === 6 && editState)) && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -1794,6 +1795,8 @@ function LabelModalPopup(props: IModalProps) {
 
             {(newType === 1 ||
               // newType === 2 ||
+              (lookupvalue == '7' && newType === 6 && editState) ||
+              (lookupvalue == '7' && newType === 6 ) ||
               //  newType === 4 ||
               newType === 5 ||
               isCreateNewVersion) && (

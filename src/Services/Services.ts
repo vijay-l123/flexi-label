@@ -8,6 +8,7 @@ import Product from "./Product";
 import User from "./User";
 import Document from "./Document";
 import LabelHistory from "./LabelHistory";
+import Lookup from "./Lookup";
 
 const Services = {
   Anda,
@@ -20,6 +21,7 @@ const Services = {
   Customer,
   Document,
   LabelHistory,
+  Lookup
 };
 
 export default Services;

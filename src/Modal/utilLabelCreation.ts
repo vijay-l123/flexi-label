@@ -1,3 +1,4 @@
+import useMasterAuthContext from "../Context/MasterAuthContext";
 import Services from "../Services/Services";
 
 export interface ICreateLabelParams {
@@ -24,7 +25,8 @@ export function createLabelData(labelParams: ICreateLabelParams) {
     isCreateNewVersion,
   } = labelParams;
   let apiParams: any;
-
+  console.log("newType", newType);
+  
   //ANDA
   if (newType === 0) {
     const tar = event.target;
@@ -365,7 +367,7 @@ export function createLabelData(labelParams: ICreateLabelParams) {
   }
 
   //label version
-  if (newType === 6) {
+  if (newType === 5) {
     apiParams = {
       versionNo: data.get("versionNumber"),
       foldSize: data.get("foldSize"),
@@ -403,5 +405,52 @@ export function createLabelData(labelParams: ICreateLabelParams) {
       }
     };
     addLabelVersion();
+  }
+  
+
+  if (newType === 6) {
+    apiParams = {
+      // type: data.get("lookupType"),
+      // description: data.get("description"),
+      type: (values.code && '1') || (values.versionNumber && '2') || (values.printer && '3') || (values.proofNumber && '4') || (values.flatSize && '5') || (values.foldSize && '6') || (values.remarks && '7'),
+      description: values.code || values.printer || values.versionNumber || values.proofNumber || values.flatSize || values.foldSize || values.remarks,
+    };
+  
+    const addLookup = async () => {
+      // debugger;
+      try {
+        let response = await Services.Lookup.addLookup(apiParams).then(
+          (success) => {
+            triggerUpdateMasterData();
+          }
+        );
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  
+    const updateLookup = async () => {
+      try {
+        const updatedParams = {
+          ...apiParams,
+          id: rowState.id,
+        };
+        let response = await Services.Lookup.updateLookup(updatedParams).then(
+          (success) => {
+            triggerUpdateMasterData();
+          }
+        );
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  
+    if (editState) {
+      updateLookup();
+    } else {
+      addLookup();
+    }
   }
 }

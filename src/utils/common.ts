@@ -108,31 +108,31 @@ const tabData = [
 const LookupDropdownData = [
   {
     label: "Customer Code",
-    value: 1,
+    value: "1",
+  },
+  {
+    label: "Revision Number",
+    value: "2",
   },
   {
     label: "Printer",
-    value: 2,
+    value: "3",
   },
   {
     label: "Proof number",
-    value: 3,
+    value: "4",
   },
   {
     label: "Flat size",
-    value: 4,
+    value: "5",
   },
   {
     label: "Fold size",
-    value: 5,
+    value: "6",
   },
   {
-    label: "No of colors",
-    value: 6,
-  },
-  {
-    label: "Serialization",
-    value: 7,
+    label: "Remarks",
+    value: "7",
   },
 ];
 const masterTabData = [

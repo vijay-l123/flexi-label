@@ -130,7 +130,7 @@ const Sidebar = (props: any) => {
             <AccountCircleIcon />
           </div>
           <div className="profileContents">
-            <p className="name">{authData.userName}</p>
+            <p className="name">{authData.user}</p>
             <p>
               {roles.find((i) => i.value === Number(authData.roleId))?.name}
             </p>

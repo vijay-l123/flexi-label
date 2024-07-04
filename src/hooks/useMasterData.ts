@@ -6,6 +6,7 @@ import PmCode from "../Services/PmCode";
 import LabelType from "../Services/LabelType";
 import Customer from "../Services/Customers";
 import Label from "../Services/Label";
+import Lookup from "../Services/Lookup";
 
 const { fetchColRow } = common;
 
@@ -14,7 +15,7 @@ interface IGridState {
   rowData: any;
 }
 
-export function useMasterData(tabValue: number) {
+export function useMasterData(tabValue: number, lookupType: string) {
   const [gridData, setGridData] = React.useState<IGridState>({
     colDefs: [],
     rowData: [],
@@ -55,7 +56,10 @@ export function useMasterData(tabValue: number) {
     if (tabValue === 5) {
       fetchLabels(setGridState);
     }
-  }, [tabValue]);
+    if (tabValue === 6) {
+      fetchLookups(setGridState, lookupType);
+    }
+  }, [tabValue, lookupType, setGridState]);
 
   React.useMemo(() => {
     if (masterAction) {
@@ -77,9 +81,12 @@ export function useMasterData(tabValue: number) {
       if (tabValue === 5) {
         fetchLabels(setGridState);
       }
+      if (tabValue === 6) {
+        fetchLookups(setGridState, lookupType);
+      }
       updateMasterData(false);
     }
-  }, [masterAction]);
+  }, [masterAction, lookupType, setGridState, tabValue, updateMasterData]);
 
   return { gridData, updateMasterData };
 }
@@ -156,4 +163,16 @@ function fetchLabels(setGridState: any) {
     setGridState(params);
   };
   labels();
+}
+function fetchLookups(setGridState: any, type: string) {
+  const lookups = async () => {
+    let response = await Lookup.getLookupList(type);
+    const { colDefs, rowData } = fetchColRow(response.data);
+    const params = {
+      colDefs,
+      rowData,
+    };
+    setGridState(params);
+  };
+  lookups();
 }

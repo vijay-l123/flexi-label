@@ -1,11 +1,15 @@
-import { Label } from "@mui/icons-material";
+import { Description, Close } from "@mui/icons-material";
 import UploadRoundedIcon from "@mui/icons-material/UploadRounded";
 import {
   TextField,
   InputAdornment,
   Button,
   FormControl,
-  Typography,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
 } from "@mui/material";
 import React, { MutableRefObject } from "react";
 
@@ -13,23 +17,19 @@ export default function InputUpload(props: any) {
   const { name, label, value, onChange, error = null, ...other } = props;
   const inputRef = React.useRef() as MutableRefObject<HTMLInputElement>;
 
-  const [actualFile, setActualFile] = React.useState<any>();
+  const [actualFiles, setActualFiles] = React.useState<any[]>([]);
 
   const handleChange = (event: any) => {
-    const files: any[] = Array.from(event.target.files);
+    const files: File[] = Array.from(event.target.files);
+    setActualFiles(files);
 
-    const [file] = files;
-    // let r = new FileReader();
-    // r.onload = function () {
-    //   // alert(r.result);
-    //   setActualFile(r.result);
-    // };
-    // r.readAsDataURL(file);
+    if (!!onChange) onChange({ target: { name: name, value: files } });
+  };
 
-    setActualFile(file);
+  const getFileNames = (files: File[]) => {
+    if (!files || files.length === 0) return "";
 
-    //console.log(r);
-    if (!!onChange) onChange({ target: { name: name, value: file } });
+    return files.map((file) => getFileName(file.name)).join(", ");
   };
 
   const getFileName = (text: string) => {
@@ -51,6 +51,13 @@ export default function InputUpload(props: any) {
     }
 
     return fileName;
+  };
+
+  const handleRemoveFile = (index: number) => {
+    const updatedFiles = actualFiles.filter((_, i) => i !== index);
+    setActualFiles(updatedFiles);
+
+    if (!!onChange) onChange({ target: { name: name, value: updatedFiles } });
   };
 
   return (
@@ -81,50 +88,28 @@ export default function InputUpload(props: any) {
                     accept=".pdf"
                     type="file"
                     hidden
+                    multiple // Allows multiple file selection
                     onChange={handleChange}
                   />
                 </Button>
-                <Typography>{getFileName(value?.name)}</Typography>
-                {/* <IconButton
-                color="primary"
-                aria-label="upload files"
-                component="label"
-                htmlFor="filetype"
-              >
-                <input
-                  ref={inputRef}
-                  id="filetype"
-                  accept=".pdf"
-                  type="file"
-                  hidden
-                  onChange={handleChange}
-                />
-                <UploadRoundedIcon />
-              </IconButton> */}
               </InputAdornment>
             ),
           }}
         />
       </FormControl>
-      {/* <OutlinedInput
-            id="outlined-adornment-password"
-            type={values.showPassword ? 'text' : 'password'}
-            value={values.password}
-            onChange={handleChange('password')}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={handleClickShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  edge="end"
-                >
-                  {values.showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            }
-            label="Password"
-          /> */}
+      <List>
+        {actualFiles.map((file, index) => (
+          <ListItem key={index}>
+            <ListItemIcon>
+              <Description fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary={getFileName(file.name)} />
+            <IconButton edge="end" onClick={() => handleRemoveFile(index)}>
+              <Close fontSize="small" />
+            </IconButton>
+          </ListItem>
+        ))}
+      </List>
     </>
   );
 }
