@@ -1,5 +1,7 @@
+import { useDispatch } from "react-redux";
 import useMasterAuthContext from "../Context/MasterAuthContext";
 import Services from "../Services/Services";
+import { setIsCreate, setIsEdit } from "../Redux/MasterDataUpdateSlice/LookupUpdate";
 
 export interface ICreateLabelParams {
   newType: number;
@@ -12,7 +14,7 @@ export interface ICreateLabelParams {
   rowState: any;
   isCreateNewVersion: boolean;
 }
-export function createLabelData(labelParams: ICreateLabelParams) {
+export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) {
   const {
     newType,
     event,
@@ -425,6 +427,7 @@ export function createLabelData(labelParams: ICreateLabelParams) {
           }
         );
         console.log(response);
+        dispatch(setIsCreate(true));
       } catch (error) {
         console.log(error);
       }
@@ -442,6 +445,7 @@ export function createLabelData(labelParams: ICreateLabelParams) {
           }
         );
         console.log(response);
+        dispatch(setIsEdit(true));
       } catch (error) {
         console.log(error);
       }

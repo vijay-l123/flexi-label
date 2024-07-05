@@ -9,6 +9,8 @@ import {
   FormHelperText,
   MenuItem,
   Select,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import {
   Close,
@@ -17,7 +19,7 @@ import {
   ReplyAll,
   TaskAlt,
 } from "@mui/icons-material";
-import React from "react";
+import React, { useEffect } from "react";
 import Controls from "../../Controls/Controls";
 import Services from "../../Services/Services";
 
@@ -33,6 +35,7 @@ import { IModalProps } from "../../utils/types";
 import useMasterAuthContext from "../../Context/MasterAuthContext";
 import { createLabelData, ICreateLabelParams } from "../utilLabelCreation";
 import AutoComplete from "../../Controls/AutoComplete";
+import { useDispatch, useSelector } from "react-redux";
 
 const { TButtonClick, fetchConfirmationTitle, TAppPage } = common;
 
@@ -207,7 +210,13 @@ function LabelModalPopup(props: IModalProps) {
   const [pmCodes, setPmCodes] = React.useState<any[]>([]);
   const [labelTypes, setLabelTypes] = React.useState<any[]>([]);
   const [customers, setCustomers] = React.useState<any[]>([]);
-
+  const dispatch = useDispatch()
+  const { tabValue, lookupData, populatedValue } = useSelector((state : any) => state.lookupDataFlags);
+  const lookupView = lookupData.rowData;
+  console.log("try lookup", lookupView);
+  const [selectedOption, setSelectedOption] = React.useState(null);    
+  console.log('selectedOption',selectedOption);
+  
   const [formValues, setFormValues] = React.useState<IKeyMapping>({
     password: {
       value: "",
@@ -538,7 +547,7 @@ function LabelModalPopup(props: IModalProps) {
         rowState,
         isCreateNewVersion,
       };
-      createLabelData(createLabelParams);
+      createLabelData(createLabelParams, dispatch);
 
       handleClose();
 
@@ -646,6 +655,19 @@ function LabelModalPopup(props: IModalProps) {
     dialogTitle: fetchConfirmationTitle(buttonState) || "",
     form: "confirmationBox",
   };
+
+  useEffect(() => {
+    // Update values.code whenever selectedOption changes
+    if (selectedOption) {
+      // handleInputChange({ target: { name: 'code', value: selectedOption } });
+      const fieldsToUpdate = ['code', 'versionNumber', 'printer', 'proofNumber', 'flatSize', 'foldSize', 'remarks']; // Add more field names here if needed
+      fieldsToUpdate.forEach(field => {
+        handleInputChange({ target: { name: field, value: selectedOption } });
+      });
+    }
+  }, [selectedOption]);
+
+  console.log("label values", values);
 
   return (
     <div>
@@ -979,7 +1001,55 @@ function LabelModalPopup(props: IModalProps) {
               </FormControl>
             )}
 
-            {lookupvalue == '1' && newType === 6 && (
+            {
+            tabValue == 6 && lookupvalue == '1' && newType === 6  ? 
+            <FormControl
+            required
+            variant="filled"
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              mt: 2,
+              mb: 2,
+            }}
+          >
+            <FormLabel
+              sx={{
+                width: "25%",
+              }}
+            >
+              Customer Code:
+            </FormLabel>
+            <Autocomplete
+            sx={{width:'30%'}}
+              id="customer-code-autocomplete"
+              options={lookupData.rowData?.map((item: any) => item.description)}
+              getOptionLabel={(option: any) => option}
+              value={selectedOption}
+              onChange={(event, newValue) => {
+                setSelectedOption(newValue);
+                handleInputChange(event); // You may need to adapt how you handle input change here
+              }}
+              freeSolo
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  name="code"
+                  label="Customer Code"
+                  required
+                  fullWidth
+                  size="small"
+                  error={errors.code}
+                  helperText={errors.code && 'Customer Code is required'}
+                  onChange={handleInputChange}
+                />
+              )}
+            />
+          </FormControl>
+             :
+             ((lookupvalue == '1' && newType === 6)) &&
+              (
               <FormControl
                 required
                 variant="filled"
@@ -1438,7 +1508,54 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {(isCreateNewVersion || (lookupvalue == '3' && newType === 6) || (lookupvalue == '3' && newType === 6 && editState)) && (
+            {
+              ((tabValue == 6 && lookupvalue == '3' && newType == 6) || (tabValue == 6 && lookupvalue == '3' && newType == 6 && editState)) ?
+              <FormControl
+              required
+              variant="filled"
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                mt: 2,
+                mb: 2,
+              }}
+            >
+              <FormLabel
+                sx={{
+                  width: "25%",
+                }}
+              >
+                Printer:
+              </FormLabel>
+              <Autocomplete
+              sx={{width:'30%'}}
+                options={lookupData.rowData?.map((item: any) => item.description)}
+                getOptionLabel={(option: any) => option}
+                value={selectedOption}
+                onChange={(event, newValue) => {
+                  setSelectedOption(newValue);
+                  handleInputChange(event); // You may need to adapt how you handle input change here
+                }}
+                freeSolo
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    name="printer"
+                    label="Printer"
+                    required
+                    fullWidth
+                    size="small"
+                    error={errors.printer}
+                    helperText={errors.printer && 'Printer is required'}
+                    onChange={handleInputChange}
+                  />
+                )}
+              />
+            </FormControl>
+               :
+              (isCreateNewVersion || (lookupvalue == '3' && newType == 6) || (lookupvalue == '3' && newType == 6 && editState)) &&
+             (
               <FormControl
                 required
                 variant="filled"
@@ -1511,7 +1628,53 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {(isCreateNewVersion || (lookupvalue == '4' && newType === 6) || (lookupvalue == '4' && newType === 6 && editState)) && (
+            {
+            ((tabValue == 6 && lookupvalue == '4' && newType == 6) || (tabValue == 6 && lookupvalue == '4' && newType == 6 && editState)) ?
+            <FormControl
+            required
+            variant="filled"
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              mt: 2,
+              mb: 2,
+            }}
+          >
+            <FormLabel
+              sx={{
+                width: "25%",
+              }}
+            >
+              Proof Number:
+            </FormLabel>
+            <Autocomplete
+            sx={{width:'30%'}}
+              options={lookupData.rowData?.map((item: any) => item.description)}
+              getOptionLabel={(option: any) => option}
+              value={selectedOption}
+              onChange={(event, newValue) => {
+                setSelectedOption(newValue);
+                handleInputChange(event); // You may need to adapt how you handle input change here
+              }}
+              freeSolo
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  name="proofNumber"
+                  label="Proof Number"
+                  required
+                  fullWidth
+                  size="small"
+                  error={errors.proofNumber}
+                  helperText={errors.proofNumber && 'proofNumber is required'}
+                  onChange={handleInputChange}
+                />
+              )}
+            />
+          </FormControl>
+             :  
+            (isCreateNewVersion || (lookupvalue == '4' && newType === 6) || (lookupvalue == '4' && newType === 6 && editState)) && (
               <FormControl
                 required
                 variant="filled"
@@ -1548,7 +1711,54 @@ function LabelModalPopup(props: IModalProps) {
               </FormControl>
             )}
 
-            {(isCreateNewVersion || (lookupvalue == '2' && newType == 6) || (lookupvalue == '2' && newType == 6 && editState)) && (
+            {
+            // tabValue == 6 && lookupvalue == '2' && newType === 6  ? 
+            ((tabValue == 6 && lookupvalue == '2' && newType == 6) || (tabValue == 6 && lookupvalue == '2' && newType == 6 && editState)) ?
+            <FormControl
+            required
+            variant="filled"
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              mt: 2,
+              mb: 2,
+            }}
+          >
+            <FormLabel
+              sx={{
+                width: "25%",
+              }}
+            >
+              Revision Number:
+            </FormLabel>
+            <Autocomplete
+            sx={{width:'30%'}}
+              options={lookupData.rowData?.map((item: any) => item.description)}
+              getOptionLabel={(option: any) => option}
+              value={selectedOption}
+              onChange={(event, newValue) => {
+                setSelectedOption(newValue);
+                handleInputChange(event); // You may need to adapt how you handle input change here
+              }}
+              freeSolo
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  name="versionNumber"
+                  label="Revision Number"
+                  required
+                  fullWidth
+                  size="small"
+                  error={errors.versionNumber}
+                  helperText={errors.versionNumber && 'Revision Number is required'}
+                  onChange={handleInputChange}
+                />
+              )}
+            />
+          </FormControl>
+             :
+            (isCreateNewVersion || (lookupvalue == '2' && newType == 6) || (lookupvalue == '2' && newType == 6 && editState)) && (
               <FormControl
                 required
                 variant="filled"
@@ -1585,7 +1795,53 @@ function LabelModalPopup(props: IModalProps) {
               </FormControl>
             )}
 
-            {(isCreateNewVersion || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)) && (
+            {
+              ((tabValue == 6 && lookupvalue == '6' && newType == 6) || (tabValue == 6 && lookupvalue == '6' && newType == 6 && editState)) ?
+              <FormControl
+              required
+              variant="filled"
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                mt: 2,
+                mb: 2,
+              }}
+            >
+              <FormLabel
+                sx={{
+                  width: "25%",
+                }}
+              >
+                Fold Size:
+              </FormLabel>
+              <Autocomplete
+              sx={{width:'30%'}}
+                options={lookupData.rowData?.map((item: any) => item.description)}
+                getOptionLabel={(option: any) => option}
+                value={selectedOption}
+                onChange={(event, newValue) => {
+                  setSelectedOption(newValue);
+                  handleInputChange(event); // You may need to adapt how you handle input change here
+                }}
+                freeSolo
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    name="foldSize"
+                    label="Fold Size"
+                    required
+                    fullWidth
+                    size="small"
+                    error={errors.foldSize}
+                    helperText={errors.foldSize && 'Fold Size is required'}
+                    onChange={handleInputChange}
+                  />
+                )}
+              />
+            </FormControl>
+            :  
+            (isCreateNewVersion || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)) && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -1619,7 +1875,53 @@ function LabelModalPopup(props: IModalProps) {
                 ></Controls.Input>
               </FormControl>
             )}
-            {(isCreateNewVersion || (lookupvalue == '5' && newType === 6) || (lookupvalue == '5' && newType === 6 && editState)) && (
+            {
+              ((tabValue == 6 && lookupvalue == '5' && newType == 6) || (tabValue == 6 && lookupvalue == '5' && newType == 6 && editState)) ?
+              <FormControl
+              required
+              variant="filled"
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                mt: 2,
+                mb: 2,
+              }}
+            >
+              <FormLabel
+                sx={{
+                  width: "25%",
+                }}
+              >
+                Flat Size:
+              </FormLabel>
+              <Autocomplete
+              sx={{width:'30%'}}
+                options={lookupData.rowData?.map((item: any) => item.description)}
+                getOptionLabel={(option: any) => option}
+                value={selectedOption}
+                onChange={(event, newValue) => {
+                  setSelectedOption(newValue);
+                  handleInputChange(event); // You may need to adapt how you handle input change here
+                }}
+                freeSolo
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    name="flatSize"
+                    label="Flat Size"
+                    required
+                    fullWidth
+                    size="small"
+                    error={errors.flatSize}
+                    helperText={errors.flatSize && 'Flat Size is required'}
+                    onChange={handleInputChange}
+                  />
+                )}
+              />
+            </FormControl>
+            :  
+            (isCreateNewVersion || (lookupvalue == '5' && newType === 6) || (lookupvalue == '5' && newType === 6 && editState)) && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -1723,7 +2025,7 @@ function LabelModalPopup(props: IModalProps) {
               </FormControl>
             )}
 
-            {isCreateNewVersion && (
+            {/* {isCreateNewVersion && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -1757,7 +2059,8 @@ function LabelModalPopup(props: IModalProps) {
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
               </FormControl>
-            )}
+            )} */}
+
             {newType === 5 && !isCreateNewVersion && (
               <FormControl
                 variant="filled"

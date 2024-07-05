@@ -7,6 +7,8 @@ import LabelType from "../Services/LabelType";
 import Customer from "../Services/Customers";
 import Label from "../Services/Label";
 import Lookup from "../Services/Lookup";
+import { useDispatch } from "react-redux";
+import { setLookupGridData } from "../Redux/MasterDataUpdateSlice/LookupUpdate";
 
 const { fetchColRow } = common;
 
@@ -16,6 +18,7 @@ interface IGridState {
 }
 
 export function useMasterData(tabValue: number, lookupType: string) {
+  const dispatch = useDispatch();
   const [gridData, setGridData] = React.useState<IGridState>({
     colDefs: [],
     rowData: [],
@@ -27,14 +30,28 @@ export function useMasterData(tabValue: number, lookupType: string) {
     setMasterAction(val);
   }, []);
 
+  // const setGridState = React.useCallback(
+  //   (param: any) =>
+  //     setGridData((prevState: any) => ({
+  //       ...prevState,
+  //       colDefs: param.colDefs,
+  //       rowData: param.rowData,
+  //     })),
+  //   []
+  // );
+
   const setGridState = React.useCallback(
-    (param: any) =>
+    (param: any) => {
       setGridData((prevState: any) => ({
         ...prevState,
         colDefs: param.colDefs,
         rowData: param.rowData,
-      })),
-    []
+      }));
+      if (tabValue === 6) {
+        dispatch(setLookupGridData(param));
+      }
+    },
+    [dispatch, tabValue]
   );
 
   React.useMemo(() => {

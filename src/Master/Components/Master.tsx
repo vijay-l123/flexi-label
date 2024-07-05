@@ -12,6 +12,8 @@ import LabelModalPopup from "../../Modal/Components/LabelModalPopup";
 import common from "../../utils/common";
 import { IModalProps } from "../../utils/types";
 import ActionCellRenderer from "../../AppContainer/Components/ActionCellRenderer";
+import { useDispatch } from "react-redux";
+import { setPopulatedValues } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
 
 const { TRoleType } = common;
 function Master(): JSX.Element {
@@ -20,7 +22,7 @@ function Master(): JSX.Element {
   } =
     useMasterAuthContext();
   const { authData } = useAuthContext();
-
+  const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [isEdit, setEdit] = React.useState(false);
   const [rowData, setRowData] = React.useState<any>([]);
@@ -31,7 +33,9 @@ function Master(): JSX.Element {
   const { masterTabData, LookupDropdownData } = common;
   console.log("masterTabData", masterTabData, tabValue, LookupDropdownData);
 
-  const editClickEvent = (params: any): void => {
+  const editClickEvent = (params: any): void => { 
+    console.log('popupdata', params.row);
+    dispatch(setPopulatedValues(params.row));
     setModalState(true);
     setRowData(params.row);
     setEdit(true);
