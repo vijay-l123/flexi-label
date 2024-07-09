@@ -197,7 +197,7 @@ function fetchColRow(data: any) {
         flexShrink: 1,
         headerClassName: "super-app-theme--header",
         field: camelCase(item.name),
-        fiterable: !item.name.trim().includes("id"),
+        fiterable: !item.name?.trim().includes("id"),
       };
     });
 

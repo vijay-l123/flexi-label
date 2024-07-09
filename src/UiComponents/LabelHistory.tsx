@@ -149,7 +149,7 @@ function LabelHistory(props: any) {
         let cols = {
           field: item.field,
           headerName: item.name,
-          fiterable: !item.name.trim().includes("id"),
+          fiterable: !item.name?.trim().includes("id"),
           //hide: !item.display,
           // hideable: item.display,
           // editable: !item.display,

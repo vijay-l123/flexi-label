@@ -10,6 +10,8 @@ import {
   ListItemIcon,
   ListItemText,
   IconButton,
+  Box,
+  Paper,
 } from "@mui/material";
 import React, { MutableRefObject } from "react";
 
@@ -61,7 +63,7 @@ export default function InputUpload(props: any) {
   };
 
   return (
-    <>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <FormControl>
         <TextField
           sx={{ maxWidth: "75%" }}
@@ -97,19 +99,21 @@ export default function InputUpload(props: any) {
           }}
         />
       </FormControl>
-      <List>
+      <List >
         {actualFiles.map((file, index) => (
-          <ListItem key={index}>
-            <ListItemIcon>
-              <Description fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary={getFileName(file.name)} />
-            <IconButton edge="end" onClick={() => handleRemoveFile(index)}>
-              <Close fontSize="small" />
-            </IconButton>
-          </ListItem>
+          <Paper elevation={3} sx={{mt:1}}>
+            <ListItem key={index} >
+              <ListItemIcon>
+                <Description fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary={getFileName(file.name)} />
+              <IconButton edge="end" onClick={() => handleRemoveFile(index)}>
+                <Close fontSize="small" />
+              </IconButton>
+            </ListItem>
+          </Paper>
         ))}
       </List>
-    </>
+    </Box>
   );
 }

@@ -369,13 +369,53 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   }
 
   //label version
-  if (newType === 5) {
+  // if (newType === 5) {
+  //   apiParams = {
+  //     versionNo: data.get("versionNumber"),
+  //     foldSize: data.get("foldSize"),
+  //     flatSize: data.get("flatSize"),
+  //     ccf: data.get("ccf"),
+  //     fileData: values.fileData,
+  //     fileName: data.get("fileName"),
+  //     isFileInfoChanged: true,
+  //     fileId: data.get("fileId") || 0,
+  //     remarks: data.get("remarks"),
+  //   };
+
+  //   const addLabelVersion = async () => {
+  //     try {
+  //       let response: any = await Services.Document.uploadDocument(
+  //         apiParams
+  //       ).then((res) => {
+  //         async function labelVersionAddition() {
+  //           const updatedParams = {
+  //             ...apiParams,
+  //             fileId: res.data,
+  //             fileData: null,
+  //           };
+  //           let response1 = await Services.LabelVersion.addLabelVersion(
+  //             updatedParams
+  //           );
+  //           console.log(response1);
+  //         }
+
+  //         labelVersionAddition();
+  //       });
+  //       console.log(response);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   addLabelVersion();
+  // }
+
+  if (newType === 6) {
     apiParams = {
       versionNo: data.get("versionNumber"),
       foldSize: data.get("foldSize"),
       flatSize: data.get("flatSize"),
       ccf: data.get("ccf"),
-      fileData: values.fileData,
+      fileData: values.fileData, // Ensure this is an array of files
       fileName: data.get("fileName"),
       isFileInfoChanged: true,
       fileId: data.get("fileId") || 0,
@@ -384,21 +424,16 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addLabelVersion = async () => {
       try {
-        let response: any = await Services.Document.uploadDocument(
-          apiParams
-        ).then((res) => {
+        let response: any = await Services.Document.uploadDocument(apiParams).then((res) => {
           async function labelVersionAddition() {
             const updatedParams = {
               ...apiParams,
               fileId: res.data,
               fileData: null,
             };
-            let response1 = await Services.LabelVersion.addLabelVersion(
-              updatedParams
-            );
+            let response1 = await Services.LabelVersion.addLabelVersion(updatedParams);
             console.log(response1);
           }
-
           labelVersionAddition();
         });
         console.log(response);
@@ -406,6 +441,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         console.log(error);
       }
     };
+
     addLabelVersion();
   }
   

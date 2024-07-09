@@ -105,7 +105,7 @@ function Popup(props: IPopupProps) {
         >
           Close
         </Controls.Button>
-        {form.trim().toLowerCase() === "confirmationbox" && (
+        {form?.trim().toLowerCase() === "confirmationbox" && (
           <Controls.Button
             type="submit"
             form={form}
@@ -116,7 +116,7 @@ function Popup(props: IPopupProps) {
             Ok
           </Controls.Button>
         )}
-        {form.trim().toLowerCase() === "addnotesbox" && (
+        {form?.trim().toLowerCase() === "addnotesbox" && (
           <Controls.Button
             type="submit"
             form={form}
