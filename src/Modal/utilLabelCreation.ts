@@ -251,7 +251,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
       try {
         const updatedParams = {
           ...apiParams,
-          id: rowState.id,
+          id: rowState.lableInfoId,
         };
         let response = await Services.Label.updateLabel(updatedParams).then(
           (success) => {
@@ -327,6 +327,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         console.log(error);
       }
     };
+    
     const updateLabelVersion = async () => {
       try {
         let label = await Services.Label.updateLabel(apiParams).then(
@@ -364,12 +365,13 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     };
 
     addLabelVersion();
+    
     // if (editState) updateLabelVersion();
     // else addLabelVersion();
   }
 
   //label version
-  if (newType === 5) {
+  if (newType === 6 && isCreateNewVersion) {
     apiParams = {
       versionNo: data.get("versionNumber"),
       foldSize: data.get("foldSize"),

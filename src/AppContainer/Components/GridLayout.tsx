@@ -154,7 +154,7 @@ export const ApprovedCellRenderer = (params: any): any => {
       <Pending />
     </Controls.SvgIcon>
   );
-  if (row[field].toLowerCase() === "true") {
+  if (row[field]?.toLowerCase() === "true") {
     component = (
       <Controls.SvgIcon sx={{ color: CustomTheme.CustomColor.Green.darker }}>
         {" "}
@@ -228,7 +228,7 @@ const getColumnDefinitions = (params: IColParams) => {
       let cols = {
         field: item.field,
         headerName: item.name,
-        fiterable: !item.name.trim().includes("id"),
+        fiterable: !item.name?.trim().includes("id"),
         //hide: !item.display,
         // hideable: item.display,
         // editable: !item.display,
@@ -239,8 +239,8 @@ const getColumnDefinitions = (params: IColParams) => {
       };
 
       if (
-        !item.name.trim().toLowerCase().includes("date") &&
-        item.name.trim().toLowerCase().includes("approved")
+        !item.name?.trim().toLowerCase().includes("date") &&
+        item.name?.trim().toLowerCase().includes("approved")
       ) {
         const updatedCols = {
           align: "center",

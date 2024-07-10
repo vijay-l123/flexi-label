@@ -16,25 +16,25 @@ export function checkAlreadyApproved(params: any) {
   if (authData.roleId === TRoleType.QA) {
     return rowState.qaApproved === ""
       ? true
-      : rowState.qaApproved.trim().toLowerCase() === "true"
+      : rowState.qaApproved?.trim().toLowerCase() === "true"
       ? true
       : false;
   } else if (authData.roleId === TRoleType.PackingDepartment) {
     return rowState.packingDepartmentApproved === ""
       ? true
-      : rowState.packingDepartmentApproved.trim().toLowerCase() === "true"
+      : rowState.packingDepartmentApproved?.trim().toLowerCase() === "true"
       ? true
       : false;
   } else if (authData.roleId === TRoleType.HOD) {
     return rowState.hodApproved === ""
       ? true
-      : rowState.hodApproved.trim().toLowerCase() === "true"
+      : rowState.hodApproved?.trim().toLowerCase() === "true"
       ? true
       : false;
   } else if (authData.roleId === TRoleType.FinalHOD) {
     return rowState.finalHodApproved === ""
       ? true
-      : rowState.finalHodApproved.trim().toLowerCase() === "true"
+      : rowState.finalHodApproved?.trim().toLowerCase() === "true"
       ? true
       : false;
   } else if (

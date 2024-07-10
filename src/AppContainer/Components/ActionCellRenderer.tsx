@@ -180,6 +180,21 @@ export default function ActionCellRenderer(inputParams: params) {
                 <Typography fontSize="small">Review</Typography>
               </MenuItem>
             )}
+             {showButton({
+              rowState: inputParams.rowParams.row,
+              currentButton: "Review",
+              authData,
+            }) && (
+              <MenuItem onClick={inputParams.reviewClick} disableRipple>
+                <Controls.SvgIcon
+                  fontSize="small"
+                  sx={{ mx: 1, color: CustomTheme.CustomColor.Alert.info }}
+                >
+                  <Wysiwyg />
+                </Controls.SvgIcon>
+                <Typography fontSize="small">Delete</Typography>
+              </MenuItem>
+            )}
             {/* {showButton({
               rowState: inputParams.rowParams.row,
               currentButton: "Approve",

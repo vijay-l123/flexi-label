@@ -296,9 +296,14 @@ function LabelModalPopup(props: IModalProps) {
     if ("pmCode" in fieldValues) {
       temp.pmCode = fieldValues.pmCode ? false : "PM Code is required.";
     }
+    // if ("description" in fieldValues) {
+    //   temp.description = fieldValues.description
+    //     ? false
+    //     : "Description is required.";
+    // }
     if ("description" in fieldValues) {
       temp.description = fieldValues.description
-        ? false
+        ? false: newType == 4 ? false
         : "Description is required.";
     }
     if ("customerName" in fieldValues) {
@@ -548,7 +553,7 @@ function LabelModalPopup(props: IModalProps) {
         isCreateNewVersion,
       };
       createLabelData(createLabelParams, dispatch);
-
+console.log('values : Labelmodal',values,data)
       handleClose();
 
       //resetValidationState();
