@@ -113,9 +113,9 @@ function Master(): JSX.Element {
     isCreateNewVersion: isNewVersionClicked.current,
   };
 
-  const columnVisibilityState = {
-    description: tabValue !== 4, // Hide description column when tab value is 6 (types tab)
-  };
+  // const columnVisibilityState = {
+  //   description: tabValue !== 4, // Hide description column when tab value is 6 (types tab)
+  // };
   return (
     <React.Fragment>
       <LabelModalPopup {...modalProps}></LabelModalPopup>
@@ -178,7 +178,7 @@ function Master(): JSX.Element {
           </FormControl>
         }
       </Box>
-      <DisplayGrid {...gridProps} columnVisibilityState={columnVisibilityState} />
+      <DisplayGrid {...gridProps} />
     </React.Fragment>
   );
 }

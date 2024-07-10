@@ -251,7 +251,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
       try {
         const updatedParams = {
           ...apiParams,
-          id: rowState.id,
+          id: rowState.lableInfoId,
         };
         let response = await Services.Label.updateLabel(updatedParams).then(
           (success) => {
@@ -327,6 +327,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         console.log(error);
       }
     };
+    
     const updateLabelVersion = async () => {
       try {
         let label = await Services.Label.updateLabel(apiParams).then(
@@ -364,52 +365,13 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     };
 
     addLabelVersion();
+    
     // if (editState) updateLabelVersion();
     // else addLabelVersion();
   }
 
   //label version
-  // if (newType === 5) {
-  //   apiParams = {
-  //     versionNo: data.get("versionNumber"),
-  //     foldSize: data.get("foldSize"),
-  //     flatSize: data.get("flatSize"),
-  //     ccf: data.get("ccf"),
-  //     fileData: values.fileData,
-  //     fileName: data.get("fileName"),
-  //     isFileInfoChanged: true,
-  //     fileId: data.get("fileId") || 0,
-  //     remarks: data.get("remarks"),
-  //   };
-
-  //   const addLabelVersion = async () => {
-  //     try {
-  //       let response: any = await Services.Document.uploadDocument(
-  //         apiParams
-  //       ).then((res) => {
-  //         async function labelVersionAddition() {
-  //           const updatedParams = {
-  //             ...apiParams,
-  //             fileId: res.data,
-  //             fileData: null,
-  //           };
-  //           let response1 = await Services.LabelVersion.addLabelVersion(
-  //             updatedParams
-  //           );
-  //           console.log(response1);
-  //         }
-
-  //         labelVersionAddition();
-  //       });
-  //       console.log(response);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   addLabelVersion();
-  // }
-
-  if (newType === 6) {
+  if (newType === 6 && isCreateNewVersion) {
     apiParams = {
       versionNo: data.get("versionNumber"),
       foldSize: data.get("foldSize"),
