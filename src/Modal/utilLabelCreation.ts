@@ -253,11 +253,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
           ...apiParams,
           id: rowState.lableInfoId,
         };
-        let response = await Services.Label.updateLabel(updatedParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Label.updateLabel(updatedParams).then((success) => {
+          updateLabelsData(true);
+        });
         console.log(response);
       } catch (error) {
         console.log(error);
