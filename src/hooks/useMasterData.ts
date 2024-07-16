@@ -206,11 +206,9 @@ function fetchLookups(setGridState: any, type: string) {
         type: lookupItem ? lookupItem.label : row.type, // Replace Type number with label
       };
     });
-    console.log('formattedRowData', formattedRowData);
-   
     const params = {
       colDefs,
-      rowData: formattedRowData,
+      rowData: formattedRowData.reverse(),
     };
     setGridState(params);
   };

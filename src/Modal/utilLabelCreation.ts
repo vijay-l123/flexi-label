@@ -44,11 +44,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     };
     const addAnda = async () => {
       try {
-        let response = await Services.Anda.addAnda(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Anda.addAnda(apiParams).then((success) => {
+          updateMasterData(true);
+        });
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -84,11 +82,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addProduct = async () => {
       try {
-        let response = await Services.Product.addProduct(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Product.addProduct(apiParams).then((success) => {
+          updateMasterData(true);
+        });
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -120,11 +116,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addPmCode = async () => {
       try {
-        let response = await Services.PmCode.addPmCode(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.PmCode.addPmCode(apiParams).then((success) => {
+          updateMasterData(true);
+        });
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -190,11 +184,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addLabelType = async () => {
       try {
-        let response = await Services.LabelType.addLabelType(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.LabelType.addLabelType(apiParams).then((success) => {
+          updateMasterData(true);
+        });
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -236,11 +228,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addLabel = async () => {
       try {
-        let response = await Services.Label.addLabel(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Label.addLabel(apiParams).then((success) => {
+          updateMasterData(true);
+        });
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -254,7 +244,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
           id: rowState.lableInfoId ?? rowState.id,
         };
         let response = await Services.Label.updateLabel(updatedParams).then((success) => {
-          updateLabelsData(true);
+          updateMasterData(true);
         });
         console.log(response);
       } catch (error) {
@@ -417,11 +407,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     const addLookup = async () => {
       // debugger;
       try {
-        let response = await Services.Lookup.addLookup(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Lookup.addLookup(apiParams).then((success) => {
+          updateMasterData(true);
+        });
         console.log(response);
         dispatch(setIsCreate(true));
       } catch (error) {

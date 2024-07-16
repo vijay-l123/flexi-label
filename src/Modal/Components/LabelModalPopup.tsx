@@ -37,6 +37,7 @@ import { createLabelData, ICreateLabelParams } from "../utilLabelCreation";
 import AutoComplete from "../../Controls/AutoComplete";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLookupDataAsync, resetLookupData } from "../../Redux/MasterDataUpdateSlice/getLookupSlice";
+import { setEditClick } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
 
 const { TButtonClick, fetchConfirmationTitle, TAppPage } = common;
 
@@ -212,7 +213,7 @@ function LabelModalPopup(props: IModalProps) {
   const [labelTypes, setLabelTypes] = React.useState<any[]>([]);
   const [customers, setCustomers] = React.useState<any[]>([]);
   const dispatch = useDispatch()
-  const { tabValue, lookupData, populatedValue } = useSelector((state : any) => state.lookupDataFlags);
+  const { tabValue, lookupData, populatedValue, editClickEvent } = useSelector((state : any) => state.lookupDataFlags);
   const lookupView = lookupData.rowData;
   console.log("try lookup", lookupView);
   const [selectedOption, setSelectedOption] = React.useState(null);    
@@ -256,6 +257,7 @@ function LabelModalPopup(props: IModalProps) {
     closeModal(false);
     updateLabelsData(false);
     updateMasterData(false);
+    dispatch(setEditClick(false));
     // setLookupvalue('1')
   };
 
@@ -526,13 +528,18 @@ function LabelModalPopup(props: IModalProps) {
     }
   }
 
+  useEffect(() => {
+    if(editClickEvent) {
+      setValues({...values, description: populatedValue?.description});
+    }
+  }, [populatedValue?.description])
+  
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const currKeys = [...new FormData(event.currentTarget).keys()];
 
     const temp: any[] = [];
-    console.log("values xyz", values);
     
     currKeys.forEach((key) => {
       temp.push({ [key]: data.get(key) });
@@ -1071,7 +1078,7 @@ console.log('values : Labelmodal',values,data)
               id="customer-code-autocomplete"
               options={lookupData.rowData?.map((item: any) => item.description)}
               getOptionLabel={(option: any) => option}
-              value={selectedOption}
+              value={values.description ?? selectedOption}
               onChange={(event, newValue) => {
                 setSelectedOption(newValue);
                 handleInputChange(event); // You may need to adapt how you handle input change here
@@ -1583,7 +1590,7 @@ console.log('values : Labelmodal',values,data)
                     : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '3')?.map((item: any) => item.Description)
                 }
                 getOptionLabel={(option: any) => option}
-                value={selectedOption}
+                value={values.description ?? selectedOption}
                 onChange={(event, newValue) => {
                   setSelectedOption(newValue);
                   handleInputChange(event); // You may need to adapt how you handle input change here
@@ -1720,7 +1727,7 @@ console.log('values : Labelmodal',values,data)
                   : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '4')?.map((item: any) => item.Description)
               }
               getOptionLabel={(option: any) => option}
-              value={selectedOption}
+              value={values.description ?? selectedOption}
               onChange={(event, newValue) => {
                 setSelectedOption(newValue);
                 handleInputChange(event); // You may need to adapt how you handle input change here
@@ -1822,7 +1829,7 @@ console.log('values : Labelmodal',values,data)
                   : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '2')?.map((item: any) => item.Description)
               }
               getOptionLabel={(option: any) => option}
-              value={selectedOption}
+              value={values.description ?? selectedOption}
               onChange={(event, newValue) => {
                 setSelectedOption(newValue);
                 handleInputChange(event); // You may need to adapt how you handle input change here
@@ -1923,7 +1930,7 @@ console.log('values : Labelmodal',values,data)
                     : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '6')?.map((item: any) => item.Description)
                 }
                 getOptionLabel={(option: any) => option}
-                value={selectedOption}
+                value={values.description ?? selectedOption}
                 onChange={(event, newValue) => {
                   setSelectedOption(newValue);
                   handleInputChange(event); // You may need to adapt how you handle input change here
@@ -2023,7 +2030,7 @@ console.log('values : Labelmodal',values,data)
                     : lookupDataSlice?.rows?.filter((item: any) => item?.Type === '5')?.map((item: any) => item.Description)
                 }
                 getOptionLabel={(option: any) => option}
-                value={selectedOption}
+                value={values.description ?? selectedOption}
                 onChange={(event, newValue) => {
                   setSelectedOption(newValue);
                   handleInputChange(event); // You may need to adapt how you handle input change here

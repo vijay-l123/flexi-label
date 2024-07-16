@@ -13,7 +13,7 @@ import common from "../../utils/common";
 import { IModalProps } from "../../utils/types";
 import ActionCellRenderer from "../../AppContainer/Components/ActionCellRenderer";
 import { useDispatch } from "react-redux";
-import { setPopulatedValues } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
+import { setEditClick, setPopulatedValues } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
 
 const { TRoleType } = common;
 function Master(): JSX.Element {
@@ -39,6 +39,7 @@ function Master(): JSX.Element {
     setModalState(true);
     setRowData(params.row);
     setEdit(true);
+    dispatch(setEditClick(true));
     isNewVersionClicked.current = false;
   };
 
