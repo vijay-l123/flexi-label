@@ -11,6 +11,7 @@ export interface ICreateLabelParams {
   triggerUpdateMasterData: () => void;
   editState: boolean;
   updateLabelsData: (val: any) => void;
+  updateMasterData: (val: any) => void;
   rowState: any;
   isCreateNewVersion: boolean;
 }
@@ -20,15 +21,17 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     event,
     data,
     values,
+    updateMasterData,
     triggerUpdateMasterData,
     editState,
     updateLabelsData,
+    
     rowState,
     isCreateNewVersion,
   } = labelParams;
   let apiParams: any;
   console.log("newType", newType);
-  
+  const {getAndaListEx} =Services.Anda
   //ANDA
   if (newType === 0) {
     const tar = event.target;
@@ -53,11 +56,12 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     };
     const updateAnda = async () => {
       try {
-        let response = await Services.Anda.updateAnda(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Anda.updateAnda(apiParams).then((success) => {
+          updateMasterData(true);
+        });
+        
+        getAndaListEx();
+        dispatch(setIsEdit(true));
       } catch (error) {
         console.log(error);
       }
@@ -92,11 +96,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     };
     const updateProduct = async () => {
       try {
-        let response = await Services.Product.updateProduct(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Product.updateProduct(apiParams).then((success) => {
+          updateMasterData(true);
+        });
+        
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -129,11 +132,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     };
     const updatePmCode = async () => {
       try {
-        let response = await Services.PmCode.updatePmCode(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.PmCode.updatePmCode(apiParams).then((success) => {
+          updateMasterData(true);
+        });
+        
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -154,11 +156,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addCustomer = async () => {
       try {
-        let response = await Services.Customer.addCustomer(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Customer.addCustomer(apiParams).then((success) => {
+          updateMasterData(true);
+        });
+        
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -166,11 +167,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     };
     const updateCustomer = async () => {
       try {
-        let response = await Services.Customer.updateCustomer(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Customer.updateCustomer(apiParams).then((success) => {
+          updateMasterData(true);
+        });
+        
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -202,11 +202,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     };
     const updateLabelType = async () => {
       try {
-        let response = await Services.LabelType.updateLabelType(apiParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.LabelType.updateLabelType(apiParams).then((success) => {
+          updateMasterData(true);
+        });
+        
         console.log(response);
       } catch (error) {
         console.log(error);
@@ -217,7 +216,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   }
 
   //label
-  if (newType === 5 && !isCreateNewVersion || editState) {
+  if (newType === 5 && !isCreateNewVersion) {
     apiParams = {
       andaId: data.get("selectedAnda") ?? values.selectedAnda,
       andaNumber: values.andaNumber ?? "",
@@ -248,6 +247,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
       }
     };
     const updateLabel = async () => {
+      // debugger
       try {
         const updatedParams = {
           ...apiParams,
@@ -435,11 +435,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
           ...apiParams,
           id: rowState.id,
         };
-        let response = await Services.Lookup.updateLookup(updatedParams).then(
-          (success) => {
-            triggerUpdateMasterData();
-          }
-        );
+        let response = await Services.Lookup.updateLookup(updatedParams).then((success) => {
+          updateMasterData(true);
+        });
+        
         console.log(response);
         dispatch(setIsEdit(true));
       } catch (error) {

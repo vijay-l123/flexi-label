@@ -254,6 +254,8 @@ function LabelModalPopup(props: IModalProps) {
   const handleClose = () => {
     resetValidationState();
     closeModal(false);
+    updateLabelsData(false);
+    updateMasterData(false);
     // setLookupvalue('1')
   };
 
@@ -547,6 +549,7 @@ function LabelModalPopup(props: IModalProps) {
         event,
         data,
         values,
+        updateMasterData,
         triggerUpdateMasterData,
         editState,
         updateLabelsData,
