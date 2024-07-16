@@ -217,7 +217,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   }
 
   //label
-  if (newType === 5 && !isCreateNewVersion) {
+  if (newType === 5 && !isCreateNewVersion || editState) {
     apiParams = {
       andaId: data.get("selectedAnda") ?? values.selectedAnda,
       andaNumber: values.andaNumber ?? "",

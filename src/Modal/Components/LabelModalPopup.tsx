@@ -19,7 +19,7 @@ import {
   ReplyAll,
   TaskAlt,
 } from "@mui/icons-material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Controls from "../../Controls/Controls";
 import Services from "../../Services/Services";
 
@@ -36,6 +36,7 @@ import useMasterAuthContext from "../../Context/MasterAuthContext";
 import { createLabelData, ICreateLabelParams } from "../utilLabelCreation";
 import AutoComplete from "../../Controls/AutoComplete";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchLookupDataAsync, resetLookupData } from "../../Redux/MasterDataUpdateSlice/getLookupSlice";
 
 const { TButtonClick, fetchConfirmationTitle, TAppPage } = common;
 
@@ -661,6 +662,42 @@ console.log('values : Labelmodal',values,data)
     form: "confirmationBox",
   };
 
+  const [selectedPrinter, setSelectedPrinter] = useState<any>('');
+  const [selectedRevision, setSelectedRevision] = useState<any>('');
+  const [selectedProof, setSelectedProof] = useState<any>('');
+  const [selectedFlat, setSelectedFlat] = useState<any>('');
+  const [selectedFold, setSelectedFold] = useState<any>('');
+
+  const handlePrinterChange = (event: any, newValue: any) => {
+    setSelectedPrinter(newValue);
+  };
+
+  const handleRevisionChange = (event: any, newValue: any) => {
+    setSelectedRevision(newValue);
+  };
+
+  const handleProofChange = (event: any, newValue: any) => {
+    setSelectedProof(newValue);
+  };
+
+  const handleFlatChange = (event: any, newValue: any) => {
+    setSelectedFlat(newValue);
+  };
+
+  const handleFoldChange = (event: any, newValue: any) => {
+    setSelectedFold(newValue);
+  };
+  
+  useEffect(() => {
+    dispatch(fetchLookupDataAsync());
+
+    return () => {
+      dispatch(resetLookupData());
+    };
+  },[dispatch])
+  const lookupDataSlice = useSelector((state: any) => state.fetchGetLookupData.data);
+  console.log('lookupDataSlice', lookupDataSlice);
+  
   useEffect(() => {
     // Update values.code whenever selectedOption changes
     if (selectedOption) {
@@ -1514,7 +1551,7 @@ console.log('values : Labelmodal',values,data)
               </FormControl>
             )}
             {
-              ((tabValue == 6 && lookupvalue == '3' && newType == 6) || (tabValue == 6 && lookupvalue == '3' && newType == 6 && editState)) ?
+              (( tabValue == 6 && lookupvalue == '3' && newType == 6) || (tabValue == 6 && lookupvalue == '3' && newType == 6 && editState)) ?
               <FormControl
               required
               variant="filled"
@@ -1535,7 +1572,13 @@ console.log('values : Labelmodal',values,data)
               </FormLabel>
               <Autocomplete
               sx={{width:'30%'}}
-                options={lookupData.rowData?.map((item: any) => item.description)}
+                // options={lookupDataSlice ? (lookupDataSlice?.rows ? lookupData?.rows?.map((item: any) => item?.Description) : []) :lookupData.rowData ? lookupData.rowData.map((item: any) => item.description) : []}
+                // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                options={
+                  lookupData?.rowData 
+                    ? lookupData?.rowData?.map((item: any) => item.description) 
+                    : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '3')?.map((item: any) => item.Description)
+                }
                 getOptionLabel={(option: any) => option}
                 value={selectedOption}
                 onChange={(event, newValue) => {
@@ -1559,43 +1602,54 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
                :
-              (isCreateNewVersion || (lookupvalue == '3' && newType == 6) || (lookupvalue == '3' && newType == 6 && editState)) &&
+              (isCreateNewVersion) &&
              (
               <FormControl
-                required
-                variant="filled"
-                disabled={!canEdit}
+              required
+              variant="filled"
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                mt: 2,
+                mb: 2,
+              }}
+            >
+              <FormLabel
                 sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  mt: 2,
-                  mb: 2,
+                  width: "25%",
                 }}
               >
-                <FormLabel
-                  sx={{
-                    //color: "#212B36",
-                    width: "25%",
-                  }}
-                >
-                  Printer:
-                </FormLabel>
-                <Controls.Input
-                  required
-                  disabled={!canEdit}
-                  name="printer"
-                  label="Printer"
-                  type="text"
-                  id="printer"
-                  size={"small"}
-                  value={values.printer}
-                  error={errors.printer}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
-              </FormControl>
-            )}
+                Printer:
+              </FormLabel>
+              <Autocomplete
+              sx={{width:'26.7%'}}
+                // options={lookupDataSlice ? (lookupDataSlice?.rows ? lookupData?.rows?.map((item: any) => item?.Description) : []) :lookupData.rowData ? lookupData.rowData.map((item: any) => item.description) : []}
+                // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                options={
+                  lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '3')?.map((item: any) => item.Description)
+                }
+                getOptionLabel={(option: any) => option}
+                value={selectedPrinter}
+                onChange={handlePrinterChange}
+                freeSolo
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    name="printer"
+                    label="Printer"
+                    required
+                    fullWidth
+                    size="small"
+                    error={errors.printer}
+                    helperText={errors.printer && 'Printer is required'}
+                    onChange={handleInputChange}
+                  />
+                )}
+              />
+            </FormControl>
+            )
+            }
 
             {isCreateNewVersion && (
               <FormControl
@@ -1655,7 +1709,13 @@ console.log('values : Labelmodal',values,data)
             </FormLabel>
             <Autocomplete
             sx={{width:'30%'}}
-              options={lookupData.rowData?.map((item: any) => item.description)}
+              // options={lookupData.rowData?.map((item: any) => item.description)}
+              // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+              options={
+                lookupData?.rowData 
+                  ? lookupData?.rowData?.map((item: any) => item.description) 
+                  : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '4')?.map((item: any) => item.Description)
+              }
               getOptionLabel={(option: any) => option}
               value={selectedOption}
               onChange={(event, newValue) => {
@@ -1679,11 +1739,12 @@ console.log('values : Labelmodal',values,data)
             />
           </FormControl>
              :  
-            (isCreateNewVersion || (lookupvalue == '4' && newType === 6) || (lookupvalue == '4' && newType === 6 && editState)) && (
-              <FormControl
+            (isCreateNewVersion
+              //  || (lookupvalue == '4' && newType === 6) || (lookupvalue == '4' && newType === 6 && editState)
+              ) && (
+                <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1694,25 +1755,36 @@ console.log('values : Labelmodal',values,data)
               >
                 <FormLabel
                   sx={{
-                    //color: "#212B36",
                     width: "25%",
                   }}
                 >
                   Proof Number:
                 </FormLabel>
-                <Controls.Input
-                  required
-                  disabled={!canEdit}
-                  name="proofNumber"
-                  label="Proof Number"
-                  type="text"
-                  id="proofNumber"
-                  size={"small"}
-                  value={values.proofNumber}
-                  error={errors.proofNumber}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
+                <Autocomplete
+                sx={{width:'26.7%'}}
+                  // options={lookupData.rowData?.map((item: any) => item.description)}
+                  // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                  options={
+                    lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '4')?.map((item: any) => item.Description)
+                  }
+                  getOptionLabel={(option: any) => option}
+                  value={selectedProof}
+                  onChange={handleProofChange}
+                  freeSolo
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name="proofNumber"
+                      label="Proof Number"
+                      required
+                      fullWidth
+                      size="small"
+                      error={errors.proofNumber}
+                      helperText={errors.proofNumber && 'proofNumber is required'}
+                      onChange={handleInputChange}
+                    />
+                  )}
+                />
               </FormControl>
             )}
 
@@ -1739,7 +1811,13 @@ console.log('values : Labelmodal',values,data)
             </FormLabel>
             <Autocomplete
             sx={{width:'30%'}}
-              options={lookupData.rowData?.map((item: any) => item.description)}
+              // options={lookupData.rowData?.map((item: any) => item.description)}
+              // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+              options={
+                lookupData?.rowData 
+                  ? lookupData?.rowData?.map((item: any) => item.description) 
+                  : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '2')?.map((item: any) => item.Description)
+              }
               getOptionLabel={(option: any) => option}
               value={selectedOption}
               onChange={(event, newValue) => {
@@ -1763,11 +1841,12 @@ console.log('values : Labelmodal',values,data)
             />
           </FormControl>
              :
-            (isCreateNewVersion || (lookupvalue == '2' && newType == 6) || (lookupvalue == '2' && newType == 6 && editState)) && (
-              <FormControl
+            (isCreateNewVersion
+              //  || (lookupvalue == '2' && newType == 6) || (lookupvalue == '2' && newType == 6 && editState)
+              ) && (
+                <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1778,25 +1857,36 @@ console.log('values : Labelmodal',values,data)
               >
                 <FormLabel
                   sx={{
-                    //color: "#212B36",
                     width: "25%",
                   }}
                 >
                   Revision Number:
                 </FormLabel>
-                <Controls.Input
-                  required
-                  disabled={!canEdit}
-                  name="versionNumber"
-                  label="Revision Number"
-                  type="text"
-                  id="versionNumber"
-                  size={"small"}
-                  value={values.versionNumber}
-                  error={errors.versionNumber}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
+                <Autocomplete
+                sx={{width:'26.7%'}}
+                  // options={lookupData.rowData?.map((item: any) => item.description)}
+                  // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                  options={
+                    lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '2')?.map((item: any) => item.Description)
+                  }
+                  getOptionLabel={(option: any) => option}
+                  value={selectedRevision}
+                  onChange={handleRevisionChange}
+                  freeSolo
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name="versionNumber"
+                      label="Revision Number"
+                      required
+                      fullWidth
+                      size="small"
+                      error={errors.versionNumber}
+                      helperText={errors.versionNumber && 'Revision Number is required'}
+                      onChange={handleInputChange}
+                    />
+                  )}
+                />
               </FormControl>
             )}
 
@@ -1822,7 +1912,13 @@ console.log('values : Labelmodal',values,data)
               </FormLabel>
               <Autocomplete
               sx={{width:'30%'}}
-                options={lookupData.rowData?.map((item: any) => item.description)}
+                // options={lookupData.rowData?.map((item: any) => item.description)}
+                // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                options={
+                  lookupData?.rowData 
+                    ? lookupData?.rowData?.map((item: any) => item.description) 
+                    : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '6')?.map((item: any) => item.Description)
+                }
                 getOptionLabel={(option: any) => option}
                 value={selectedOption}
                 onChange={(event, newValue) => {
@@ -1846,10 +1942,12 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
             :  
-            (isCreateNewVersion || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)) && (
-              <FormControl
+            (isCreateNewVersion
+              //  || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)
+              ) && (
+                <FormControl
+                required
                 variant="filled"
-                disabled={!canEdit}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1860,24 +1958,36 @@ console.log('values : Labelmodal',values,data)
               >
                 <FormLabel
                   sx={{
-                    //color: "#212B36",
                     width: "25%",
                   }}
                 >
                   Fold Size:
                 </FormLabel>
-                <Controls.Input
-                  disabled={!canEdit}
-                  name="foldSize"
-                  label="Fold Size"
-                  type="text"
-                  id="foldSize"
-                  size={"small"}
-                  value={values.foldSize}
-                  error={errors.foldSize}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
+                <Autocomplete
+                sx={{width:'26.7%'}}
+                  // options={lookupData.rowData?.map((item: any) => item.description)}
+                  // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                  options={
+                    lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '6')?.map((item: any) => item.Description)
+                  }
+                  getOptionLabel={(option: any) => option}
+                  value={selectedFold}
+                  onChange={handleFoldChange}
+                  freeSolo
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name="foldSize"
+                      label="Fold Size"
+                      required
+                      fullWidth
+                      size="small"
+                      error={errors.foldSize}
+                      helperText={errors.foldSize && 'Fold Size is required'}
+                      onChange={handleInputChange}
+                    />
+                  )}
+                />
               </FormControl>
             )}
             {
@@ -1902,7 +2012,13 @@ console.log('values : Labelmodal',values,data)
               </FormLabel>
               <Autocomplete
               sx={{width:'30%'}}
-                options={lookupData.rowData?.map((item: any) => item.description)}
+                // options={lookupData.rowData?.map((item: any) => item.description)}
+                // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                options={
+                  lookupData?.rowData 
+                    ? lookupData?.rowData?.map((item: any) => item.description) 
+                    : lookupDataSlice?.rows?.filter((item: any) => item?.Type === '5')?.map((item: any) => item.Description)
+                }
                 getOptionLabel={(option: any) => option}
                 value={selectedOption}
                 onChange={(event, newValue) => {
@@ -1926,10 +2042,12 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
             :  
-            (isCreateNewVersion || (lookupvalue == '5' && newType === 6) || (lookupvalue == '5' && newType === 6 && editState)) && (
-              <FormControl
+            (isCreateNewVersion
+              //  || (lookupvalue == '5' && newType === 6) || (lookupvalue == '5' && newType === 6 && editState)
+              ) && (
+                <FormControl
+                required
                 variant="filled"
-                disabled={!canEdit}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1940,24 +2058,36 @@ console.log('values : Labelmodal',values,data)
               >
                 <FormLabel
                   sx={{
-                    //color: "#212B36",
                     width: "25%",
                   }}
                 >
                   Flat Size:
                 </FormLabel>
-                <Controls.Input
-                  disabled={!canEdit}
-                  name="flatSize"
-                  label="Flat Size"
-                  type="text"
-                  id="flatSize"
-                  size={"small"}
-                  value={values.flatSize}
-                  error={errors.flatSize}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
+                <Autocomplete
+                sx={{width:'26.7%'}}
+                  // options={lookupData.rowData?.map((item: any) => item.description)}
+                  // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                  options={
+                    lookupDataSlice?.rows?.filter((item: any) => item?.Type === '5')?.map((item: any) => item.Description)
+                  }
+                  getOptionLabel={(option: any) => option}
+                  value={selectedFlat}
+                  onChange={handleFlatChange}
+                  freeSolo
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name="flatSize"
+                      label="Flat Size"
+                      required
+                      fullWidth
+                      size="small"
+                      error={errors.flatSize}
+                      helperText={errors.flatSize && 'Flat Size is required'}
+                      onChange={handleInputChange}
+                    />
+                  )}
+                />
               </FormControl>
             )}
             {isCreateNewVersion && (

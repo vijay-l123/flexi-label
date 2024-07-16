@@ -10,6 +10,8 @@ import useAuthContext, { getAuthData } from "../../Authentication/AuthProvider";
 import { useTabs } from "../../hooks/useTabs";
 import withLabels from "../../HOC/withLabels";
 import { IModalProps } from "../../utils/types";
+import { useDispatch } from "react-redux";
+import { setCreateNewVersionRedux } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
 
 const { TRoleType } = common;
 
@@ -36,6 +38,7 @@ function Dashboard() {
   const [isCreateNewVersion, setCreateNewVersion] = React.useState(false);
   const selectedTab = React.useRef(1);
   const { authData } = useAuthContext();
+  const dispatch = useDispatch();
 
   const { tabs } = useTabs(authData.roleId);
 
@@ -62,6 +65,11 @@ function Dashboard() {
     isCreateNewVersion: isCreateNewVersion,
   };
 
+  const editmodalHandler = (val: any) => {
+    setCreateNewVersion(val);
+    dispatch(setCreateNewVersionRedux(val));
+  }
+
   const editModalProps: any = {
     modalState: (val: boolean) => {
       setModalState(val);
@@ -70,7 +78,7 @@ function Dashboard() {
     rowState: (val: any) => setRowData({ ...val }),
     editState: (val: any) => setEdit(val),
     selectedTab: selectedTab.current,
-    createNewVersionState: (val: any) => setCreateNewVersion(val),
+    createNewVersionState: (val: any) => editmodalHandler(val),
   };
 
   function resetStates() {

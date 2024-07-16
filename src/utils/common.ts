@@ -130,10 +130,10 @@ const LookupDropdownData = [
     label: "Fold size",
     value: "6",
   },
-  {
-    label: "Remarks",
-    value: "7",
-  },
+  // {
+  //   label: "Remarks",
+  //   value: "7",
+  // },
 ];
 const masterTabData = [
   {

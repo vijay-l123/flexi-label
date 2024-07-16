@@ -6,7 +6,7 @@ const baseUrl = config.baseUrl;
 function getLookupList(type: string) {
   const response = axios({
     method: "GET",
-    url: `LookUpData/GetLookupList?type=${type}`,
+    url: `/LookUpData/GetLookupListByType?type=${type}`,
     baseURL: baseUrl,
   });
   return response;

@@ -5,7 +5,8 @@ const initialState = {
     isEdit: false,
     lookupData: [],
     tabValue: null,
-    populatedValue: null
+    populatedValue: null,
+    isCreateNewVersion: false
 }
 
 const LookupDataFlagSlice = createSlice({
@@ -26,9 +27,12 @@ const LookupDataFlagSlice = createSlice({
         },
         setPopulatedValues: (state, action) => {
             state.populatedValue = action.payload
-        }
+        },
+        setCreateNewVersionRedux: (state, action) => {
+            state.isCreateNewVersion = action.payload
+        },
     }
 })
 
-export const { setIsCreate, setIsEdit, setLookupGridData, setTabValueRedux, setPopulatedValues } = LookupDataFlagSlice.actions;
+export const { setIsCreate, setIsEdit, setLookupGridData, setTabValueRedux, setPopulatedValues, setCreateNewVersionRedux } = LookupDataFlagSlice.actions;
 export default LookupDataFlagSlice.reducer;
