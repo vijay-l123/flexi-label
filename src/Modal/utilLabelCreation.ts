@@ -251,7 +251,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
       try {
         const updatedParams = {
           ...apiParams,
-          id: rowState.lableInfoId,
+          id: rowState.lableInfoId ?? rowState.id,
         };
         let response = await Services.Label.updateLabel(updatedParams).then((success) => {
           updateLabelsData(true);

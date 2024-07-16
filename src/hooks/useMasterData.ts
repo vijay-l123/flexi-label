@@ -10,7 +10,7 @@ import Lookup from "../Services/Lookup";
 import { useDispatch } from "react-redux";
 import { setLookupGridData } from "../Redux/MasterDataUpdateSlice/LookupUpdate";
 
-const { fetchColRow } = common;
+const { fetchColRow ,LookupDropdownData} = common;
 
 interface IGridState {
   colDefs: any;
@@ -181,13 +181,36 @@ function fetchLabels(setGridState: any) {
   };
   labels();
 }
+// function fetchLookups(setGridState: any, type: string) {
+//   const lookups = async () => {
+//     let response = await Lookup.getLookupList(type);
+//     const { colDefs, rowData } = fetchColRow(response.data);
+//     const params = {
+//       colDefs,
+//       rowData,
+//     };
+//     setGridState(params);
+//   };
+//   lookups();
+// }
 function fetchLookups(setGridState: any, type: string) {
   const lookups = async () => {
     let response = await Lookup.getLookupList(type);
     const { colDefs, rowData } = fetchColRow(response.data);
+ 
+    // Map rowData to replace Type values with corresponding labels from LookupDropdownData
+    const formattedRowData = rowData.map((row: any) => {
+      const lookupItem = LookupDropdownData.find(item => item.value == row.type);
+      return {
+        ...row,
+        type: lookupItem ? lookupItem.label : row.type, // Replace Type number with label
+      };
+    });
+    console.log('formattedRowData', formattedRowData);
+   
     const params = {
       colDefs,
-      rowData,
+      rowData: formattedRowData,
     };
     setGridState(params);
   };
