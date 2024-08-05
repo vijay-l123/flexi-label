@@ -90,6 +90,10 @@ function DisplayGrid(props: IDataGridProps) {
         boxShadow: 2,
         border: 1,
         borderColor: CustomTheme.CustomColor.Primary.light,
+        "& .MuiDataGrid-columnSeparator": {
+            color: CustomTheme.CustomColor.Common.white,
+            visibility: "visible"
+        },
         "& .MuiDataGrid-cell:hover": {
           color: CustomTheme.CustomColor.Primary.light,
         },
@@ -106,16 +110,24 @@ function DisplayGrid(props: IDataGridProps) {
       rows={rowData}
       //loading={rowData.length === 0}
       rowHeight={38}
-      disableSelectionOnClick
+      // disableSelectionOnClick
       getRowClassName={(params) =>
         params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
       }
-      disableColumnSelector={true}
-      components={{
-        Toolbar: GridToolbar,
+      // disableColumnSelector={true}
+      // components={{
+      //   Toolbar: GridToolbar,
+      // }}
+      // componentsProps={{
+      //   toolbar: { showQuickFilter: true },
+      // }}
+      slots={{
+        toolbar: GridToolbar,
       }}
-      componentsProps={{
-        toolbar: { showQuickFilter: true },
+      slotProps={{
+        toolbar: {
+          showQuickFilter:true,
+        }
       }}
       columnVisibilityModel={{
         ...columnVisibilityState,

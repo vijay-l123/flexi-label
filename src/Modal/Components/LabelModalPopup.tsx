@@ -11,6 +11,7 @@ import {
   Select,
   Autocomplete,
   TextField,
+  IconButton,
 } from "@mui/material";
 import {
   Close,
@@ -38,6 +39,9 @@ import AutoComplete from "../../Controls/AutoComplete";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchLookupDataAsync, resetLookupData } from "../../Redux/MasterDataUpdateSlice/getLookupSlice";
 import { setEditClick } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
+import PdfIconButton from "../../PDFIconBtn/Components/PdfIconButton";
+import PDFViewer from "../../PDFViewer/Components/PDFViewer";
+import { setPdfPopupOpen } from "../../Redux/PopupSlice/PopupSlice";
 
 const { TButtonClick, fetchConfirmationTitle, TAppPage } = common;
 
@@ -410,7 +414,11 @@ function LabelModalPopup(props: IModalProps) {
     handleInputChange,
     resetValidationState,
   } = useFormValidation(initialFValues, true, validate);
-
+  const isPdfOpen = useSelector((state: any) => state.popupSlice.isOpen);
+  const handleClosePdf = () => {
+    dispatch(setPdfPopupOpen(false));
+  }
+  
   React.useMemo(() => {
     const fetchAndaList = async () => {
       try {
@@ -493,7 +501,7 @@ function LabelModalPopup(props: IModalProps) {
         selectedLabelType: rowState.labelTypeId ?? rowState.typeId ?? "",
         selectedCustomer: rowState.customerId,
         productName: rowState.productName,
-        remarks: isCreateNewVersion ? "" : rowState.remarks,
+        remarks: rowState.remarks,
         pmCode: rowState.pmCode,
         customerName:
           rowState.customer ?? rowState.customerName ?? rowState.name ?? "",
@@ -501,23 +509,19 @@ function LabelModalPopup(props: IModalProps) {
         code: rowState.customerCode,
         labelType: rowState.labelType || rowState.type,
         description: rowState.description,
-        printer: isCreateNewVersion ? "" : rowState.printer,
+        printer: rowState.printer,
         ndcNumber: rowState.ndcNumber,
-        jobNumber: isCreateNewVersion ? "" : rowState.jobNumber,
+        jobNumber: rowState.jobNumber,
         tabletCount: rowState.tabletCount,
-        versionNumber: isCreateNewVersion ? "" : rowState.currentVersion,
-        foldSize: isCreateNewVersion ? "" : rowState.foldSize,
-        flatSize: isCreateNewVersion ? "" : rowState.flatSize,
-        ccf: isCreateNewVersion ? "" : rowState.ccf,
+        versionNumber: rowState.currentVersion,
+        foldSize: rowState.foldSize,
+        flatSize: rowState.flatSize,
+        ccf: rowState.ccf,
         labelDescription: rowState.labelDescription,
-        proofNumber: isCreateNewVersion ? "" : rowState.proofNumber,
-        fileData: isCreateNewVersion
-          ? ""
-          : { name: rowState.currentVersionFileName }, //TODOfetchFileData(rowState.currentVerstionFileId), //{ name: rowState.currentVersionFileName },
-        fileName: isCreateNewVersion
-          ? ""
-          : rowState.currentVersionFileName || "",
-        fileId: isCreateNewVersion ? "" : rowState.currentVersionFileId || "-1",
+        proofNumber: rowState.proofNumber,
+        fileData: { name: rowState.currentVersionFileName }, //TODOfetchFileData(rowState.currentVerstionFileId), //{ name: rowState.currentVersionFileName },
+        fileName: rowState.currentVersionFileName || "",
+        fileId: rowState.currentVersionFileId || "-1",
       }));
     }
   }, [editState, rowState]);
@@ -1612,7 +1616,7 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
                :
-              (isCreateNewVersion) &&
+              (isCreateNewVersion && values.printer) &&
              (
               <FormControl
               required
@@ -1640,7 +1644,7 @@ console.log('values : Labelmodal',values,data)
                   lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '3')?.map((item: any) => item.Description)
                 }
                 getOptionLabel={(option: any) => option}
-                value={selectedPrinter}
+                value={values.printer || selectedPrinter}
                 onChange={handlePrinterChange}
                 freeSolo
                 renderInput={(params) => (
@@ -1661,7 +1665,7 @@ console.log('values : Labelmodal',values,data)
             )
             }
 
-            {isCreateNewVersion && (
+            {isCreateNewVersion && values.jobNumber && (
               <FormControl
                 required
                 variant="filled"
@@ -1749,7 +1753,7 @@ console.log('values : Labelmodal',values,data)
             />
           </FormControl>
              :  
-            (isCreateNewVersion
+            (isCreateNewVersion && values.proofNumber
               //  || (lookupvalue == '4' && newType === 6) || (lookupvalue == '4' && newType === 6 && editState)
               ) && (
                 <FormControl
@@ -1778,7 +1782,7 @@ console.log('values : Labelmodal',values,data)
                     lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '4')?.map((item: any) => item.Description)
                   }
                   getOptionLabel={(option: any) => option}
-                  value={selectedProof}
+                  value={values.proofNumber || selectedProof}
                   onChange={handleProofChange}
                   freeSolo
                   renderInput={(params) => (
@@ -1851,7 +1855,7 @@ console.log('values : Labelmodal',values,data)
             />
           </FormControl>
              :
-            (isCreateNewVersion
+            (isCreateNewVersion && values.versionNumber
               //  || (lookupvalue == '2' && newType == 6) || (lookupvalue == '2' && newType == 6 && editState)
               ) && (
                 <FormControl
@@ -1880,7 +1884,7 @@ console.log('values : Labelmodal',values,data)
                     lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '2')?.map((item: any) => item.Description)
                   }
                   getOptionLabel={(option: any) => option}
-                  value={selectedRevision}
+                  value={values.versionNumber || selectedRevision}
                   onChange={handleRevisionChange}
                   freeSolo
                   renderInput={(params) => (
@@ -1952,7 +1956,7 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
             :  
-            (isCreateNewVersion
+            (isCreateNewVersion && values.foldSize
               //  || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)
               ) && (
                 <FormControl
@@ -1981,7 +1985,7 @@ console.log('values : Labelmodal',values,data)
                     lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '6')?.map((item: any) => item.Description)
                   }
                   getOptionLabel={(option: any) => option}
-                  value={selectedFold}
+                  value={values.foldSize || selectedFold}
                   onChange={handleFoldChange}
                   freeSolo
                   renderInput={(params) => (
@@ -2052,7 +2056,7 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
             :  
-            (isCreateNewVersion
+            (isCreateNewVersion && values.flatSize
               //  || (lookupvalue == '5' && newType === 6) || (lookupvalue == '5' && newType === 6 && editState)
               ) && (
                 <FormControl
@@ -2081,7 +2085,7 @@ console.log('values : Labelmodal',values,data)
                     lookupDataSlice?.rows?.filter((item: any) => item?.Type === '5')?.map((item: any) => item.Description)
                   }
                   getOptionLabel={(option: any) => option}
-                  value={selectedFlat}
+                  value={values.flatSize || selectedFlat}
                   onChange={handleFlatChange}
                   freeSolo
                   renderInput={(params) => (
@@ -2100,7 +2104,7 @@ console.log('values : Labelmodal',values,data)
                 />
               </FormControl>
             )}
-            {isCreateNewVersion && (
+            {isCreateNewVersion && values.ccf && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -2135,7 +2139,31 @@ console.log('values : Labelmodal',values,data)
               </FormControl>
             )}
 
-            {isCreateNewVersion && (
+            {(isCreateNewVersion && values?.fileId !== "-1") && (
+              <FormControl
+                variant="filled"
+                disabled={!canEdit}
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  mt: 2,
+                  mb: 2,
+                }}
+              >
+                <FormLabel
+                  sx={{
+                    //color: "#212B36",
+                    width: "25%",
+                  }}
+                >
+                  Current Version File:
+                </FormLabel>
+                <PdfIconButton dFileId={values?.fileId} />
+              </FormControl>
+            )}
+
+            {isCreateNewVersion && values.fileData?.name && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -2168,7 +2196,39 @@ console.log('values : Labelmodal',values,data)
                   // sx={{ width: "75%" }}
                 ></Controls.InputUpload>
               </FormControl>
-            )}
+            )
+          }
+          {/* <PdfIconButton dFileId={values.fileId} /> */}
+          <Dialog maxWidth={"lg"} open={isPdfOpen} onClose={handleClosePdf}>
+            <DialogTitle
+              sx={{
+                px: 2,
+                py: 1,
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                backgroundColor: CustomTheme.CustomColor.Primary.dark,
+                color: CustomTheme.CustomColor.Common.white,
+              }}
+            >
+              Label Version
+            </DialogTitle>
+            <IconButton
+          aria-label="close"
+          onClick={handleClosePdf}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <Close />
+        </IconButton>
+            <DialogContent><PDFViewer fileId={values?.fileId} /></DialogContent>
+            
+          </Dialog>
+          
 
             {/* {isCreateNewVersion && (
               <FormControl
@@ -2247,7 +2307,7 @@ console.log('values : Labelmodal',values,data)
               (lookupvalue == '7' && newType === 6 ) ||
               //  newType === 4 ||
               newType === 5 ||
-              isCreateNewVersion) && (
+              isCreateNewVersion) && values.remarks && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}

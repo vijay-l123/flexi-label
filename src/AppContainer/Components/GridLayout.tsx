@@ -270,6 +270,8 @@ const getColumnDefinitions = (params: IColParams) => {
                           show: true,
                           fileId: +e.currentTarget.value,
                         };
+                        console.log("pdfParams", pdfParams);
+                        
                         pdfPopupState(pdfParams);
                       }}
                       color="error"
@@ -896,10 +898,12 @@ function GridLayout(props: any) {
     //   experimentalFeatures={{ newEditingApi: true }}
     // />
 
-    <Box
+    <Box sx={{position: 'relative'}}>
+      <Box
       sx={{
-        height: "100%",
+        // height: "100%",
         width: "100%",
+        position:'absolute',
         boxShadow: 0,
         border: 0,
         borderColor: CustomTheme.CustomColor.Primary.light,
@@ -1018,6 +1022,10 @@ function GridLayout(props: any) {
           boxShadow: 2,
           border: 1,
           borderColor: CustomTheme.CustomColor.Primary.light,
+          "& .MuiDataGrid-columnSeparator": {
+            color: CustomTheme.CustomColor.Common.white,
+            visibility: "visible"
+          },
           "& .MuiDataGrid-cell:hover": {
             color: CustomTheme.CustomColor.Primary.light,
           },
@@ -1027,14 +1035,22 @@ function GridLayout(props: any) {
         rows={rowData && rowData}
         //loading={rowData.length === 0}
         rowHeight={38}
-        disableSelectionOnClick
+        // disableSelectionOnClick
         getRowClassName={getRowClass}
         disableColumnSelector={true}
-        components={{
-          Toolbar: GridToolbar,
+        // components={{
+        //   Toolbar: GridToolbar,
+        // }}
+        // componentsProps={{
+        //   toolbar: { showQuickFilter: true },
+        // }}
+        slots={{
+          toolbar: GridToolbar,
         }}
-        componentsProps={{
-          toolbar: { showQuickFilter: true },
+        slotProps={{
+          toolbar: {
+            showQuickFilter:true,
+          }
         }}
         columnVisibilityModel={{
           ...columnVisibilityState,
@@ -1052,6 +1068,7 @@ function GridLayout(props: any) {
         //   },
         // }}
       />
+    </Box>
     </Box>
   );
 }
