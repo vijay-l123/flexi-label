@@ -2163,7 +2163,7 @@ console.log('values : Labelmodal',values,data)
               </FormControl>
             )}
 
-            {isCreateNewVersion && values.fileData?.name && (
+            {isCreateNewVersion && values.fileName === "" && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
