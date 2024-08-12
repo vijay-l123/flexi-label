@@ -46,7 +46,7 @@ export default function CustomizedTables(props: ILabelReviewProps) {
   const {
     editRowState: { row },
   } = props;
-
+  console.log("row111", row);
   const fileVersionId = React.useRef(0);
   const [pdfPopup, setPdfPopup] = React.useState<boolean>(false);
 
@@ -74,6 +74,50 @@ export default function CustomizedTables(props: ILabelReviewProps) {
             <StyledTableRow key="andaNumber">
               <StyledTableCell align="left">Anda Number</StyledTableCell>
               <StyledTableCell align="left">{row.andaNumber}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="productName">
+              <StyledTableCell align="left">Product Name</StyledTableCell>
+              <StyledTableCell align="left">{row.productName}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="customerName">
+              <StyledTableCell align="left">Customer Name</StyledTableCell>
+              <StyledTableCell align="left">{row.customerName}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="labelType">
+              <StyledTableCell align="left">Label Type</StyledTableCell>
+              <StyledTableCell align="left">{row.labelType}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="labelDescription">
+              <StyledTableCell align="left">Label Description</StyledTableCell>
+              <StyledTableCell align="left">{row.labelDescription}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="pmCode">
+              <StyledTableCell align="left">PM Code</StyledTableCell>
+              <StyledTableCell align="left">{row.pmCode}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="printer">
+              <StyledTableCell align="left">Printer</StyledTableCell>
+              <StyledTableCell align="left">{row.printer}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="ndcNumber">
+              <StyledTableCell align="left">NDC Number</StyledTableCell>
+              <StyledTableCell align="left">{row.ndcNumber}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="jobNumber">
+              <StyledTableCell align="left">Job Number</StyledTableCell>
+              <StyledTableCell align="left">{row.jobNumber}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="proofNumber">
+              <StyledTableCell align="left">Proof Number</StyledTableCell>
+              <StyledTableCell align="left">{row.proofNumber}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="flatSize">
+              <StyledTableCell align="left">Flat Size</StyledTableCell>
+              <StyledTableCell align="left">{row.flatSize}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="foldSize">
+              <StyledTableCell align="left">Fold Size</StyledTableCell>
+              <StyledTableCell align="left">{row.foldSize}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="approvedDate">
               <StyledTableCell align="left">Approved Date</StyledTableCell>
@@ -116,10 +160,6 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">Customer Code</StyledTableCell>
               <StyledTableCell align="left">{row.customerCode}</StyledTableCell>
             </StyledTableRow>
-            <StyledTableRow key="customerName">
-              <StyledTableCell align="left">Customer Name</StyledTableCell>
-              <StyledTableCell align="left">{row.customerName}</StyledTableCell>
-            </StyledTableRow>
             <StyledTableRow key="finalHodApproved">
               <StyledTableCell align="left">Final HOD Approved</StyledTableCell>
               <StyledTableCell align="left">
@@ -152,18 +192,6 @@ export default function CustomizedTables(props: ILabelReviewProps) {
                 {row.hodApprovedDate}
               </StyledTableCell>
             </StyledTableRow>
-            <StyledTableRow key="jobNumber">
-              <StyledTableCell align="left">Job Number</StyledTableCell>
-              <StyledTableCell align="left">{row.jobNumber}</StyledTableCell>
-            </StyledTableRow>
-            <StyledTableRow key="labelType">
-              <StyledTableCell align="left">Label Type</StyledTableCell>
-              <StyledTableCell align="left">{row.labelType}</StyledTableCell>
-            </StyledTableRow>
-            <StyledTableRow key="ndcNumber">
-              <StyledTableCell align="left">NDC Number</StyledTableCell>
-              <StyledTableCell align="left">{row.ndcNumber}</StyledTableCell>
-            </StyledTableRow>
             <StyledTableRow key="packingDepartmentApproved">
               <StyledTableCell align="left">
                 Packing Department Approved
@@ -182,10 +210,6 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">
                 {row.packingDepartmentApprovedDate}
               </StyledTableCell>
-            </StyledTableRow>
-            <StyledTableRow key="pmCode">
-              <StyledTableCell align="left">PM Code</StyledTableCell>
-              <StyledTableCell align="left">{row.pmCode}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="previousVersionFile">
               <StyledTableCell align="left">
@@ -213,14 +237,6 @@ export default function CustomizedTables(props: ILabelReviewProps) {
                   </>
                 </React.Fragment>
               </StyledTableCell>
-            </StyledTableRow>
-            <StyledTableRow key="printer">
-              <StyledTableCell align="left">Printer</StyledTableCell>
-              <StyledTableCell align="left">{row.printer}</StyledTableCell>
-            </StyledTableRow>
-            <StyledTableRow key="productName">
-              <StyledTableCell align="left">Product Name</StyledTableCell>
-              <StyledTableCell align="left">{row.productName}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="qaApproved">
               <StyledTableCell align="left">QA Approved</StyledTableCell>

@@ -883,7 +883,7 @@ console.log('values : Labelmodal',values,data)
               <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit || isCreateNewVersion}
+                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -946,7 +946,7 @@ console.log('values : Labelmodal',values,data)
                       errors.selectedAnda && errors.selectedAnda.length > 0
                     }
                     handleInputChange={handleInputChange}
-                    disabled={!canEdit || isCreateNewVersion}
+                    disabled={(canEdit && editState) || isCreateNewVersion}
                   ></AutoComplete>
                   <FormHelperText sx={{ color: "#D32F2F" }}>
                     {errors.selectedAnda && errors.selectedAnda}
@@ -1178,7 +1178,7 @@ console.log('values : Labelmodal',values,data)
               <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit || isCreateNewVersion}
+                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1247,7 +1247,7 @@ console.log('values : Labelmodal',values,data)
                       errors.selectedProduct.length > 0
                     }
                     handleInputChange={handleInputChange}
-                    disabled={!canEdit || isCreateNewVersion}
+                    disabled={(canEdit && editState) || isCreateNewVersion}
                   ></AutoComplete>
                   <FormHelperText sx={{ color: "#D32F2F" }}>
                     {errors.selectedProduct && errors.selectedProduct}
@@ -1260,7 +1260,7 @@ console.log('values : Labelmodal',values,data)
               <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit || isCreateNewVersion}
+                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1323,7 +1323,7 @@ console.log('values : Labelmodal',values,data)
                       errors.selectedPmCode && errors.selectedPmCode.length > 0
                     }
                     handleInputChange={handleInputChange}
-                    disabled={!canEdit || isCreateNewVersion}
+                    disabled={(canEdit && editState) || isCreateNewVersion}
                   ></AutoComplete>
                   <FormHelperText sx={{ color: "#D32F2F" }}>
                     {errors.selectedPmCode && errors.selectedPmCode}
@@ -1336,7 +1336,7 @@ console.log('values : Labelmodal',values,data)
               <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit || isCreateNewVersion}
+                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1401,7 +1401,7 @@ console.log('values : Labelmodal',values,data)
                       errors.selectedLabelType.length > 0
                     }
                     handleInputChange={handleInputChange}
-                    disabled={!canEdit || isCreateNewVersion}
+                    disabled={(canEdit && editState) || isCreateNewVersion}
                   ></AutoComplete>
                   <FormHelperText sx={{ color: "#D32F2F" }}>
                     {errors.selectedLabelType && errors.selectedLabelType}
@@ -1414,7 +1414,7 @@ console.log('values : Labelmodal',values,data)
               <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit || isCreateNewVersion}
+                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1482,7 +1482,7 @@ console.log('values : Labelmodal',values,data)
                       errors.selectedCustomer.length > 0
                     }
                     handleInputChange={handleInputChange}
-                    disabled={!canEdit || isCreateNewVersion}
+                    disabled={(canEdit && editState) || isCreateNewVersion}
                   ></AutoComplete>
                   <FormHelperText sx={{ color: "#D32F2F" }}>
                     {errors.selectedCustomer && errors.selectedCustomer}
@@ -1491,11 +1491,11 @@ console.log('values : Labelmodal',values,data)
               </FormControl>
             )}
 
-            {(newType === 5 || isCreateNewVersion) && (
+            {(newType === 5 || (isCreateNewVersion && editState)) && (
               <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit || isCreateNewVersion}
+                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1504,7 +1504,7 @@ console.log('values : Labelmodal',values,data)
                   mb: 2,
                 }}
               >
-                <FormLabel
+                <FormLabel  
                   sx={{
                     //color: "#212B36",
                     width: "25%",
@@ -1514,7 +1514,7 @@ console.log('values : Labelmodal',values,data)
                 </FormLabel>
                 <Controls.Input
                   required
-                  disabled={!canEdit || isCreateNewVersion}
+                  disabled={(canEdit && editState) || isCreateNewVersion}
                   name="ndcNumber"
                   label="Ndc Number"
                   type="text"
@@ -1532,7 +1532,7 @@ console.log('values : Labelmodal',values,data)
               <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit || isCreateNewVersion}
+                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1551,7 +1551,7 @@ console.log('values : Labelmodal',values,data)
                 </FormLabel>
                 <Controls.Input
                   required
-                  disabled={!canEdit || isCreateNewVersion}
+                  disabled={(canEdit && editState) || isCreateNewVersion}
                   name="tabletCount"
                   label="Tablet Count"
                   type="text"
@@ -1616,7 +1616,7 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
                :
-              (isCreateNewVersion && values.printer) &&
+              ((isCreateNewVersion || editState) && values.printer) &&
              (
               <FormControl
               required
@@ -1665,7 +1665,7 @@ console.log('values : Labelmodal',values,data)
             )
             }
 
-            {isCreateNewVersion && values.jobNumber && (
+            {(isCreateNewVersion || editState) && values.jobNumber && (
               <FormControl
                 required
                 variant="filled"
@@ -1753,7 +1753,7 @@ console.log('values : Labelmodal',values,data)
             />
           </FormControl>
              :  
-            (isCreateNewVersion && values.proofNumber
+            ((isCreateNewVersion || editState) && values.proofNumber
               //  || (lookupvalue == '4' && newType === 6) || (lookupvalue == '4' && newType === 6 && editState)
               ) && (
                 <FormControl
@@ -1855,7 +1855,7 @@ console.log('values : Labelmodal',values,data)
             />
           </FormControl>
              :
-            (isCreateNewVersion && values.versionNumber
+            ((isCreateNewVersion || editState) && values.versionNumber
               //  || (lookupvalue == '2' && newType == 6) || (lookupvalue == '2' && newType == 6 && editState)
               ) && (
                 <FormControl
@@ -1956,7 +1956,7 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
             :  
-            (isCreateNewVersion && values.foldSize
+            ((isCreateNewVersion || editState) && values.foldSize
               //  || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)
               ) && (
                 <FormControl
@@ -2056,7 +2056,7 @@ console.log('values : Labelmodal',values,data)
               />
             </FormControl>
             :  
-            (isCreateNewVersion && values.flatSize
+            ((isCreateNewVersion || editState) && values.flatSize
               //  || (lookupvalue == '5' && newType === 6) || (lookupvalue == '5' && newType === 6 && editState)
               ) && (
                 <FormControl
@@ -2104,7 +2104,7 @@ console.log('values : Labelmodal',values,data)
                 />
               </FormControl>
             )}
-            {isCreateNewVersion && values.ccf && (
+            {(isCreateNewVersion || editState) && values.ccf && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -2139,10 +2139,10 @@ console.log('values : Labelmodal',values,data)
               </FormControl>
             )}
 
-            {(isCreateNewVersion && values?.fileId !== "-1") && (
+            {((isCreateNewVersion && newType === 5) || (canEdit && newType === 5)) && (
               <FormControl
                 variant="filled"
-                disabled={!canEdit}
+                disabled={!canEdit || values?.fileId !== "-1"}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -2159,11 +2159,11 @@ console.log('values : Labelmodal',values,data)
                 >
                   Current Version File:
                 </FormLabel>
-                <PdfIconButton dFileId={values?.fileId} />
+                <PdfIconButton isDisabled={values?.fileId === "-1"} dFileId={values?.fileId} />
               </FormControl>
             )}
 
-            {isCreateNewVersion && values.fileName === "" && (
+            {((isCreateNewVersion && newType === 5) || (canEdit && newType === 5)) && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}

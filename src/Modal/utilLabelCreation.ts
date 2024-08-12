@@ -242,9 +242,11 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         const updatedParams = {
           ...apiParams,
           id: rowState.lableInfoId ?? rowState.id,
+          printer: rowState?.printer
         };
         let response = await Services.Label.updateLabel(updatedParams).then((success) => {
-          updateMasterData(true);
+          // updateMasterData(true);
+          triggerUpdateMasterData()
         });
         console.log(response);
       } catch (error) {
