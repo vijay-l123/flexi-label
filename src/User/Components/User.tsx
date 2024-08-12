@@ -469,7 +469,7 @@ function User(): JSX.Element {
             }}
           ></Grid>
         </Grid>
-        <Box height={"45vh"}>
+        <Box height={"45vh"} width={"79%"} position={"absolute"} bottom={50}>
           <DisplayGrid {...gridProps} />
         </Box>
       </Box>
