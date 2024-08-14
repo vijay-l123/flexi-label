@@ -16,6 +16,7 @@ export interface ICreateLabelParams {
   isCreateNewVersion: boolean;
 }
 export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) {
+  // debugger
   const {
     newType,
     event,
@@ -224,6 +225,11 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
       tabletCount: data.get("tabletCount") ?? values.tabletCount,
       labelDescription: data.get("labelDescription") ?? values.labelDescription,
       remarks: data.get("remarks") ?? values.remarks,
+      printer: data.get("printer") ?? values.printer,
+      versionNumber: data.get("versionNumber") ?? values.versionNumber,
+      proofNumber: data.get("proofNumber") ?? values.proofNumber,
+      flatSize: data.get("flatSize") ?? values.flatSize,
+      foldSize: data.get("foldSize") ?? values.foldSize,
     };
 
     const addLabel = async () => {
@@ -242,7 +248,11 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         const updatedParams = {
           ...apiParams,
           id: rowState.lableInfoId ?? rowState.id,
-          printer: rowState?.printer
+          printer: values?.printer,
+          versionNumber: values?.versionNumber,
+          proofNumber: values?.proofNumber,
+          flatSize: values?.flatSize,
+          foldSize: values?.foldSize,
         };
         let response = await Services.Label.updateLabel(updatedParams).then((success) => {
           // updateMasterData(true);

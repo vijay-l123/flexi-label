@@ -509,7 +509,7 @@ function LabelModalPopup(props: IModalProps) {
         code: rowState.customerCode,
         labelType: rowState.labelType || rowState.type,
         description: rowState.description,
-        printer: rowState.printer,
+        printer: selectedPrinter || rowState.printer,
         ndcNumber: rowState.ndcNumber,
         jobNumber: rowState.jobNumber,
         tabletCount: rowState.tabletCount,
@@ -681,25 +681,47 @@ console.log('values : Labelmodal',values,data)
   const [selectedProof, setSelectedProof] = useState<any>('');
   const [selectedFlat, setSelectedFlat] = useState<any>('');
   const [selectedFold, setSelectedFold] = useState<any>('');
-
+  
   const handlePrinterChange = (event: any, newValue: any) => {
     setSelectedPrinter(newValue);
+    setValues((prevState: any) => ({
+      ...prevState,
+      printer: newValue,
+    }));
   };
+  console.log('selectedPrinter', selectedPrinter);
+  
 
   const handleRevisionChange = (event: any, newValue: any) => {
     setSelectedRevision(newValue);
+    setValues((prevState: any) => ({
+      ...prevState,
+      versionNumber: newValue,
+    }));
   };
 
   const handleProofChange = (event: any, newValue: any) => {
     setSelectedProof(newValue);
+    setValues((prevState: any) => ({
+      ...prevState,
+      proofNumber: newValue,
+    }));
   };
 
   const handleFlatChange = (event: any, newValue: any) => {
     setSelectedFlat(newValue);
+    setValues((prevState: any) => ({
+      ...prevState,
+      flatSize: newValue,
+    }));
   };
 
   const handleFoldChange = (event: any, newValue: any) => {
     setSelectedFold(newValue);
+    setValues((prevState: any) => ({
+      ...prevState,
+      foldSize: newValue,
+    }));
   };
   
   useEffect(() => {

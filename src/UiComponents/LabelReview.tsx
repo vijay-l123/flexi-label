@@ -13,6 +13,7 @@ import PDFViewer from "../PDFViewer/Components/PDFViewer";
 import { PictureAsPdf } from "@mui/icons-material";
 import Controls from "../Controls/Controls";
 import { IPdfParams } from "../utils/types";
+import { Typography } from "@mui/material";
 
 interface ILabelReviewProps {
   editRowState: any;
@@ -136,7 +137,7 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">
                 <React.Fragment>
                   <>
-                    {row.currentVersionFileId && (
+                    {row.currentVersionFileId && row.currentVersionFileId !== "" ? (
                       <Controls.IconButton
                         value={row.currentVersionFileId}
                         aria-label="close"
@@ -151,7 +152,7 @@ export default function CustomizedTables(props: ILabelReviewProps) {
                       >
                         <PictureAsPdf />
                       </Controls.IconButton>
-                    )}
+                    ) : <Typography color={'red'}>File not available</Typography>}
                   </>
                 </React.Fragment>
               </StyledTableCell>
@@ -218,7 +219,7 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">
                 <React.Fragment>
                   <>
-                    {row.previousVersionFileId && (
+                    {row.previousVersionFileId && row.previousVersionFileId !== "" ? (
                       <Controls.IconButton
                         value={row.previousVersionFileId}
                         aria-label="close"
@@ -233,7 +234,7 @@ export default function CustomizedTables(props: ILabelReviewProps) {
                       >
                         <PictureAsPdf />
                       </Controls.IconButton>
-                    )}
+                    ) : <Typography color={'red'}>File not available</Typography>}
                   </>
                 </React.Fragment>
               </StyledTableCell>
