@@ -267,107 +267,215 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     else addLabel();
   }
 
-  if (newType === 5 && isCreateNewVersion) {
+  if (newType === 5 && (isCreateNewVersion || editState)) {
     apiParams = {
+      id: rowState.id,
       labelInfoId: rowState.id,
-      andaId: data.get("selectedAnda"),
-      productId: data.get("selectedProduct"),
-      pmCodeId: data.get("selectedPmCode"),
-      labelTypeId: data.get("selectedLabelType"),
-      customerId: data.get("selectedCustomer"),
+      // andaId: data.get("selectedAnda"),
+      andaId: rowState.andaId,
+      // productId: data.get("selectedProduct"),
+      productId: rowState.productId,
+      pmCodeId: rowState.pmCodeId,
+      // labelTypeId: data.get("selectedLabelType"),
+      labelTypeId: rowState.labelTypeId,
+      // customerId: data.get("selectedCustomer"),
+      customerId: rowState.customerId,
       printer: data.get("printer"),
-      ndcNumber: data.get("ndcNumber"),
+      // ndcNumber: data.get("ndcNumber"),
+      ndcNumber: rowState.ndcNumber,
       jobNumber: data.get("jobNumber"),
-      tabletCount: data.get("tabletCount"),
+      // tabletCount: data.get("tabletCount"),
+      tabletCount: rowState.tabletCount,
       proofNum: data.get("proofNum") || data.get("proofNumber") || "",
       /////////
       versionNo: data.get("versionNumber"),
       foldSize: data.get("foldSize"),
       flatSize: data.get("flatSize"),
       ccf: data.get("ccf"),
-      labelDescription: data.get("labelDescription"),
+      // labelDescription: data.get("labelDescription"),
+      labelDescription: rowState.labelDescription,
       fileData: values.fileData,
-      fileName: data.get("fileName"),
+      // fileName: data.get("fileName"),
+      fileName: values.fileName,
       isFileInfoChanged: true,
-      fileId: data.get("fileId") || "-1",
+      // fileId: data.get("fileId") || "-1",
+      fileId: values.fileId,
       remarks: data.get("remarks"),
     };
 
     const addLabelVersion = async () => {
       try {
         if (apiParams.fileName === "") {
-          let version = await Services.LabelVersion.addLabelVersion(
-            apiParams
-          ).then((success) => {
+          let version = await Services.LabelVersion.addLabelVersion(apiParams).then((success) => {
             updateLabelsData(true);
           });
           console.log("labelinformation", version);
         } else {
-          let upload: any = await Services.Document.uploadDocument(
-            apiParams
-          ).then((uploadResponse) => {
-            async function labelVersionAddition() {
-              const updatedParams = {
-                ...apiParams,
-                fileId: uploadResponse.data,
-                fileData: null,
-              };
-              let version = await Services.LabelVersion.addLabelVersion(
-                updatedParams
-              ).then((success) => {
-                updateLabelsData(true);
-              });
-              console.log("labelinformation", version);
-            }
-            labelVersionAddition();
-          });
-          console.log("labelinformation", upload);
+          let uploadResponse: any = await Services.Document.uploadDocument({ fileData: values.fileData });
+    
+          if (uploadResponse && uploadResponse.data) {
+            // Directly use the logic here
+            const updatedParams = {
+              ...apiParams,
+              // fileId: uploadResponse.data, // Assuming the response contains the fileId
+              fileId: values?.fileId,
+              fileData: null,
+            };
+    
+            let version = await Services.LabelVersion.addLabelVersion(updatedParams).then((success) => {
+              updateLabelsData(true);
+            });
+    
+            console.log("labelinformation", version);
+          }
         }
       } catch (error) {
         console.log(error);
       }
     };
     
+
+    // const addLabelVersion = async () => {
+    //   try {
+    //     if (apiParams.fileName === "") {
+    //       let version = await Services.LabelVersion.addLabelVersion(
+    //         apiParams
+    //       ).then((success) => {
+    //         updateLabelsData(true);
+    //       });
+    //       console.log("labelinformation", version);
+    //     } else {
+    //       let upload: any = await Services.Document.uploadDocument(
+    //         apiParams
+    //       ).then((uploadResponse) => {
+    //         async function labelVersionAddition() {
+    //           const updatedParams = {
+    //             ...apiParams,
+    //             fileId: uploadResponse.data,
+    //             fileData: null,
+    //           };
+    //           let version = await Services.LabelVersion.addLabelVersion(
+    //             updatedParams
+    //           ).then((success) => {
+    //             updateLabelsData(true);
+    //           });
+    //           console.log("labelinformation", version);
+    //         }
+    //         labelVersionAddition();
+    //       });
+    //       console.log("labelinformation", upload);
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
+    
+    // const updateLabelVersion = async () => {
+    //   try {
+    //     if (!isCreateNewVersion) {
+    //       // When not creating a new version, skip the Services.Label.updateLabel call
+    //       let upload = await Services.Document.updateDocument(apiParams).then(
+    //         (uploadResponse) => {
+    //           async function labelVersionAddition() {
+    //             const updatedParams = {
+    //               ...apiParams,
+    //               fileId: values.fileId,
+    //               fileData: values.fileData
+    //             };
+    //             let version = await Services.LabelVersion.updateLabelVersion(
+    //               updatedParams
+    //             ).then((success) => {
+    //               updateLabelsData(true);
+    //             });
+    //             console.log("labelinformation", version);
+    //           }
+    //           labelVersionAddition();
+    //         }
+    //       );
+    //       console.log("labelinformation", upload);
+    //     } else 
+    //     {let label = await Services.Label.updateLabel(apiParams).then(
+    //       (labelResponse) => {
+    //         async function uploadDocument() {
+    //           let upload: any = await Services.Document.updateDocument(
+    //             apiParams
+    //           ).then((uploadResponse) => {
+    //             async function labelVersionAddition() {
+    //               const updatedParams = {
+    //                 ...apiParams,
+    //                 id: rowState.id,
+    //                 andaId: rowState.andaId,
+    //                 labelInfoId: rowState.lableInfoId,
+    //                 labelTypeId: rowState.labelTypeId,
+    //                 fileId: values.fileId,
+    //                 fileData: null,
+    //               };
+    //               let version = await Services.LabelVersion.updateLabelVersion(
+    //                 updatedParams
+    //               ).then((success) => {
+    //                 updateLabelsData(true);
+    //               });
+    //               console.log("labelinformation", version);
+    //             }
+    //             labelVersionAddition();
+    //           });
+    //           console.log("labelinformation", upload);
+    //         }
+    //         uploadDocument();
+    //       }
+    //     );
+    //     console.log("labelinformation", label);
+    //   }
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
+
     const updateLabelVersion = async () => {
       try {
-        let label = await Services.Label.updateLabel(apiParams).then(
-          (labelResponse) => {
-            async function uploadDocument() {
-              let upload: any = await Services.Document.updateDocument(
-                apiParams
-              ).then((uploadResponse) => {
-                async function labelVersionAddition() {
-                  const updatedParams = {
-                    ...apiParams,
-                    id: rowState.id,
-                    labelInfoId: rowState.lableInfoId,
-                    fileId: values.fileId,
-                    fileData: null,
-                  };
-                  let version = await Services.LabelVersion.updateLabelVersion(
-                    updatedParams
-                  ).then((success) => {
-                    updateLabelsData(true);
-                  });
-                  console.log("labelinformation", version);
-                }
-                labelVersionAddition();
-              });
-              console.log("labelinformation", upload);
-            }
-            uploadDocument();
-          }
-        );
-        console.log("labelinformation", label);
+        if (!isCreateNewVersion) {
+          // When not creating a new version, skip the Services.Label.updateLabel call
+          const uploadResponse = await Services.Document.updateDocument(apiParams);
+    
+          const updatedParams = {
+            ...apiParams,
+            fileId: uploadResponse.data, // Ensure this contains the correct file ID
+            fileData: null,
+          };
+    
+          const version = await Services.LabelVersion.updateLabelVersion(updatedParams);
+          updateLabelsData(true);
+          console.log("labelinformation", version);
+    
+        } else {
+          const labelResponse = await Services.Label.updateLabel(apiParams);
+    
+          const uploadResponse = await Services.Document.updateDocument(apiParams);
+    
+          const updatedParams = {
+            ...apiParams,
+            id: rowState.id,
+            andaId: rowState.andaId,
+            labelInfoId: rowState.labelInfoId,
+            labelTypeId: rowState.labelTypeId,
+            fileId: uploadResponse.data, // Ensure this contains the correct file ID
+            fileData: null,
+          };
+    
+          const version = await Services.LabelVersion.updateLabelVersion(updatedParams);
+          updateLabelsData(true);
+          console.log("labelinformation", version);
+        }
       } catch (error) {
         console.log(error);
       }
     };
-
-    addLabelVersion();
     
-    // if (editState) updateLabelVersion();
-    // else addLabelVersion();
+
+    // addLabelVersion();
+    
+    if (!isCreateNewVersion) updateLabelVersion();
+    else addLabelVersion();
   }
 
   //label version
@@ -391,7 +499,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
             const updatedParams = {
               ...apiParams,
               fileId: res.data,
-              fileData: null,
+              fileData: values.fileData,
             };
             let response1 = await Services.LabelVersion.addLabelVersion(updatedParams);
             console.log(response1);

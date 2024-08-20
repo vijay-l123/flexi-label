@@ -52,13 +52,35 @@ const baseUrl = config.baseUrl;
 //   return response;
 // }
 
+// function uploadDocument(params: any) {
+//   const { fileData } = params; // fileData should be an array of files
+//   const formData = new FormData();
+
+//   // Loop through the files and append each one to the formData
+//   fileData.forEach((file: File) => {
+//     formData.append("uploadFile", file);
+//   });
+
+//   const response = axios({
+//     headers: {
+//       "content-type": "multipart/form-data",
+//     },
+//     method: "POST",
+//     url: "/Document/Upload",
+//     baseURL: baseUrl,
+//     data: formData, // Use the FormData object
+//   });
+
+//   return response;
+// }
+
 function uploadDocument(params: any) {
   const { fileData } = params; // fileData should be an array of files
   const formData = new FormData();
 
   // Loop through the files and append each one to the formData
   fileData.forEach((file: File) => {
-    formData.append("uploadFile", file);
+    formData.append("uploadFiles", file);
   });
 
   const response = axios({
@@ -73,6 +95,7 @@ function uploadDocument(params: any) {
 
   return response;
 }
+
 
 // function updateDocument(params: any) {
 //   const { fileId, fileData } = params;
@@ -100,7 +123,31 @@ function uploadDocument(params: any) {
 //   return response;
 // }
 
-function updateDocument(params: any) {
+// function updateDocument(params: any) {
+//   const { fileId, fileData } = params; // fileData should be an array of files
+//   const formData = new FormData();
+
+//   // Loop through the files and append each one to the formData
+//   fileData.forEach((file: File) => {
+//     formData.append("uploadFile", file);
+//   });
+
+//   formData.append("FileId", fileId);
+
+//   const response = axios({
+//     headers: {
+//       "content-type": "multipart/form-data",
+//     },
+//     method: "POST",
+//     url: "/Document/Updatefile",
+//     baseURL: baseUrl,
+//     data: formData, // Use the FormData object
+//   });
+
+//   return response;
+// }
+
+function updateDocument(params: { fileId: string; fileData: File[] }) {
   const { fileId, fileData } = params; // fileData should be an array of files
   const formData = new FormData();
 
@@ -111,18 +158,17 @@ function updateDocument(params: any) {
 
   formData.append("FileId", fileId);
 
-  const response = axios({
+  return axios({
     headers: {
       "content-type": "multipart/form-data",
     },
     method: "POST",
-    url: "/Document/Updatefile",
+    url: `/Document/Updatefile?FileId=${fileId}`, // Correct URL with query parameter
     baseURL: baseUrl,
     data: formData, // Use the FormData object
   });
-
-  return response;
 }
+
 
 function downloadDocument(fileId: number) {
   const response = axios({

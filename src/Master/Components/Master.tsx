@@ -13,7 +13,7 @@ import common from "../../utils/common";
 import { IModalProps } from "../../utils/types";
 import ActionCellRenderer from "../../AppContainer/Components/ActionCellRenderer";
 import { useDispatch } from "react-redux";
-import { setEditClick, setPopulatedValues } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
+import { setCreateLabelClick, setEditClick, setPopulatedValues } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
 
 const { TRoleType } = common;
 function Master(): JSX.Element {
@@ -47,6 +47,7 @@ function Master(): JSX.Element {
     setModalState(true);
     setRowData(params.row);
     setEdit(true);
+    dispatch(setEditClick(false));
     isNewVersionClicked.current = true;
   };
   // const handleLookupChange = (e:any) : void => {
@@ -126,6 +127,8 @@ function Master(): JSX.Element {
           <Controls.Button
             variant="contained"
             onClick={() => {
+              dispatch(setEditClick(false));
+              dispatch(setCreateLabelClick(true));
               setModalState(true);
               isNewVersionClicked.current = false;
             }}

@@ -25,6 +25,7 @@ function getLableVersionList(selectedTab: number, roleId: number) {
 
 function addLabelVersion(params: any) {
   const {
+    id,
     versionNo,
     labelInfoId,
     fileData,
@@ -41,7 +42,7 @@ function addLabelVersion(params: any) {
   } = params;
 
   const postProps = {
-    id: 0,
+    id,
     labelInfoId: labelInfoId,
     versionNo: versionNo,
     fileName: fileName,
@@ -86,22 +87,28 @@ function updateLabelVersion(params: any) {
     remarks,
     foldSize,
     flatSize,
-    ccf
+    ccf, 
+    printer,
+    proofNum,
+    jobNumber
   } = params;
 
   const postProps = {
     id: id,
     labelInfoId: labelInfoId,
     versionNo: versionNo,
-    //fileData: null,
-    // fileName: fileName,
-    // isFileInfoChanged: isFileInfoChanged,
+    fileData: fileData,
+    fileName: fileName,
+    isFileInfoChanged: isFileInfoChanged,
     fileId: fileId,
     remarks: remarks,
     status: 0,
     foldSize,
     flatSize,
-    ccf
+    ccf,
+    printer: printer,
+    proofNum: proofNum,
+    jobNumber: jobNumber
     // createdDate: new Date(),
     // modifiedDate: new Date(),
     // createdBy: 0,
