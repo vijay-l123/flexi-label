@@ -102,7 +102,7 @@ function updateLabelVersion(params: any) {
     isFileInfoChanged: isFileInfoChanged,
     fileId: fileId,
     remarks: remarks,
-    status: 0,
+    status: 1,
     foldSize,
     flatSize,
     ccf,
