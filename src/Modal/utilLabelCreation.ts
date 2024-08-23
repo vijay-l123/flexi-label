@@ -32,6 +32,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   } = labelParams;
   let apiParams: any;
   console.log("newType", newType);
+  console.log("rowState", rowState);
   const {getAndaListEx} =Services.Anda
   //ANDA
   if (newType === 0) {
@@ -270,7 +271,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   if (newType === 5 && (isCreateNewVersion || editState)) {
     apiParams = {
       id: rowState.id,
-      labelInfoId: rowState.id,
+      labelInfoId: rowState.lableInfoId,
       // andaId: data.get("selectedAnda"),
       andaId: rowState.andaId,
       // productId: data.get("selectedProduct"),
