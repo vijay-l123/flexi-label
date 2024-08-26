@@ -178,19 +178,19 @@ export default function CustomizedTables(props: ILabelReviewProps) {
                 {row.finalHodApprovedDate}
               </StyledTableCell>
             </StyledTableRow>
-            <StyledTableRow key="hodApproved">
+            <StyledTableRow key="hodInitiated">
               <StyledTableCell align="left">HOD Approved</StyledTableCell>
               <StyledTableCell align="left">
                 <ApprovedCellRenderer
                   row={row}
-                  field="hodApproved"
+                  field="hodInitiated"
                 ></ApprovedCellRenderer>
               </StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="hodApprovedDate">
               <StyledTableCell align="left">HOD Approved Date</StyledTableCell>
               <StyledTableCell align="left">
-                {row.hodApprovedDate}
+                {row?.hodInitiatedDate}
               </StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="packingDepartmentApproved">

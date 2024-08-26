@@ -76,16 +76,19 @@ export const AxiosHandlerContextProvider = ({
       },
       (error) => {
         setBackDropOpen(false);
+        if (error.response) {
+          if (error.response.status === 404) {
+            setAlertMessage("Data Not Found");
+          } else if (error.response.data && error.response.status !== 500) {
+            setAlertMessage(error.response.data);
+          } else {
+            setAlertMessage("Error Saving!");
+          }
+        } else {
+          setAlertMessage("Error Saving!");
+        }
         setAlertSeverity("error");
         setSbOpen(true);
-        setAlertMessage(
-          error.response &&
-            error.response.data &&
-            error.response.data !== "" &&
-            error.response.status !== 500
-            ? error.response.data
-            : "Error Saving!"
-        );
         console.log(error);
         return Promise.reject(
           (error.response && error.response.data) ?? "Error Saving!"

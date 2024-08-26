@@ -519,7 +519,7 @@ function LabelModalPopup(props: IModalProps) {
         foldSize: rowState.foldSize,
         flatSize: rowState.flatSize,
         ccf: rowState.ccf,
-        labelDescription: rowState.labelDescription,
+        labelDescription: rowState.lableDescription,
         proofNumber: rowState.proofNumber,
         fileData: values.fileData || { name: rowState.currentVersionFileName }, //TODOfetchFileData(rowState.currentVerstionFileId), //{ name: rowState.currentVersionFileName },
         fileName: values.fileName || rowState.currentVersionFileName || "",

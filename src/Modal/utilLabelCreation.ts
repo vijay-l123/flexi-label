@@ -306,7 +306,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addLabelVersion = async () => {
       try {
-        if (apiParams.fileName === "") {
+        if (apiParams.fileName) {
           let version = await Services.LabelVersion.addLabelVersion(apiParams).then((success) => {
             updateLabelsData(true);
           });
@@ -432,15 +432,58 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     //   }
     // };
 
+    // const updateLabelVersion = async () => {
+    //   try {
+    //     if (!isCreateNewVersion) {
+    //       // When not creating a new version, skip the Services.Label.updateLabel call
+    //       const uploadResponse = await Services.Document.updateDocument(apiParams);
+    
+    //       const updatedParams = {
+    //         ...apiParams,
+    //         fileId: uploadResponse.data, // Ensure this contains the correct file ID
+    //         fileData: null,
+    //       };
+    
+    //       const version = await Services.LabelVersion.updateLabelVersion(updatedParams);
+    //       updateLabelsData(true);
+    //       console.log("labelinformation", version);
+    
+    //     } else {
+    //       const labelResponse = await Services.Label.updateLabel(apiParams);
+    
+    //       const uploadResponse = await Services.Document.updateDocument(apiParams);
+    
+    //       const updatedParams = {
+    //         ...apiParams,
+    //         id: rowState.id,
+    //         andaId: rowState.andaId,
+    //         labelInfoId: rowState.labelInfoId,
+    //         labelTypeId: rowState.labelTypeId,
+    //         fileId: uploadResponse.data, // Ensure this contains the correct file ID
+    //         fileData: null,
+    //       };
+    
+    //       const version = await Services.LabelVersion.updateLabelVersion(updatedParams);
+    //       updateLabelsData(true);
+    //       console.log("labelinformation", version);
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
+
     const updateLabelVersion = async () => {
       try {
+        let uploadResponse;
         if (!isCreateNewVersion) {
           // When not creating a new version, skip the Services.Label.updateLabel call
-          const uploadResponse = await Services.Document.updateDocument(apiParams);
+          if (apiParams.fileData && Array.isArray(apiParams.fileData)) {
+            uploadResponse = await Services.Document.updateDocument(apiParams);
+          }
     
           const updatedParams = {
             ...apiParams,
-            fileId: uploadResponse.data, // Ensure this contains the correct file ID
+            fileId: uploadResponse ? uploadResponse.data : values.fileId, // Ensure this contains the correct file ID
             fileData: null,
           };
     
@@ -449,9 +492,11 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
           console.log("labelinformation", version);
     
         } else {
-          const labelResponse = await Services.Label.updateLabel(apiParams);
+          // const labelResponse = await Services.Label.updateLabel(apiParams);
     
-          const uploadResponse = await Services.Document.updateDocument(apiParams);
+          if (apiParams.fileData && Array.isArray(apiParams.fileData)) {
+            uploadResponse = await Services.Document.updateDocument(apiParams);
+          }
     
           const updatedParams = {
             ...apiParams,
@@ -459,7 +504,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
             andaId: rowState.andaId,
             labelInfoId: rowState.labelInfoId,
             labelTypeId: rowState.labelTypeId,
-            fileId: uploadResponse.data, // Ensure this contains the correct file ID
+            fileId: uploadResponse ? uploadResponse.data : null, // Ensure this contains the correct file ID
             fileData: null,
           };
     
@@ -471,6 +516,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         console.log(error);
       }
     };
+    
     
 
     // addLabelVersion();

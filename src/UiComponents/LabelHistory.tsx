@@ -1,4 +1,4 @@
-import { FormLabel, Grid } from "@mui/material";
+import { FormLabel, Grid, Typography } from "@mui/material";
 import React from "react";
 import { alpha, styled } from "@mui/material/styles";
 import {
@@ -22,6 +22,7 @@ import {
   PictureAsPdf,
   LibraryBooks,
 } from "@mui/icons-material";
+import { useSelector } from "react-redux";
 
 const ODD_OPACITY = 0.2;
 const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
@@ -96,6 +97,7 @@ type IColumnState = {
 
 function LabelHistory(props: any) {
   const { rowData, columnData } = useLabelHistoryContext();
+  const errorFlag = useSelector((state: any) => state.popupSlice.isError);
 
   const [pdfPopupState, setPdfPopupState] = React.useState<any>({
     versionId: "",
@@ -138,6 +140,10 @@ function LabelHistory(props: any) {
     form: "pdfPopup",
     maxWidth: "md",
   };
+
+  if(errorFlag) {
+    return <Typography> Not Found </Typography>
+  }
 
   const getColumnDefinitions = (params: IColParams) => {
     const { columnData, pdfStateChange } = params;

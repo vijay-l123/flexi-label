@@ -1,4 +1,4 @@
-import { Box, FormControl, FormLabel } from "@mui/material";
+import { Box, FormControl, FormLabel, Typography } from "@mui/material";
 import { useDemoData } from "@mui/x-data-grid-generator";
 import { alpha, styled } from "@mui/material/styles";
 import "../../styles/grid.css";
@@ -43,6 +43,7 @@ import { checkAlreadyApproved } from "../../Modal/utilModal";
 import LabelHistory from "../../UiComponents/LabelHistory";
 import { LabelHistoryContextProvider } from "../../Context/LabelHistoryContext";
 import LabelReview from "../../UiComponents/LabelReview";
+import { useSelector } from "react-redux";
 
 const {
   TLabelStatus,
@@ -239,9 +240,13 @@ const getColumnDefinitions = (params: IColParams) => {
       };
 
       if (
-        !item.name?.trim().toLowerCase().includes("date") &&
-        item.name?.trim().toLowerCase().includes("approved")
-      ) {
+        ((!item.name?.trim().toLowerCase().includes("date")) &&
+        (item.name?.trim().toLowerCase().includes("approved")) &&
+        (!item.name?.trim().toLowerCase().includes("by"))) ||
+        (item.name?.trim().toLowerCase().includes("initiated") && 
+        (!item.name?.trim().toLowerCase().includes("initiated date")
+        )
+      )) {
         const updatedCols = {
           align: "center",
           renderCell: (params: any) => <ApprovedCellRenderer {...params} />,
@@ -880,6 +885,8 @@ function GridLayout(props: any) {
     return params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
   };
 
+  const errorFlag = useSelector((state: any) => state.popupSlice.isError);
+
   return (
     // <DataGrid
     //   sx={{
@@ -1010,8 +1017,7 @@ function GridLayout(props: any) {
       </Popup>
       <Popup {...historyDialogProps}>
         <LabelHistoryContextProvider id={historyPopup.id}>
-          {" "}
-          <LabelHistory></LabelHistory>
+          {errorFlag ? <Typography height={'7vh'} display={'flex'} justifyContent={'center'} alignItems={'center'} color={'red'}> No label history found. </Typography> : <LabelHistory></LabelHistory>}
         </LabelHistoryContextProvider>
       </Popup>
       <Popup {...reviewDialogProps}>
