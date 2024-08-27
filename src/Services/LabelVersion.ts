@@ -43,7 +43,7 @@ function addLabelVersion(params: any) {
 
   const postProps = {
     id,
-    labelInfoId: labelInfoId,
+    labelInfoId: id,
     versionNo: versionNo,
     fileName: fileName,
     isFileInfoChanged: fileName === "" ? false : isFileInfoChanged,

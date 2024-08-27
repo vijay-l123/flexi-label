@@ -271,7 +271,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   if (newType === 5 && (isCreateNewVersion || editState)) {
     apiParams = {
       id: rowState.id,
-      labelInfoId: rowState.lableInfoId,
+      labelInfoId: rowState?.lableInfoId,
       // andaId: data.get("selectedAnda"),
       andaId: rowState.andaId,
       // productId: data.get("selectedProduct"),
@@ -306,6 +306,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addLabelVersion = async () => {
       try {
+        debugger
         if (apiParams.fileName) {
           let version = await Services.LabelVersion.addLabelVersion(apiParams).then((success) => {
             updateLabelsData(true);
@@ -318,8 +319,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
             // Directly use the logic here
             const updatedParams = {
               ...apiParams,
+              labelInfoId: rowState?.labelInfoId,
               // fileId: uploadResponse.data, // Assuming the response contains the fileId
-              fileId: values?.fileId,
+              fileId: uploadResponse ? uploadResponse.data : values.fileId,
               fileData: null,
             };
     
