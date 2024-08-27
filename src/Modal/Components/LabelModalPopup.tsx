@@ -376,12 +376,12 @@ function LabelModalPopup(props: IModalProps) {
         ? false
         : "Proof Number is required.";
     }
-    // if ("fileData" in fieldValues) {
-    //   console.log("filedata", fieldValues.fileData);
-    //   temp.fileData = fieldValues.fileData?.name
-    //     ? false
-    //     : "File Data is required.";
-    // }
+    if ("fileData" in fieldValues && values.fileId === '-1') {
+      console.log("filedata", fieldValues.fileData);
+      temp.fileData = fieldValues.fileData?.name
+        ? false
+        : "File Data is required.";
+    }
     if ("fileName" in fieldValues) {
       temp.fileName = fieldValues.fileName ? false : "File Name is required.";
     }
@@ -694,6 +694,7 @@ function LabelModalPopup(props: IModalProps) {
     }));
   };
   console.log('selectedPrinter', selectedPrinter);
+  console.log("errors.fileData", errors);
   
 
   const handleRevisionChange = (event: any, newValue: any) => {

@@ -306,7 +306,6 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addLabelVersion = async () => {
       try {
-        debugger
         if (apiParams.fileName) {
           let version = await Services.LabelVersion.addLabelVersion(apiParams).then((success) => {
             updateLabelsData(true);
@@ -479,13 +478,27 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         let uploadResponse;
         if (!isCreateNewVersion) {
           // When not creating a new version, skip the Services.Label.updateLabel call
-          if (apiParams.fileData && Array.isArray(apiParams.fileData)) {
-            uploadResponse = await Services.Document.updateDocument(apiParams);
+          // if (apiParams.fileData && Array.isArray(apiParams.fileData)) {
+          //   uploadResponse = await Services.Document.updateDocument(apiParams);
+          // }
+
+          if (apiParams.fileId === '-1') {
+            if (apiParams.fileData && Array.isArray(apiParams.fileData)) {
+              uploadResponse = await Services.Document.uploadDocument({
+                fileData: apiParams.fileData,
+              });
+            }
+          } else {
+            if (apiParams.fileData && Array.isArray(apiParams.fileData)) {
+              uploadResponse = await Services.Document.updateDocument(apiParams);
+            }
           }
-    
           const updatedParams = {
             ...apiParams,
-            fileId: uploadResponse ? uploadResponse.data : values.fileId, // Ensure this contains the correct file ID
+            fileId: uploadResponse && Array.isArray(uploadResponse?.data) 
+            ? uploadResponse.data.length === 1 
+              ? uploadResponse.data[0] 
+              : uploadResponse.data.join(", ") : values.fileId, // Ensure this contains the correct file ID
             fileData: null,
           };
     

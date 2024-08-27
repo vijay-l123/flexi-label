@@ -31,8 +31,10 @@ export default function PDFViewer(props: IPDFProps) {
 
   // pdf file onChange state
   const [pdfFile, setPdfFile] = useState("");
+  const [loading, setLoading] = useState(true);
 
   React.useMemo(() => {
+    setLoading(true);
     axios({
       method: "GET",
       url: `http://194.113.194.151:8080/Document/DownlaodFile?id=${fileId}`,
@@ -45,9 +47,11 @@ export default function PDFViewer(props: IPDFProps) {
         const fileURL = URL.createObjectURL(blob);
 
         setPdfFile(fileURL);
+        setLoading(false);
       },
       function (error) {
         setPdfFile("");
+        setLoading(false);
       }
     );
   }, [fileId]);
@@ -78,7 +82,7 @@ export default function PDFViewer(props: IPDFProps) {
         )}
 
         {/* render this if we have pdfFile state null   */}
-        {!pdfFile && <>No file is selected yet</>}
+        {!pdfFile && !loading && <div>No file is selected yet</div>}
         {/* <iframe
           src="https://view.officeapps.live.com/op/embed.aspx?src=${url}"
           width="1366px"
