@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { useDispatch } from "react-redux";
 import useMasterAuthContext from "../Context/MasterAuthContext";
 import Services from "../Services/Services";
@@ -34,6 +35,8 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   console.log("newType", newType);
   console.log("rowState", rowState);
   const {getAndaListEx} =Services.Anda
+  // eslint-disable-next-line no-restricted-globals
+  console.log("loc",location.pathname);
   //ANDA
   if (newType === 0) {
     const tar = event.target;
@@ -306,7 +309,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
     const addLabelVersion = async () => {
       try {
-        if (apiParams.fileName) {
+        if (apiParams.fileName && location.pathname !== '/elabel/master') {
           let version = await Services.LabelVersion.addLabelVersion(apiParams).then((success) => {
             updateLabelsData(true);
           });
@@ -541,34 +544,73 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   }
 
   //label version
-  if (newType === 6 && isCreateNewVersion) {
+  // eslint-disable-next-line no-restricted-globals
+  if (newType === 5 && isCreateNewVersion && location.pathname === '/elabel/master') {
+    // apiParams = {
+    //   versionNo: data.get("versionNumber"),
+    //   foldSize: data.get("foldSize"),
+    //   flatSize: data.get("flatSize"),
+    //   ccf: data.get("ccf"),
+    //   fileData: values.fileData, // Ensure this is an array of files
+    //   fileName: data.get("fileName"),
+    //   isFileInfoChanged: true,
+    //   fileId: data.get("fileId") || 0,
+    //   remarks: data.get("remarks"),
+    // };
     apiParams = {
+      id: rowState.id,
+      labelInfoId: rowState?.lableInfoId,
+      // andaId: data.get("selectedAnda"),
+      andaId: rowState.andaId,
+      // productId: data.get("selectedProduct"),
+      productId: rowState.productId,
+      pmCodeId: rowState.pmCodeId,
+      // labelTypeId: data.get("selectedLabelType"),
+      labelTypeId: rowState.labelTypeId,
+      // customerId: data.get("selectedCustomer"),
+      customerId: rowState.customerId,
+      printer: data.get("printer"),
+      // ndcNumber: data.get("ndcNumber"),
+      ndcNumber: rowState.ndcNumber,
+      jobNumber: data.get("jobNumber"),
+      // tabletCount: data.get("tabletCount"),
+      tabletCount: rowState.tabletCount,
+      proofNum: data.get("proofNum") || data.get("proofNumber") || "",
+      /////////
       versionNo: data.get("versionNumber"),
       foldSize: data.get("foldSize"),
       flatSize: data.get("flatSize"),
       ccf: data.get("ccf"),
-      fileData: values.fileData, // Ensure this is an array of files
-      fileName: data.get("fileName"),
+      // labelDescription: data.get("labelDescription"),
+      labelDescription: rowState.labelDescription,
+      fileData: values.fileData,
+      // fileName: data.get("fileName"),
+      fileName: values.fileName,
       isFileInfoChanged: true,
-      fileId: data.get("fileId") || 0,
+      // fileId: data.get("fileId") || "-1",
+      fileId: values.fileId,
       remarks: data.get("remarks"),
     };
 
+
     const addLabelVersion = async () => {
       try {
-        let response: any = await Services.Document.uploadDocument(apiParams).then((res) => {
-          async function labelVersionAddition() {
-            const updatedParams = {
-              ...apiParams,
-              fileId: res.data,
-              fileData: values.fileData,
-            };
-            let response1 = await Services.LabelVersion.addLabelVersion(updatedParams);
-            console.log(response1);
-          }
-          labelVersionAddition();
+        // let response: any = await Services.Document.uploadDocument(apiParams).then((res) => {
+        //   async function labelVersionAddition() {
+        //     const updatedParams = {
+        //       ...apiParams,
+        //       fileId: res.data,
+        //       fileData: values.fileData,
+        //     };
+        //     let response1 = await Services.LabelVersion.addLabelVersion(updatedParams);
+        //     console.log(response1);
+        //   }
+        //   labelVersionAddition();
+        // });
+        // console.log(response);
+        await Services.LabelVersion.addLabelVersion(apiParams).then((success) => {
+          updateLabelsData(true);
         });
-        console.log(response);
       } catch (error) {
         console.log(error);
       }
