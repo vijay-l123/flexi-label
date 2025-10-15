@@ -16,9 +16,12 @@ import Controls from "../Controls/Controls";
 import CustomTheme from "../Theme/CustomTheme";
 import useAuthContext from "../Authentication/AuthProvider";
 import common from "../utils/common";
+// import { useFilterContext } from "../Context/FilterContext";
 
 const Sidebar = (props: any) => {
   const { logout, authData } = useAuthContext();
+    // const {setErrors,setFilter} = useFilterContext();
+
   const { roles } = common;
 
   const { data, selectedNavItem, handleNavItemChanged } = props;

@@ -1,6 +1,7 @@
 import React from "react";
 import common from "../utils/common";
 import User from "../Services/User";
+// import { useFilterContext } from "../Context/FilterContext";
 
 const { fetchColRow } = common;
 
@@ -15,6 +16,7 @@ export function useUsersData() {
     rowData: [],
   });
   const [userAction, setUserAction] = React.useState<boolean>(false);
+  // const { filter,pageSize, page } = useFilterContext();
 
   const updateUsersData = React.useCallback((val: boolean) => {
     console.log("updateUsersData", val);
@@ -60,6 +62,6 @@ function fetchUsers(setGridState: any) {
       rowData,
     };
     setGridState(params);
-  };
+      };
   users();
 }

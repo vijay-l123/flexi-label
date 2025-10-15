@@ -1,6 +1,7 @@
 // src/features/lookupData/lookupDataSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import config from '../../Services/config';
 
 const initialState = {
   data: [],
@@ -10,7 +11,8 @@ const initialState = {
 
 // Async thunk for fetching lookup data with dynamic type parameter
 export const fetchLookupDataAsync = createAsyncThunk('lookupData/fetchLookupData', async () => {
-  const response = await axios.get(`http://194.113.194.151:8080/LookUpData/GetAllLookupList`);
+  // const response = await axios.get(`http://194.113.194.151:8080/LookUpData/GetAllLookupList`);
+  const response = await axios.get(`${config.baseUrl}LookUpData/GetAllLookupList`);
   return response.data;
 });
 

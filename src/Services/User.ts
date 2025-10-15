@@ -137,6 +137,7 @@ function resetUserPassword(params: any) {
 }
 
 function getUserListEx() {
+    // const { filterCol, filterOperator, filterValue, itemPerPage, pageNo } = params;
   const response = axios({
     method: "GET",
     url: "User/GetUsersEx",
