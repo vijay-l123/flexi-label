@@ -107,7 +107,8 @@ export default function AutoComplete(props: IAutoCompleteProps) {
       clearOnBlur
       handleHomeEndKeys
       id={id}
-      options={listData}
+      // options={listData}
+      options={Array.isArray(listData) ? listData : []}
       getOptionLabel={(option: any) => {
         // Value selected with enter, right from the input
         if (typeof option === "string") {

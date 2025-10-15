@@ -44,7 +44,10 @@ export default function ActionCellRenderer(inputParams: params) {
   };
 
   const { authData } = useAuthContext();
-
+  // debugger
+  // console.log("TRoleType", authData.roleId,TRoleType.Initiator,inputParams.rowParams.row.status);
+  // console.log("Cndition", authData.roleId != 1 && TRoleType.Initiator != '1' && inputParams.rowParams.row.status === "Draft");
+const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.status === "Draft";
   return (
     <React.Fragment>
       {(!checkAlreadyApproved({
@@ -52,9 +55,11 @@ export default function ActionCellRenderer(inputParams: params) {
         authData,
       }) ||
         inputParams.isEditMasterData ||
-        ((inputParams.rowParams.row.status === TLabelStatus.Active ||
+        ((
+          inputParams.rowParams.row.status === TLabelStatus.Active ||
           inputParams.rowParams.row.status === undefined) &&
-          authData.roleId === TRoleType.Initiator)) && (
+          authData.roleId === TRoleType.Initiator))
+           && (
         <div>
           <Controls.IconButton
             id="demo-customized-button"
@@ -66,8 +71,9 @@ export default function ActionCellRenderer(inputParams: params) {
             size="small"
             onMouseOver={handleClick}
             color="primary"
+            disabled={shouldHideActionButton} 
           >
-            <Settings color="secondary"></Settings>{" "}
+            <Settings color={shouldHideActionButton ? "disabled" : "secondary"}  ></Settings>{" "}
             <Typography>Action</Typography>
           </Controls.IconButton>
 

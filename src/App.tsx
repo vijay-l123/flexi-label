@@ -11,6 +11,7 @@ import Home from "./Home/Home";
 import useDocumentTitle from "./hooks/useDocumentTitle";
 import common from "./utils/common";
 import { AxiosHandlerContextProvider } from "./AxiosHandler/AxiosHandler";
+import { FilterProvider } from "./Context/FilterContext";
 
 const { TAppPage } = common;
 
@@ -174,6 +175,7 @@ function HomePage() {
 function App() {
   return (
     <ThemeProvider theme={theme}>
+      <FilterProvider>
       <AxiosHandlerContextProvider>
         <AuthProvider>
           <Routes>
@@ -183,6 +185,7 @@ function App() {
           </Routes>
         </AuthProvider>
       </AxiosHandlerContextProvider>
+      </FilterProvider>
     </ThemeProvider>
   );
 }

@@ -43,6 +43,7 @@ import { checkAlreadyApproved } from "../../Modal/utilModal";
 import LabelHistory from "../../UiComponents/LabelHistory";
 import { LabelHistoryContextProvider } from "../../Context/LabelHistoryContext";
 import LabelReview from "../../UiComponents/LabelReview";
+// import AdvancedFilter from "../../UiComponents/AdvanceFilter";
 
 const {
   TLabelStatus,
@@ -166,7 +167,7 @@ export const ApprovedCellRenderer = (params: any): any => {
   return component;
 };
 
-const getColumnDefinitions = (params: IColParams) => {
+const getColumnDefinitions = (params: IColParams,rowData:any) => {
   const {
     modalState,
     rowState,
@@ -187,6 +188,16 @@ const getColumnDefinitions = (params: IColParams) => {
   const dynamicColDef: any[] = [];
   console.log("columndata", columnData);
 
+  const calculateColumnWidth = (field: string, headerName: string, rowData: any[]) => {
+    const padding = 30; // space for padding, sort icons etc.
+    const longestValueLength = Math.max(
+      headerName.length,
+      ...rowData.map((row) => (row[field] ? String(row[field]).length : 0))
+    );
+  
+    return Math.max(100, longestValueLength * 8 + padding); // 8px per character as a rough estimate
+  };
+  
   if (selectedTab === 1 && authData.roleId !== TRoleType.LabelViewers) {
     const historyCols = {
       headerName: "View History",
@@ -233,9 +244,11 @@ const getColumnDefinitions = (params: IColParams) => {
         // hideable: item.display,
         // editable: !item.display,
         headerClassName: "super-app-theme--header",
-        flexGrow: 1,
-        flexShrink: 1,
-        width: "150",
+        width: calculateColumnWidth(item.field, item.name, rowData),
+        // flexGrow: 1,
+        // flexShrink: 1,
+        // width: "150",
+        
       };
 
       if (
@@ -452,7 +465,7 @@ function GridLayout(props: any) {
   //   rowLength: 100,
   //   editable: true,
   // });
-  // console.log("grid:", data);
+  console.log("selectedTab:", selectedTab,columnData);
 
   type IColumnState = {
     [key: string]: boolean;
@@ -879,7 +892,17 @@ function GridLayout(props: any) {
 
     return params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
   };
+// const CustomToolbar = () => {
+//   return (
+//     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
+//       <GridToolbar />
 
+//       <Box sx={{ ml: 2 }}>
+//         <AdvancedFilter selectedTab={selectedTab} />
+//       </Box>
+//     </Box>
+//   );
+// };
   return (
     // <DataGrid
     //   sx={{
@@ -1017,6 +1040,9 @@ function GridLayout(props: any) {
       <Popup {...reviewDialogProps}>
         <LabelReview {...labelReviewProps}></LabelReview>
       </Popup>
+      <div style={{ width: '100%',height:"70vh", overflowX: 'auto' }}>
+      {/* <div className="scroll-wrapper"> */}
+      
       <StripedDataGrid
         sx={{
           boxShadow: 2,
@@ -1031,7 +1057,7 @@ function GridLayout(props: any) {
           },
         }}
         getRowId={(row) => row.index}
-        columns={columnData && getColumnDefinitions(colDefParams)}
+        columns={columnData && getColumnDefinitions(colDefParams,rowData)}
         rows={rowData && rowData}
         //loading={rowData.length === 0}
         rowHeight={38}
@@ -1047,6 +1073,9 @@ function GridLayout(props: any) {
         slots={{
           toolbar: GridToolbar,
         }}
+      //       slots={{
+      //   toolbar: CustomToolbar,
+      // }}
         slotProps={{
           toolbar: {
             showQuickFilter:true,
@@ -1068,6 +1097,7 @@ function GridLayout(props: any) {
         //   },
         // }}
       />
+      </div>
     </Box>
     </Box>
   );

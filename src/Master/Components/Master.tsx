@@ -13,14 +13,22 @@ import common from "../../utils/common";
 import { IModalProps } from "../../utils/types";
 import ActionCellRenderer from "../../AppContainer/Components/ActionCellRenderer";
 import { useDispatch } from "react-redux";
-import { setEditClick, setPopulatedValues } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
+import {
+  setEditClick,
+  setPopulatedValues,
+} from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
 
 const { TRoleType } = common;
 function Master(): JSX.Element {
-  const { tabValue, handleTabChange, gridData, updateMasterData, setLookupvalue, lookupvalue
-    // handleLookupChange 
-  } =
-    useMasterAuthContext();
+  const {
+    tabValue,
+    handleTabChange,
+    gridData,
+    updateMasterData,
+    setLookupvalue,
+    lookupvalue,
+    // handleLookupChange
+  } = useMasterAuthContext();
   const { authData } = useAuthContext();
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -33,8 +41,8 @@ function Master(): JSX.Element {
   const { masterTabData, LookupDropdownData } = common;
   console.log("masterTabData", masterTabData, tabValue, LookupDropdownData);
 
-  const editClickEvent = (params: any): void => { 
-    console.log('popupdata', params.row);
+  const editClickEvent = (params: any): void => {
+    console.log("popupdata", params.row);
     dispatch(setPopulatedValues(params.row));
     setModalState(true);
     setRowData(params.row);
@@ -87,7 +95,13 @@ function Master(): JSX.Element {
         //   />,
         // ],
       },
-      ...gridData.colDefs,
+      // ...gridData.colDefs,
+      ...gridData.colDefs.map((col: any) => ({
+        ...col,
+        minWidth: 200,
+        flex: 1,
+        // resizable: false,
+      })),
     ],
     rowData: gridData.rowData,
   };
@@ -135,7 +149,13 @@ function Master(): JSX.Element {
           </Controls.Button>
         </Box>
       )}
-      <Box sx={{ display: 'flex', justifyContent: "space-between", alignItems: 'center' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Tabs
           value={tabValue}
           onChange={(event, value) => handleTabChange(value)}
@@ -146,26 +166,26 @@ function Master(): JSX.Element {
             <Tab key={tab.value} label={tab.label} value={tab.value} />
           ))}
         </Tabs>
-        {tabValue === 6 &&
-          <FormControl sx={{ minWidth: "11%" }}>
+        {tabValue === 6 && (
+          <FormControl sx={{ minWidth: "11%",mt:2 }}>
             <Select
               required
               fullWidth
               // displayEmpty
               size="small"
-              label='Select Lookup'
+              label="Select Lookup"
               labelId="select-types-label"
               id="Select Lookup"
               name="Select Lookup"
               value={lookupvalue}
               // defaultValue={lookupvalue[0]}
               onChange={(e) => setLookupvalue(e.target.value)}
-            // disabled={true}
-            // sx={{
-            //   backgroundColor: CustomTheme.CustomColor.Common.white,
-            // }}
+              // disabled={true}
+              // sx={{
+              //   backgroundColor: CustomTheme.CustomColor.Common.white,
+              // }}
 
-            // error={formValues.roles.error}
+              // error={formValues.roles.error}
             >
               {LookupDropdownData.map((item, index) => (
                 <MenuItem key={item.value} value={item.value}>
@@ -177,9 +197,11 @@ function Master(): JSX.Element {
           {formValues.roles.error && formValues.roles.errorMessage}
         </FormHelperText> */}
           </FormControl>
-        }
+        )}
       </Box>
+      {/* <div style={{ width: '170vh', overflowX: 'auto' }}> */}
       <DisplayGrid {...gridProps} />
+      {/* </div> */}
     </React.Fragment>
   );
 }

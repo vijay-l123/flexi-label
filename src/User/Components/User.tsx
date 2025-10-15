@@ -238,7 +238,7 @@ function User(): JSX.Element {
       >
         <Grid container spacing={0} sx={{ paddingLeft: "30px" }}>
           <Grid item md={10}>
-            <Grid container>
+            <Grid container spacing={2}>
               <Grid item md={4}>
                 <FormControl
                   required
@@ -247,13 +247,13 @@ function User(): JSX.Element {
                     flexDirection: "row",
                     alignItems: "center",
                     mt: 2,
-                    mb: 2,
+                    // mb: 2,
                   }}
                 >
                   <FormLabel
                     sx={{
                       //color: "#212B36",
-                      width: "30%",
+                      width: "60%",
                     }}
                   >
                     {" "}
@@ -270,6 +270,8 @@ function User(): JSX.Element {
                     onChange={handleInputChange}
                   ></Controls.Input>
                 </FormControl>
+                </Grid>
+                <Grid item md={4}>
                 <FormControl
                   required
                   sx={{
@@ -277,13 +279,13 @@ function User(): JSX.Element {
                     flexDirection: "row",
                     alignItems: "center",
                     mt: 2,
-                    mb: 2,
+                    // mb: 2,
                   }}
                 >
                   <FormLabel
                     sx={{
                       //color: "#212B36",
-                      width: "30%",
+                      width: "60%",
                     }}
                   >
                     {" "}
@@ -300,6 +302,8 @@ function User(): JSX.Element {
                     onChange={handleInputChange}
                   ></Controls.Input>
                 </FormControl>
+                </Grid>
+                <Grid item md={4}>
                 <FormControl
                   required
                   sx={{
@@ -307,13 +311,13 @@ function User(): JSX.Element {
                     flexDirection: "row",
                     alignItems: "center",
                     mt: 2,
-                    mb: 2,
+                    // mb: 2,
                   }}
                 >
                   <FormLabel
                     sx={{
                       //color: "#212B36",
-                      width: "30%",
+                      width: "60%",
                     }}
                   >
                     {" "}
@@ -330,20 +334,22 @@ function User(): JSX.Element {
                     onChange={handleInputChange}
                   ></Controls.Input>
                 </FormControl>
+                </Grid>
+                <Grid item md={4}>
                 <FormControl
                   required
                   sx={{
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
-                    mt: 2,
-                    mb: 2,
+                    // mt: 2,
+                    // mb: 2,
                   }}
                 >
                   <FormLabel
                     sx={{
                       //color: "#212B36",
-                      width: "30%",
+                      width: "60%",
                     }}
                   >
                     {" "}
@@ -360,8 +366,9 @@ function User(): JSX.Element {
                     onChange={handleInputChange}
                   ></Controls.Input>
                 </FormControl>
-              </Grid>
-              <Grid item md={6}>
+                </Grid>
+            
+              <Grid item md={4}>
                 <FormControl
                   required
                   fullWidth
@@ -370,21 +377,21 @@ function User(): JSX.Element {
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
-                    mt: 2,
-                    mb: 2,
+                    // mt: 2,
+                    // mb: 2,
                   }}
                 >
                   <FormLabel
                     sx={{
                       //color: "#212B36",
-                      width: "20%",
+                      width: "60%",
                     }}
                   >
                     Role:
                   </FormLabel>
                   <Select
                     sx={{
-                      width: "40%",
+                      width: "100%",
                     }}
                     required
                     displayEmpty
@@ -412,6 +419,8 @@ function User(): JSX.Element {
                     {errors.selectedRole && errors.selectedRole}
                   </FormHelperText>
                 </FormControl>
+                </Grid>
+                    <Grid item md={4}>
                 <FormControl
                   required
                   variant="filled"
@@ -419,14 +428,14 @@ function User(): JSX.Element {
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
-                    mt: 2,
-                    mb: 2,
+                    // mt: 2,
+                    // mb: 2,
                   }}
                 >
                   <FormLabel
                     sx={{
                       //color: "#212B36",
-                      width: "20%",
+                      width: "60%",
                     }}
                   >
                     IsActive:
@@ -436,6 +445,8 @@ function User(): JSX.Element {
                     isChecked={values.isActive || true}
                   ></Controls.Checkbox>
                 </FormControl>
+                </Grid>
+                <Grid item md={12}>
                 <Box>
                   <Controls.Button
                     sx={{ mx: 2 }}
@@ -469,7 +480,7 @@ function User(): JSX.Element {
             }}
           ></Grid>
         </Grid>
-        <Box height={"45vh"} width={"79%"} position={"absolute"} bottom={50}>
+        <Box width={"79%"} position={"absolute"} >
           <DisplayGrid {...gridProps} />
         </Box>
       </Box>

@@ -9,8 +9,10 @@ import {
   GridToolbar,
   GridColumnVisibilityModel,
 } from "@mui/x-data-grid";
-import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
+// import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import CustomTheme from "../Theme/CustomTheme";
+// import AdvancedFilter from "../UiComponents/AdvanceFilter";
+import useMasterAuthContext from "../Context/MasterAuthContext";
 
 interface IDataGridProps {
   colDefs: any;
@@ -81,10 +83,38 @@ const StripedDisplayGrid = styled(MuiGrid)(({ theme }) => ({
     },
   },
 }));
+// const CustomToolbar = () => {
+//   return (
+//     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
+//       <GridToolbar />
+
+//       <Box sx={{ ml: 2 }}>
+//         <AdvancedFilter />
+//       </Box>
+//     </Box>
+//   );
+// };
 
 function DisplayGrid(props: IDataGridProps) {
   const { colDefs, rowData, columnVisibilityState = {} } = props;
+  const {tabValue } = useMasterAuthContext();
+  console.log("colDefs",colDefs,tabValue);
+
   return (
+    // <div style={{ width: '170vh',height:"55vh", overflowX: 'auto' }}>
+    <Box
+  sx={{
+    width: {
+      xs: '45vh',   // mobile
+      sm: '80vh',    // tablet
+      md: '100vh',    // desktop
+      lg: '170vh',    // large screens
+    },
+    height: "55vh",
+    overflowX: "auto"
+  }}
+>
+
     <StripedDisplayGrid
       sx={{
         boxShadow: 2,
@@ -124,6 +154,9 @@ function DisplayGrid(props: IDataGridProps) {
       slots={{
         toolbar: GridToolbar,
       }}
+      // slots={{
+      //   toolbar: CustomToolbar,
+      // }}
       slotProps={{
         toolbar: {
           showQuickFilter:true,
@@ -145,6 +178,8 @@ function DisplayGrid(props: IDataGridProps) {
       //   },
       // }}
     />
+    </Box>
+
   );
 }
 

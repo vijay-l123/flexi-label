@@ -90,7 +90,15 @@ const tabData = [
   {
     label: "Drafts",
     value: 2,
-    role: [TRoleType.Initiator],
+    // role: [TRoleType.Initiator],
+        role: [
+      TRoleType.Initiator,
+      TRoleType.FinalHOD,
+      TRoleType.HOD,
+      TRoleType.LabelViewers,
+      TRoleType.PackingDepartment,
+      TRoleType.QA,
+    ],
   },
   {
     label: "Under Review",
