@@ -14,6 +14,7 @@ import axios from "axios";
 
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import { toolbarPlugin } from "@react-pdf-viewer/toolbar";
+import config from "../../Services/config";
 
 interface IPDFProps {
   fileId: number | string;
@@ -35,7 +36,8 @@ export default function PDFViewer(props: IPDFProps) {
   React.useMemo(() => {
     axios({
       method: "GET",
-      url: `http://194.113.194.151:8080/Document/DownlaodFile?id=${fileId}`,
+      // url: `http://194.113.194.151:8080/Document/DownlaodFile?id=${fileId}`,
+      url: `${config.baseUrl}Document/DownlaodFile?id=${fileId}`,
       responseType: "blob",
     }).then(
       function (response) {

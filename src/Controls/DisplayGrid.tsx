@@ -9,10 +9,11 @@ import {
   GridToolbar,
   GridColumnVisibilityModel,
 } from "@mui/x-data-grid";
-// import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
+import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
 import CustomTheme from "../Theme/CustomTheme";
-// import AdvancedFilter from "../UiComponents/AdvanceFilter";
+import AdvancedFilter from "../UiComponents/AdvanceFilter";
 import useMasterAuthContext from "../Context/MasterAuthContext";
+import { useFilterContext } from "../Context/FilterContext";
 
 interface IDataGridProps {
   colDefs: any;
@@ -83,20 +84,22 @@ const StripedDisplayGrid = styled(MuiGrid)(({ theme }) => ({
     },
   },
 }));
-// const CustomToolbar = () => {
-//   return (
-//     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
-//       <GridToolbar />
+const CustomToolbar = () => {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
+      <GridToolbar />
 
-//       <Box sx={{ ml: 2 }}>
-//         <AdvancedFilter />
-//       </Box>
-//     </Box>
-//   );
-// };
+      <Box sx={{ ml: 2 }}>
+        <AdvancedFilter />
+      </Box>
+    </Box>
+  );
+};
 
 function DisplayGrid(props: IDataGridProps) {
   const { colDefs, rowData, columnVisibilityState = {} } = props;
+    const { setPageSize,setPage,pageSize,setPaginationChange,page,paginationData } = useFilterContext();
+
   const {tabValue } = useMasterAuthContext();
   console.log("colDefs",colDefs,tabValue);
 
@@ -144,6 +147,23 @@ function DisplayGrid(props: IDataGridProps) {
       getRowClassName={(params) =>
         params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
       }
+       pagination
+              paginationMode="server"
+              paginationModel={{ page, pageSize }}
+              // onPaginationModelChange={(model) => {
+              //   setPaginationChange(true);
+              //   setpage(model.page);
+              //   setPageSize(model.pageSize);
+              // }}
+                 onPaginationModelChange={(model) => {
+            setPaginationChange(true);
+            if (model.pageSize !== pageSize) {
+            setPage(0); 
+            } else {
+            setPage(model.page);
+            }
+            setPageSize(model.pageSize);
+            }}
       // disableColumnSelector={true}
       // components={{
       //   Toolbar: GridToolbar,
@@ -151,12 +171,12 @@ function DisplayGrid(props: IDataGridProps) {
       // componentsProps={{
       //   toolbar: { showQuickFilter: true },
       // }}
-      slots={{
-        toolbar: GridToolbar,
-      }}
       // slots={{
-      //   toolbar: CustomToolbar,
+      //   toolbar: GridToolbar,
       // }}
+      slots={{
+        toolbar: CustomToolbar,
+      }}
       slotProps={{
         toolbar: {
           showQuickFilter:true,

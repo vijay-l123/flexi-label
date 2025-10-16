@@ -43,7 +43,8 @@ import { checkAlreadyApproved } from "../../Modal/utilModal";
 import LabelHistory from "../../UiComponents/LabelHistory";
 import { LabelHistoryContextProvider } from "../../Context/LabelHistoryContext";
 import LabelReview from "../../UiComponents/LabelReview";
-// import AdvancedFilter from "../../UiComponents/AdvanceFilter";
+import AdvancedFilter from "../../UiComponents/AdvanceFilter";
+import { useFilterContext } from "../../Context/FilterContext";
 
 const {
   TLabelStatus,
@@ -455,6 +456,7 @@ function GridLayout(props: any) {
     createNewVersionState,
   } = props;
   const { authData } = useAuthContext();
+  const { setPageSize,setPage,pageSize,setPaginationChange,page,paginationData } = useFilterContext();
   const labelVersionId = React.useRef(0);
   const fileVersionId = React.useRef(0);
 
@@ -892,17 +894,17 @@ function GridLayout(props: any) {
 
     return params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
   };
-// const CustomToolbar = () => {
-//   return (
-//     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
-//       <GridToolbar />
+const CustomToolbar = () => {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
+      <GridToolbar />
 
-//       <Box sx={{ ml: 2 }}>
-//         <AdvancedFilter selectedTab={selectedTab} />
-//       </Box>
-//     </Box>
-//   );
-// };
+      <Box sx={{ ml: 2 }}>
+        <AdvancedFilter selectedTab={selectedTab} />
+      </Box>
+    </Box>
+  );
+};
   return (
     // <DataGrid
     //   sx={{
@@ -1064,18 +1066,36 @@ function GridLayout(props: any) {
         // disableSelectionOnClick
         getRowClassName={getRowClass}
         disableColumnSelector={true}
+        //  rowCount={paginationData?.TotalRecords}
+              pagination
+              paginationMode="server"
+              paginationModel={{ page, pageSize }}
+              // onPaginationModelChange={(model) => {
+              //   setPaginationChange(true);
+              //   setpage(model.page);
+              //   setPageSize(model.pageSize);
+              // }}
+                 onPaginationModelChange={(model) => {
+            setPaginationChange(true);
+            if (model.pageSize !== pageSize) {
+            setPage(0); 
+            } else {
+            setPage(model.page);
+            }
+            setPageSize(model.pageSize);
+            }}
         // components={{
         //   Toolbar: GridToolbar,
         // }}
         // componentsProps={{
         //   toolbar: { showQuickFilter: true },
         // }}
-        slots={{
-          toolbar: GridToolbar,
-        }}
-      //       slots={{
-      //   toolbar: CustomToolbar,
-      // }}
+        // slots={{
+        //   toolbar: GridToolbar,
+        // }}
+            slots={{
+        toolbar: CustomToolbar,
+      }}
         slotProps={{
           toolbar: {
             showQuickFilter:true,
