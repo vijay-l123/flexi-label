@@ -16,11 +16,11 @@ import Controls from "../Controls/Controls";
 import CustomTheme from "../Theme/CustomTheme";
 import useAuthContext from "../Authentication/AuthProvider";
 import common from "../utils/common";
-// import { useFilterContext } from "../Context/FilterContext";
+import { useFilterContext } from "../Context/FilterContext";
 
 const Sidebar = (props: any) => {
   const { logout, authData } = useAuthContext();
-    // const {setErrors,setFilter} = useFilterContext();
+    const {setErrors,setFilter,setPage,setPageSize} = useFilterContext();
 
   const { roles } = common;
 
@@ -107,7 +107,13 @@ const Sidebar = (props: any) => {
               component={NavLink}
               to={item.component}
               selected={selectedNavItem === item.id}
-              onClick={(event: any) => handleNavItemChanged(event, item.id)}
+              onClick={(event: any) => {
+                handleNavItemChanged(event, item.id)
+                setFilter({});
+                setErrors({});
+                   setPageSize(25)
+      setPage(0);
+              } }
             >
               <ListItemButton>
                 <ListItemIcon>{item.icon}</ListItemIcon>

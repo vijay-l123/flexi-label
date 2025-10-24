@@ -3,7 +3,7 @@ import { useMasterData } from "../hooks/useMasterData";
 import Services from "../Services/Services";
 import { useDispatch, useSelector } from "react-redux";
 import { setTabValueRedux } from "../Redux/MasterDataUpdateSlice/LookupUpdate";
-// import { useFilterContext } from "./FilterContext";
+import { useFilterContext } from "./FilterContext";
 
 interface IMasterProps {
   children?: ReactNode;
@@ -28,12 +28,15 @@ export function MasterAuthProvider({ children }: IMasterProps): JSX.Element {
   const [editLookupFlag, setEditLookupFlag] = React.useState(false);
   console.log("MasterAuthContext : lookupvalue",lookupvalue);
   const {isCreate , isEdit} = useSelector((state: any) => state.lookupDataFlags)
-  // const {setErrors,setFilter} = useFilterContext();
+  const {setErrors,setFilter,setPage,setPageSize} = useFilterContext();
   
   const handleTabChange = (val: number) => {
     setTabValue(val)
     dispatch(setTabValueRedux(val));
-
+      setFilter({});
+      setErrors({});
+      setPageSize(25);
+      setPage(0);
   };
 
   // const handleLookupChange = (e:any) : void => {

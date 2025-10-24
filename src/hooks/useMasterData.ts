@@ -9,19 +9,23 @@ import Label from "../Services/Label";
 import Lookup from "../Services/Lookup";
 import { useDispatch } from "react-redux";
 import { setLookupGridData } from "../Redux/MasterDataUpdateSlice/LookupUpdate";
+import { useFilterContext } from "../Context/FilterContext";
 
-const { fetchColRow ,LookupDropdownData} = common;
+const { fetchColRow, LookupDropdownData } = common;
 
 interface IGridState {
   colDefs: any;
   rowData: any;
+  pagedInfo?: any;
 }
 
 export function useMasterData(tabValue: number, lookupType: string) {
   const dispatch = useDispatch();
+  const { filter, pageSize, page } = useFilterContext();
   const [gridData, setGridData] = React.useState<IGridState>({
     colDefs: [],
     rowData: [],
+    pagedInfo: null,
   });
 
   const [masterAction, setMasterAction] = React.useState<boolean>(false);
@@ -30,22 +34,13 @@ export function useMasterData(tabValue: number, lookupType: string) {
     setMasterAction(val);
   }, []);
 
-  // const setGridState = React.useCallback(
-  //   (param: any) =>
-  //     setGridData((prevState: any) => ({
-  //       ...prevState,
-  //       colDefs: param.colDefs,
-  //       rowData: param.rowData,
-  //     })),
-  //   []
-  // );
-
   const setGridState = React.useCallback(
     (param: any) => {
       setGridData((prevState: any) => ({
         ...prevState,
         colDefs: param.colDefs,
         rowData: param.rowData,
+        pagedInfo: param.pagedInfo,
       }));
       if (tabValue === 6) {
         dispatch(setLookupGridData(param));
@@ -54,163 +49,331 @@ export function useMasterData(tabValue: number, lookupType: string) {
     [dispatch, tabValue]
   );
 
+  // Initial load and pagination changes
   React.useMemo(() => {
+    const paginationParams = {
+      filter: filter.filterValue !== undefined ? {
+        filterCol: filter.column?.field,
+        filterOperator: filter.operator,
+        filterValue: filter.filterValue,
+      } : {
+        filterCol: "",
+        filterOperator: "",
+        filterValue: "",
+      },
+      pageSize,
+      page: page + 1, // API expects 1-based page numbers
+    };
+
     if (tabValue === 0) {
-      fetchAnda(setGridState);
+      fetchAnda(setGridState, paginationParams);
     }
     if (tabValue === 1) {
-      fetchProducts(setGridState);
+      fetchProducts(setGridState, paginationParams);
     }
     if (tabValue === 2) {
-      fetchPmCodes(setGridState);
+      fetchPmCodes(setGridState, paginationParams);
     }
     if (tabValue === 4) {
-      fetchLabelTypes(setGridState);
+      fetchLabelTypes(setGridState, paginationParams);
     }
     if (tabValue === 3) {
-      fetchCustomers(setGridState);
+      fetchCustomers(setGridState, paginationParams);
     }
     if (tabValue === 5) {
-      fetchLabels(setGridState);
+      fetchLabels(setGridState, paginationParams);
     }
     if (tabValue === 6) {
-      fetchLookups(setGridState, lookupType);
+      fetchLookups(setGridState, lookupType, paginationParams);
     }
-  }, [tabValue, lookupType, setGridState]);
+  }, [tabValue, lookupType, setGridState, pageSize, page, filter]);
 
+  // Handle manual refresh actions
   React.useMemo(() => {
     if (masterAction) {
+      const paginationParams = {
+        filter: filter.filterValue !== undefined ? {
+          filterCol: filter.column?.field,
+          filterOperator: filter.operator,
+          filterValue: filter.filterValue,
+        } : {
+          filterCol: "",
+          filterOperator: "",
+          filterValue: "",
+        },
+        pageSize,
+        page: page + 1, // API expects 1-based page numbers
+      };
+
       if (tabValue === 0) {
-        fetchAnda(setGridState);
+        fetchAnda(setGridState, paginationParams);
       }
       if (tabValue === 1) {
-        fetchProducts(setGridState);
+        fetchProducts(setGridState, paginationParams);
       }
       if (tabValue === 2) {
-        fetchPmCodes(setGridState);
+        fetchPmCodes(setGridState, paginationParams);
       }
       if (tabValue === 4) {
-        fetchLabelTypes(setGridState);
+        fetchLabelTypes(setGridState, paginationParams);
       }
       if (tabValue === 3) {
-        fetchCustomers(setGridState);
+        fetchCustomers(setGridState, paginationParams);
       }
       if (tabValue === 5) {
-        fetchLabels(setGridState);
+        fetchLabels(setGridState, paginationParams);
       }
       if (tabValue === 6) {
-        fetchLookups(setGridState, lookupType);
+        fetchLookups(setGridState, lookupType, paginationParams);
       }
       updateMasterData(false);
     }
-  }, [masterAction, lookupType, setGridState, tabValue, updateMasterData]);
+  }, [masterAction, lookupType, setGridState, tabValue, updateMasterData, pageSize, page, filter]);
 
   return { gridData, updateMasterData };
 }
 
-function fetchAnda(setGridState: any) {
+function fetchAnda(setGridState: any, paginationParams: any) {
   const anda = async () => {
-    let response = await Anda.getAndaListEx();
-    const { colDefs, rowData } = fetchColRow(response.data);
-    const params = {
-      colDefs,
-      rowData,
-    };
-    setGridState(params);
+    try {
+      let response = await Anda.getAndaListEx({
+        ...paginationParams.filter,
+        ItemsPerPage: paginationParams.pageSize,
+        PageNumber: paginationParams.page,
+      });
+
+      // Handle new API response structure
+      const apiData = response.data;
+      const pagedInfo = apiData.pagedInfo;
+      
+      // Transform the new data structure
+      const transformedData = {
+        columns: apiData.data.columns,
+        rows: apiData.data.rows
+      };
+
+      const { colDefs, rowData } = fetchColRow(transformedData);
+      const params = {
+        colDefs,
+        rowData,
+        pagedInfo
+      };
+      setGridState(params);
+    } catch (error) {
+      console.error("Error fetching Anda data:", error);
+      setGridState({ colDefs: [], rowData: [], pagedInfo: null });
+    }
   };
   anda();
 }
 
-function fetchProducts(setGridState: any) {
+function fetchProducts(setGridState: any, paginationParams: any) {
   const products = async () => {
-    let response = await Product.getProductListEx();
-    const { colDefs, rowData } = fetchColRow(response.data);
-    const params = {
-      colDefs,
-      rowData,
-    };
-    setGridState(params);
+    try {
+      let response = await Product.getProductListEx({
+        ...paginationParams.filter,
+        ItemsPerPage: paginationParams.pageSize,
+        PageNumber: paginationParams.page,
+      });
+
+      // Handle new API response structure
+      const apiData = response.data;
+      const pagedInfo = apiData.pagedInfo;
+      
+      // Transform the new data structure
+      const transformedData = {
+        columns: apiData.data.columns,
+        rows: apiData.data.rows
+      };
+
+      const { colDefs, rowData } = fetchColRow(transformedData);
+      const params = {
+        colDefs,
+        rowData,
+        pagedInfo
+      };
+      setGridState(params);
+    } catch (error) {
+      console.error("Error fetching Product data:", error);
+      setGridState({ colDefs: [], rowData: [], pagedInfo: null });
+    }
   };
   products();
 }
-function fetchPmCodes(setGridState: any) {
+
+function fetchPmCodes(setGridState: any, paginationParams: any) {
   const pmCodes = async () => {
-    let response = await PmCode.getPmCodeListEx();
-    const { colDefs, rowData } = fetchColRow(response.data);
-    const params = {
-      colDefs,
-      rowData,
-    };
-    setGridState(params);
+    try {
+      let response = await PmCode.getPmCodeListEx({
+        ...paginationParams.filter,
+        ItemsPerPage: paginationParams.pageSize,
+        PageNumber: paginationParams.page,
+      });
+
+      // Handle new API response structure
+      const apiData = response.data;
+      const pagedInfo = apiData.pagedInfo;
+      
+      // Transform the new data structure
+      const transformedData = {
+        columns: apiData.data.columns,
+        rows: apiData.data.rows
+      };
+
+      const { colDefs, rowData } = fetchColRow(transformedData);
+      const params = {
+        colDefs,
+        rowData,
+        pagedInfo
+      };
+      setGridState(params);
+    } catch (error) {
+      console.error("Error fetching PmCode data:", error);
+      setGridState({ colDefs: [], rowData: [], pagedInfo: null });
+    }
   };
   pmCodes();
 }
-function fetchLabelTypes(setGridState: any) {
+
+function fetchLabelTypes(setGridState: any, paginationParams: any) {
   const labelTypes = async () => {
-    let response = await LabelType.getLabelTypeListEx();
-    const { colDefs, rowData } = fetchColRow(response.data);
-    const params = {
-      colDefs,
-      rowData,
-    };
-    setGridState(params);
+    try {
+      let response = await LabelType.getLabelTypeListEx({
+        ...paginationParams.filter,
+        ItemsPerPage: paginationParams.pageSize,
+        PageNumber: paginationParams.page,
+      });
+
+      // Handle new API response structure
+      const apiData = response.data;
+      const pagedInfo = apiData.pagedInfo;
+      
+      // Transform the new data structure
+      const transformedData = {
+        columns: apiData.data.columns,
+        rows: apiData.data.rows
+      };
+
+      const { colDefs, rowData } = fetchColRow(transformedData);
+      const params = {
+        colDefs,
+        rowData,
+        pagedInfo
+      };
+      setGridState(params);
+    } catch (error) {
+      console.error("Error fetching LabelType data:", error);
+      setGridState({ colDefs: [], rowData: [], pagedInfo: null });
+    }
   };
   labelTypes();
 }
-function fetchCustomers(setGridState: any) {
+
+function fetchCustomers(setGridState: any, paginationParams: any) {
   const customers = async () => {
-    let response = await Customer.getCustomerListEx();
-    const { colDefs, rowData } = fetchColRow(response.data);
-    const params = {
-      colDefs,
-      rowData,
-    };
-    setGridState(params);
+    try {
+      let response = await Customer.getCustomerListEx({
+        ...paginationParams.filter,
+        ItemsPerPage: paginationParams.pageSize,
+        PageNumber: paginationParams.page,
+      });
+
+      // Handle new API response structure
+      const apiData = response.data;
+      const pagedInfo = apiData.pagedInfo;
+      
+      // Transform the new data structure
+      const transformedData = {
+        columns: apiData.data.columns,
+        rows: apiData.data.rows
+      };
+
+      const { colDefs, rowData } = fetchColRow(transformedData);
+      const params = {
+        colDefs,
+        rowData,
+        pagedInfo
+      };
+      setGridState(params);
+    } catch (error) {
+      console.error("Error fetching Customer data:", error);
+      setGridState({ colDefs: [], rowData: [], pagedInfo: null });
+    }
   };
   customers();
 }
-function fetchLabels(setGridState: any) {
+
+function fetchLabels(setGridState: any, paginationParams: any) {
   const labels = async () => {
-    let response = await Label.getLabels();
-    const { colDefs, rowData } = fetchColRow(response.data);
-    const params = {
-      colDefs,
-      rowData,
-    };
-    setGridState(params);
+    try {
+      let response = await Label.getLabels({
+        ...paginationParams.filter,
+        ItemsPerPage: paginationParams.pageSize,
+        PageNumber: paginationParams.page,
+      });
+
+      // Handle normalized response structure from Label service
+      const pagedInfo = response.pagedInfo;
+      const transformedData = {
+        columns: response.data.columns,
+        rows: response.data.rows
+      };
+
+      const { colDefs, rowData } = fetchColRow(transformedData);
+      const params = {
+        colDefs,
+        rowData,
+        pagedInfo
+      };
+      setGridState(params);
+    } catch (error) {
+      console.error("Error fetching Label data:", error);
+      setGridState({ colDefs: [], rowData: [], pagedInfo: null });
+    }
   };
   labels();
 }
-// function fetchLookups(setGridState: any, type: string) {
-//   const lookups = async () => {
-//     let response = await Lookup.getLookupList(type);
-//     const { colDefs, rowData } = fetchColRow(response.data);
-//     const params = {
-//       colDefs,
-//       rowData,
-//     };
-//     setGridState(params);
-//   };
-//   lookups();
-// }
-function fetchLookups(setGridState: any, type: string) {
+
+function fetchLookups(setGridState: any, type: string, paginationParams: any) {
   const lookups = async () => {
-    let response = await Lookup.getLookupList(type);
-    const { colDefs, rowData } = fetchColRow(response.data);
- 
-    // Map rowData to replace Type values with corresponding labels from LookupDropdownData
-    const formattedRowData = rowData.map((row: any) => {
-      const lookupItem = LookupDropdownData.find(item => item.value == row.type);
-      return {
-        ...row,
-        type: lookupItem ? lookupItem.label : row.type, // Replace Type number with label
+    try {
+      let response = await Lookup.getLookupList(type, {
+        ...paginationParams.filter,
+        ItemsPerPage: paginationParams.pageSize,
+        PageNumber: paginationParams.page,
+      });
+
+      // Handle new API response structure
+      const apiData = response.data;
+      const pagedInfo = apiData.pagedInfo;
+      
+      // Transform the new data structure
+      const transformedData = {
+        columns: apiData.data.columns,
+        rows: apiData.data.rows
       };
-    });
-    const params = {
-      colDefs,
-      rowData: formattedRowData.reverse(),
-    };
-    setGridState(params);
+
+      const { colDefs, rowData } = fetchColRow(transformedData);
+
+      // Map rowData to replace Type values with corresponding labels from LookupDropdownData
+      const formattedRowData = rowData.map((row: any) => {
+        const lookupItem = LookupDropdownData.find(item => item.value == row.type);
+        return {
+          ...row,
+          type: lookupItem ? lookupItem.label : row.type, // Replace Type number with label
+        };
+      });
+
+      const params = {
+        colDefs,
+        rowData: formattedRowData.reverse(),
+        pagedInfo
+      };
+      setGridState(params);
+    } catch (error) {
+      console.error("Error fetching Lookup data:", error);
+      setGridState({ colDefs: [], rowData: [], pagedInfo: null });
+    }
   };
   lookups();
 }

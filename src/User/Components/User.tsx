@@ -144,6 +144,7 @@ function User(): JSX.Element {
       ...gridData.colDefs,
     ],
     rowData: gridData.rowData,
+    pagedInfo: gridData.pagedInfo, // Pass pagedInfo to DisplayGrid
   };
   console.log("====gridprops", gridProps);
 

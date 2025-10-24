@@ -15,6 +15,8 @@ import {
   Typography,
 } from "@mui/material";
 import useMasterAuthContext from "../Context/MasterAuthContext";
+import useUserAuthContext from "../Context/UserAuthContext";
+import useLabelsContext from "../Context/LabelsContext";
 import { useFilterContext } from "../Context/FilterContext";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
@@ -24,134 +26,201 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 interface LColumns {
   selectedTab?: any;
 }
-const AdvancedFilter = (props: LColumns) => {
-  // console.log("props",props?.selectedTab);
 
+const AdvancedFilter = (props: LColumns) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [resetClick, setResetClick] = useState<any>(null);
-  // const [errors, setErrors] = useState<{ [key: string]: any }>({});
+  
+  // Local state for filter values (not applied until Apply button is clicked)
+  const [localFilter, setLocalFilter] = useState<any>({});
+  const [localErrors, setLocalErrors] = useState<{ [key: string]: any }>({});
+  
   const open = Boolean(anchorEl);
   const { tabValue } = useMasterAuthContext();
-  const { filter, handleChange,setErrors,errors ,setFilter} = useFilterContext();
+  const { updateUsersData } = useUserAuthContext();
+  const { updateLabelsData } = useLabelsContext();
+  const { filter, setFilter, setPage, setPaginationChange } = useFilterContext();
 
   const isDateField = (field?: string) => {
     if (!field) return false;
     return field.toLowerCase().includes("date");
   };
-  // const validate = () => {
-  //   const newErrors: { [key: string]: string } = {};
 
-  //   if (!filter.column) newErrors.column = "Column is required";
-  //   if (!filter.operator) newErrors.operator = "Operator is required";
+  // Local validation function for local filter state
+  const validateLocal = () => {
+    const newErrors: { [key: string]: string } = {};
 
-  //   if (isDateField(filter.column?.field)) {
-  //     if (!filter.startDate) newErrors.startDate = "Start date is required";
-  //     if (!filter.endDate) newErrors.endDate = "End date is required";
-  //   } else {
-  //     if (!filter.value) newErrors.value = "Value is required";
-  //   }
+    if (!localFilter.column) newErrors.column = "Column is required";
+    if (!localFilter.operator) newErrors.operator = "Operator is required";
 
-  //   setErrors(newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
-  const validate = () => {
-  const newErrors: { [key: string]: string } = {};
+    if (isDateField(localFilter.column?.field)) {
+      if (localFilter?.operator !== "equals") {
+        if (!localFilter.startDate) {
+          newErrors.startDate = "Start date is required";
+        } else if (!dayjs(localFilter.startDate, "MM-DD-YYYY", true).isValid()) {
+          newErrors.startDate = "Start date is invalid";
+        }
 
-  if (!filter.column) newErrors.column = "Column is required";
-  if (!filter.operator) newErrors.operator = "Operator is required";
+        if (!localFilter.endDate) {
+          newErrors.endDate = "End date is required";
+        } else if (!dayjs(localFilter.endDate, "MM-DD-YYYY", true).isValid()) {
+          newErrors.endDate = "End date is invalid";
+        }
 
-  if (isDateField(filter.column?.field)) {
-    if(filter?.operator !== "equals"){
-    if (!filter.startDate) {
-      newErrors.startDate = "Start date is required";
-    } else if (!dayjs(filter.startDate, "DD-MM-YYYY", true).isValid()) {
-      newErrors.startDate = "Start date is invalid";
+        if (
+          localFilter.startDate &&
+          localFilter.endDate &&
+          dayjs(localFilter.startDate, "MM-DD-YYYY").isAfter(dayjs(localFilter.endDate, "MM-DD-YYYY"))
+        ) {
+          newErrors.startDate = "Start date cannot be after end date";
+          newErrors.endDate = "End date cannot be before start date";
+        }
+      } else if (localFilter?.operator === "equals") {
+        if (!localFilter.value) newErrors.value = "Value is required";
+      }
+    } else {
+      if (!localFilter.value) newErrors.value = "Value is required";
     }
 
-    if (!filter.endDate) {
-      newErrors.endDate = "End date is required";
-    } else if (!dayjs(filter.endDate, "DD-MM-YYYY", true).isValid()) {
-      newErrors.endDate = "End date is invalid";
-    }
+    setLocalErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    if (
-      filter.startDate &&
-      filter.endDate &&
-      dayjs(filter.startDate, "DD-MM-YYYY").isAfter(dayjs(filter.endDate, "DD-MM-YYYY"))
-    ) {
-      newErrors.startDate = "Start date cannot be after end date";
-      newErrors.endDate = "End date cannot be before start date";
-    }
-  }else if (filter?.operator === "equals") {
-    if (!filter.value) newErrors.value = "Value is required";
-  }
-  } else {
-    if (!filter.value) newErrors.value = "Value is required";
-  }
+  // Local change handler that only updates local state
+  const handleLocalChange = (key: string, value: any) => {
+    setLocalFilter((prev: any) => {
+      let updated: any = { ...prev, [key]: value };
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+      if (key === "column") {
+        const colField = value?.field?.toLowerCase() || "";
+        if (colField.includes("date")) {
+          updated.startDate = "";
+          updated.endDate = "";
+          updated.value = "";
+        } else {
+          updated.operator = "";
+          updated.startDate = "";
+          updated.endDate = "";
+        }
+      }
+
+      return updated;
+    });
+
+    setLocalErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      delete newErrors[key];
+      return newErrors;
+    });
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    // Initialize local filter with current applied filter when opening
+    setLocalFilter({ ...filter });
+    setLocalErrors({});
   };
-  console.log("filter", filter);
 
   const handleClose = () => {
     setResetClick(false);
     setAnchorEl(null);
-     setErrors({});
+    setLocalErrors({});
+    // Reset local filter to current applied filter when closing without applying
+    setLocalFilter({ ...filter });
   };
 
-const hasFilterValues = (): boolean => {
-  return !!(
-    filter.column ||
-    filter.operator ||
-    filter.value ||
-    filter.startDate ||
-    filter.endDate
-  );
-};
+  const hasFilterValues = (): boolean => {
+    return !!(
+      filter.column ||
+      filter.operator ||
+      filter.value ||
+      filter.startDate ||
+      filter.endDate ||
+      filter.filterValue
+    );
+  };
 
-const handleReset = () => {
-  setFilter({});
-  setErrors({});
-};
+  const handleReset = () => {
+    setFilter({});
+    setLocalFilter({});
+    setLocalErrors({});
+    setPage(0); // Reset to first page
+    setPaginationChange(true);
+    
+    // Trigger appropriate data refresh based on context
+    if (props?.selectedTab !== undefined) {
+      // Labels context
+      updateLabelsData(true);
+    } else {
+      // Users context
+      updateUsersData(true);
+    }
+    
+    setAnchorEl(null);
+  };
 
   const handleApply = () => {
-          let filterValue = "";
-    if (validate()) {
-      // let filterValue = "";
-      if(isDateField(filter.column?.field)) {
-         if (filter.operator === "equals") {
-        filterValue = filter.value?.trim() || "";
-      } else {
-        if (filter.startDate && filter.endDate) {
-          filterValue = `${filter.startDate}|${filter.endDate}`;
+    if (validateLocal()) {
+      let filterValue = "";
+      
+      if (isDateField(localFilter.column?.field)) {
+        if (localFilter.operator === "equals") {
+          filterValue = localFilter.value?.trim() || "";
+        } else {
+          if (localFilter.startDate && localFilter.endDate) {
+            filterValue = `${localFilter.startDate}|${localFilter.endDate}`;
+          }
         }
+      } else {
+        filterValue = localFilter.value?.trim() || "";
       }
-      }else {
-      filterValue = filter.value || "";
-    }
-      console.log("Valid filter:", filter);
+      
+      console.log("Applying filter with values:", {
+        column: localFilter.column,
+        operator: localFilter.operator,
+        filterValue: filterValue,
+        value: localFilter.value
+      });
+      
+      // Apply the local filter to the actual filter context with proper filterValue
+      const appliedFilter = {
+        column: localFilter.column,
+        operator: localFilter.operator,
+        value: localFilter.value,
+        startDate: localFilter.startDate,
+        endDate: localFilter.endDate,
+        filterValue: filterValue, // This is the key field that was missing
+      };
+      
+      setFilter(appliedFilter);
+
+      const payload = {
+        filterCol: localFilter.column?.field || "",
+        filterOperator: localFilter.operator || "",
+        filterValue: filterValue,
+      };
+      console.log("Filter payload being sent:", payload);
+
+      // Reset to first page and trigger data refresh
+      setPage(0);
+      setPaginationChange(true);
+      
+      // Trigger appropriate data refresh based on context
+      if (props?.selectedTab !== undefined) {
+        // Labels context
+        updateLabelsData(true);
+      } else {
+        // Users context
+        updateUsersData(true);
+      }
+      
       setAnchorEl(null);
     }
-     setFilter((prev: any) => ({
-      ...prev,
-      filterValue: filterValue,
-    }));
-
-    const payload = {
-      filterCol: filter.column?.field || "",
-      filterOperator: filter.operator || "",
-      filterValue: filterValue,
-    };
-          console.log("payload:", payload);
-
   };
-  
-      console.log("Valid errors:", errors);
+
+  console.log("Current filter state:", filter);
+  console.log("Local filter state:", localFilter);
+  console.log("Validation errors:", localErrors);
 
   interface Column {
     Name: string;
@@ -164,81 +233,81 @@ const handleReset = () => {
   ): Column[] => {
     if (props?.selectedTab === 1) {
       return [
-        { Name: "ANDA Number", field: "andaNumber" },
-        { Name: "Product Name", field: "productName" },
-        { Name: "Customer Name", field: "customerName" },
-        // { Name: "Customer", field: "customer" },
-        { Name: "Label Type", field: "labelType" },
-        { Name: "PM-Code", field: "pmCode" },
-        { Name: "NDC Number", field: "ndcNumber" },
-        { Name: "Job Number", field: "jobNumber" },
-        { Name: "Proof Number", field: "proofNumber" },
-        { Name: "Approved Date", field: "approvedDate" },
-        { Name: "Customer Code", field: "customerCode" },
-        { Name: "Tablet Count", field: "tabletCount" },
-        { Name: "Current Version", field: "currentVersion" },
-        { Name: "Previous Version", field: "previousVersion" },
-        // { Name: "Create By", field: "createBy" },
-        // { Name: "Create Date", field: "createDate" },
-        // { Name: "Modified By", field: "modifiedBy" },
-        // { Name: "Modified Date", field: "modifiedDate" },
-        // { Name: "MasterCopyApprovedDate", field: "masterCopyApprovedDate" },
+        { Name: "ANDA Number", field: "AndaNumber" },
+        { Name: "Product Name", field: "ProductName" },
+        { Name: "Customer Name", field: "CustomerName" },
+        { Name: "Label Type", field: "LabelType" },
+        // { Name: "PM-Code", field: "PMCode" },
+        // { Name: "NDC Number", field: "NDC Number" },
+        { Name: "PM-Code", field: "PmCode" },
+        { Name: "NDC Number", field: "Ndcnumber" },
+        { Name: "Job Number", field: "JobNumber" },
+        { Name: "Proof Number", field: "ProofNumber" },
+        { Name: "Approved Date", field: "ApprovedDate" },
+        { Name: "Customer Code", field: "CustomerCode" },
+        { Name: "Tablet Count", field: "TabletCount" },
+        { Name: "Current Version", field: "CurrentVersion" },
+        { Name: "Previous Version", field: "PreviousVersion" },
       ];
     }
 
     if (props?.selectedTab === 2) {
       return [
-        { Name: "ANDA Number", field: "andaNumber" },
-        { Name: "Product Name", field: "productName" },
-        // { Name: "Customer", field: "customer" },
-        { Name: "Customer Name", field: "customerName" },
-        { Name: "Label Type", field: "labelType" },
-        { Name: "PM-Code", field: "pmCode" },
-        { Name: "NDC Number", field: "ndcNumber" },
-        { Name: "Job Number", field: "jobNumber" },
-        { Name: "Proof Number", field: "proofNumber" },
-        { Name: "Create Date", field: "createDate" },
-        { Name: "Customer Code", field: "customerCode" },
+        { Name: "ANDA Number", field: "AndaNumber" },
+        { Name: "Product Name", field: "ProductName" },
+        { Name: "Customer Name", field: "CustomerName" },
+        { Name: "Label Type", field: "LabelType" },
+        // { Name: "PM-Code", field: "PMCode" },
+        // { Name: "NDC Number", field: "NDC Number" },
+        { Name: "PM-Code", field: "PmCode" },
+        { Name: "NDC Number", field: "Ndcnumber" },
+        { Name: "Job Number", field: "JobNumber" },
+        { Name: "Proof Number", field: "ProofNumber" },
+        { Name: "Approved Date", field: "ApprovedDate" },
+        { Name: "Customer Code", field: "CustomerCode" },
+        // { Name: "ccf", field: "CCF" },
         { Name: "ccf", field: "ccf" },
-        { Name: "Tablet Count", field: "tabletCount" },
-        { Name: "Current Version", field: "currentVersion" },
+        { Name: "Tablet Count", field: "TabletCount" },
+        { Name: "Current Version", field: "CurrentVersion" },
       ];
     }
 
     if (props?.selectedTab === 3) {
       return [
-        { Name: "ANDA Number", field: "andaNumber" },
-        { Name: "Product Name", field: "productName" },
-        // { Name: "Customer", field: "customer" },
-        { Name: "Customer Name", field: "customerName" },
-        { Name: "Label Type", field: "labelType" },
-        { Name: "PM-Code", field: "pmCode" },
-        { Name: "NDC Number", field: "ndcNumber" },
-        { Name: "Job Number", field: "jobNumber" },
-        { Name: "Proof Number", field: "proofNumber" },
-        { Name: "Create Date", field: "createDate" },
-        { Name: "Customer Code", field: "customerCode" },
+        { Name: "ANDA Number", field: "AndaNumber" },
+        { Name: "Product Name", field: "ProductName" },
+        { Name: "Customer Name", field: "CustomerName" },
+        { Name: "Label Type", field: "LabelType" },
+        // { Name: "PM-Code", field: "PMCode" },
+        // { Name: "NDC Number", field: "NDC Number" },
+        { Name: "PM-Code", field: "PmCode" },
+        { Name: "NDC Number", field: "Ndcnumber" },
+        { Name: "Job Number", field: "JobNumber" },
+        { Name: "Proof Number", field: "ProofNumber" },
+        { Name: "Create Date", field: "CreateDate" },
+        { Name: "Customer Code", field: "CustomerCode" },
+        // { Name: "ccf", field: "CCF" },
         { Name: "ccf", field: "ccf" },
-        { Name: "Tablet Count", field: "tabletCount" },
-        { Name: "Current Version", field: "currentVersion" },
-        { Name: "Hod Initiated", field: "hodInitiated" },
-        { Name: "Hod Initiated Date", field: "hodInitiatedDate" },
-        { Name: "QA Approved", field: "qaApproved" },
-        { Name: "QA Approved Date", field: "qaApprovedDate" },
+        { Name: "Tablet Count", field: "TabletCount" },
+        { Name: "Current Version", field: "CurrentVersion" },
+        { Name: "Hod Initiated", field: "HodInitiated" },
+        { Name: "Hod Initiated Date", field: "HodInitiatedDate" },
+        { Name: "QA Approved", field: "QAApproved" },
+        { Name: "QA Approved Date", field: "QAApprovedDate" },
         {
           Name: "Packing Department Approved",
           field: "packingDepartmentApproved",
         },
         {
           Name: "Packing Department Approved Date",
-          field: "packingDepartmentApprovedDate",
+          field: "PackingDepartmentApprovedDate",
         },
-        { Name: "Final Hod Approved Date", field: "finalHodApprovedDate" },
-        { Name: "Final Hod Approved", field: "finalHodApproved" },
-        { Name: "Hod Approved By", field: "hodApprovedBy" },
-        { Name: "QA Approved By", field: "qaApprovedBy" },
-        { Name: "PD Approved By", field: "pdApprovedBy" },
-        { Name: "Final Hod Approved By", field: "finalHodApprovedBy" },
+        { Name: "Final Hod Approved Date", field: "FinalHodApprovedDate" },
+        { Name: "Final Hod Approved", field: "FinalHodApproved" },
+        { Name: "Hod Approved By", field: "HodApprovedBy" },
+        { Name: "QA Approved By", field: "QAApprovedBy" },
+        { Name: "PD Approved By", field: "PDApprovedBy" },
+        { Name: "Final Hod Approved By", field: "FinalHodApprovedBy" },
       ];
     }
 
@@ -246,55 +315,56 @@ const handleReset = () => {
       case 0:
       case 1:
         return [
-          { Name: "ANDA Number", field: "andaNumber" },
-          { Name: "Create Date", field: "createDate" },
-          { Name: "Modified Date", field: "modifiedDate" },
+          { Name: "ANDA Number", field: "AndaNumber" },
+          { Name: "Create Date", field: "CreatedDate" },
+          { Name: "Modified Date", field: "ModifiedDate" },
         ];
       case 2:
         return [
-          { Name: "Create Date", field: "createDate" },
-          { Name: "Modified Date", field: "modifiedDate" },
-          { Name: "PM Code", field: "pmCode" },
+          { Name: "Create Date", field: "CreateDate" },
+          { Name: "Modified Date", field: "ModifiedDate" },
+          { Name: "PM Code", field: "PMCode" },
         ];
       case 3:
         return [
-          { Name: "Name", field: "name" },
-          { Name: "Create Date", field: "createDate" },
-          { Name: "Modified Date", field: "modifiedDate" },
+          { Name: "Name", field: "Name" },
+          { Name: "Create Date", field: "CreateDate" },
+          { Name: "Modified Date", field: "ModifiedDate" },
         ];
       case 4:
         return [
-          { Name: "Type", field: "type" },
-          { Name: "Create Date", field: "createDate" },
-          { Name: "Description", field: "description" },
+          { Name: "Type", field: "Type" },
+          { Name: "Create Date", field: "CreatedDate" },
+          { Name: "Description", field: "Description" },
         ];
       case 5:
         return [
-          { Name: "ANDA Number", field: "andaNumber" },
-          { Name: "Product Name", field: "productName" },
-          { Name: "Customer", field: "customer" },
-          { Name: "Label Type", field: "labelType" },
-          { Name: "PM-Code", field: "pmCode" },
-          { Name: "NDC Number", field: "ndcNumber" },
-          { Name: "TabletCount", field: "tabletCount" },
-          { Name: "Create By", field: "createBy" },
-          { Name: "Create Date", field: "createDate" },
-          { Name: "Modified By", field: "modifiedBy" },
-          { Name: "Modified Date", field: "modifiedDate" },
+          { Name: "ANDA Number", field: "AndaNumber" },
+          { Name: "Product Name", field: "ProductName" },
+          { Name: "Customer", field: "Customer" },
+          { Name: "Label Type", field: "LabelType" },
+          // { Name: "PM-Code", field: "PMCode" },
+          // { Name: "NDC Number", field: "NDC Number" },
+          { Name: "PM-Code", field: "PmCode" },
+        { Name: "NDC Number", field: "Ndcnumber" },
+          { Name: "TabletCount", field: "TabletCount" },
+          { Name: "Create By", field: "CreateBy" },
+          { Name: "Create Date", field: "CreateDate" },
+          { Name: "Modified By", field: "ModifiedBy" },
+          { Name: "Modified Date", field: "ModifiedDate" },
           { Name: "MasterCopyApprovedDate", field: "masterCopyApprovedDate" },
         ];
       case 6:
         return [
-          { Name: "Id", field: "id" },
-          { Name: "Type", field: "type" },
-          { Name: "Description", field: "description" },
+          { Name: "Id", field: "Id" },
+          { Name: "Type", field: "Type" },
+          { Name: "Description", field: "Description" },
         ];
       default:
         return [
-          { Name: "First Name", field: "firstName" },
-          { Name: "Last Name", field: "lastName" },
-          { Name: "LogIn Name", field: "logInName" },
-          // { Name: "Is Active", field: "isactive" },
+          { Name: "First Name", field: "FirstName" },
+          { Name: "Last Name", field: "LastName" },
+          { Name: "LogIn Name", field: "LogInName" },
         ];
     }
   };
@@ -305,9 +375,10 @@ const handleReset = () => {
     { label: "contains", value: "contains" },
     { label: "between", value: "between" },
   ];
-  const availableOperators = isDateField(filter.column?.field)
-  ? operatorOptions.filter((op) => op.value === "equals" || op.value === "between")
-  : operatorOptions.filter((op) => op.value !== "between");
+  const availableOperators = isDateField(localFilter.column?.field)
+    ? operatorOptions.filter((op) => op.value === "equals" || op.value === "between")
+    : operatorOptions.filter((op) => op.value !== "between");
+  
   return (
     <>
       <IconButton onClick={handleClick}>
@@ -332,15 +403,13 @@ const handleReset = () => {
               <Autocomplete
                 options={columnOptions || []}
                 getOptionLabel={(option) => option.Name}
-                // value={columnOptions?.find((item: any) => item.Name) || null}
                 value={
                   columnOptions?.find(
-                    (item) => item.field === filter.column?.field
+                    (item) => item.field === localFilter.column?.field
                   ) || null
                 }
-                // onChange={(_event, newValue) => {}}
                 onChange={(_event, newValue) =>
-                  handleChange("column", newValue)
+                  handleLocalChange("column", newValue)
                 }
                 renderInput={(params) => (
                   <TextField
@@ -348,8 +417,8 @@ const handleReset = () => {
                     label="Column Name"
                     fullWidth
                     required
-                    error={!!errors?.column}
-                    helperText={errors?.column}
+                    error={!!localErrors?.column}
+                    helperText={localErrors?.column}
                     sx={{
                       "& .MuiInputBase-root": {
                         height: 43,
@@ -369,25 +438,18 @@ const handleReset = () => {
                 )}
               />
             </Box>
-            {/* Oepator */}
+            {/* Operator */}
             <Box sx={{ marginTop: "15px" }}>
               <Autocomplete
-                // options={operatorOptions}
-                // getOptionLabel={(option: any) => option?.value || ""}
-                // value={
-                //   operatorOptions?.find(
-                //     (item: any) => item.value === filter?.operator
-                //   ) || null
-                // }
-                    options={availableOperators}
-    getOptionLabel={(option: any) => option.value}
-    value={
-      availableOperators.find(
-        (item: any) => item.value === filter?.operator
-      ) || null
-    }
+                options={availableOperators}
+                getOptionLabel={(option: any) => option.value}
+                value={
+                  availableOperators.find(
+                    (item: any) => item.value === localFilter?.operator
+                  ) || null
+                }
                 onChange={(_event, newValue) =>
-                  handleChange("operator", newValue?.value)
+                  handleLocalChange("operator", newValue?.value)
                 }
                 renderInput={(params) => (
                   <TextField
@@ -395,8 +457,8 @@ const handleReset = () => {
                     label="Operator"
                     fullWidth
                     required
-                    error={!!errors.operator}
-                    helperText={errors.operator}
+                    error={!!localErrors.operator}
+                    helperText={localErrors.operator}
                     sx={{
                       "& .MuiInputBase-root": {
                         height: 43,
@@ -416,22 +478,22 @@ const handleReset = () => {
                 )}
               />
             </Box>
-            {(isDateField(filter.column?.field) && filter?.operator !== "equals" )? (
+            {(isDateField(localFilter.column?.field) && localFilter?.operator !== "equals") ? (
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <Box sx={{ display: "block", gap: 1, mt: 2 }}>
                   {/* Start Date */}
                   <DatePicker
                     label="Start Date"
-                    inputFormat="DD-MM-YYYY"
+                    inputFormat="MM-DD-YYYY"
                     value={
-                      filter.startDate
-                        ? dayjs(filter.startDate, "DD-MM-YYYY")
+                      localFilter.startDate
+                        ? dayjs(localFilter.startDate, "MM-DD-YYYY")
                         : null
                     }
                     onChange={(newValue: Dayjs | null) =>
-                      handleChange(
+                      handleLocalChange(
                         "startDate",
-                        newValue ? newValue.format("DD-MM-YYYY") : ""
+                        newValue ? newValue.format("MM-DD-YYYY") : ""
                       )
                     }
                     renderInput={(params) => (
@@ -439,9 +501,9 @@ const handleReset = () => {
                         {...params}
                         fullWidth
                         required
-                        error={!!errors.startDate}
-                        helperText={errors.startDate}
-                        placeholder="DD-MM-YYYY"
+                        error={!!localErrors.startDate}
+                        helperText={localErrors.startDate}
+                        placeholder="MM-DD-YYYY"
                         sx={{
                           "& .MuiInputBase-root": { height: 40 },
                           "& .MuiInputLabel-root": { top: -4, fontSize: 14 },
@@ -455,16 +517,16 @@ const handleReset = () => {
                   {/* End Date */}
                   <DatePicker
                     label="End Date"
-                    inputFormat="DD-MM-YYYY"
+                    inputFormat="MM-DD-YYYY"
                     value={
-                      filter.endDate
-                        ? dayjs(filter.endDate, "DD-MM-YYYY")
+                      localFilter.endDate
+                        ? dayjs(localFilter.endDate, "MM-DD-YYYY")
                         : null
                     }
                     onChange={(newValue: Dayjs | null) =>
-                      handleChange(
+                      handleLocalChange(
                         "endDate",
-                        newValue ? newValue.format("DD-MM-YYYY") : ""
+                        newValue ? newValue.format("MM-DD-YYYY") : ""
                       )
                     }
                     renderInput={(params) => (
@@ -472,9 +534,9 @@ const handleReset = () => {
                         {...params}
                         fullWidth
                         required
-                        placeholder="DD-MM-YYYY"
-                        error={!!errors.endDate}
-                        helperText={errors.endDate}
+                        placeholder="MM-DD-YYYY"
+                        error={!!localErrors.endDate}
+                        helperText={localErrors.endDate}
                         sx={{
                           "& .MuiInputBase-root": { height: 40 },
                           "& .MuiInputLabel-root": { top: -4, fontSize: 14 },
@@ -489,17 +551,17 @@ const handleReset = () => {
               <Box sx={{ marginTop: "15px" }}>
                 <TextField
                   label="Value *"
-                  value={filter.value || ""}
-                  // onChange={(event) => {}}
-                  onChange={(e) => handleChange("value", e.target.value)}
+                  value={localFilter.value || ""}
+                  onChange={(e) => handleLocalChange("value", e.target.value)}
+                  onBlur={(e) => handleLocalChange("value", (e.target.value || "").trim())}
                   fullWidth
                   onKeyDown={(event) => {
                     if (event.key === "f" || event.key === "F") {
                       event.stopPropagation();
                     }
                   }}
-                  error={!!errors.value}
-                  helperText={errors.value}
+                  error={!!localErrors.value}
+                  helperText={localErrors.value}
                   sx={{
                     "& .MuiInputBase-root": {
                       height: 40,
@@ -523,10 +585,8 @@ const handleReset = () => {
               variant="outlined"
               size="small"
               sx={{ color: "#1e364b", borderColor: "#1e364b" }}
-              // onClick={handleClose}
-              onClick={hasFilterValues() ? handleReset : handleClose} 
+              onClick={hasFilterValues() ? handleReset : handleClose}
             >
-              {/* Cancel */}
               {hasFilterValues() ? "Reset" : "Cancel"}
             </Button>
             <Button

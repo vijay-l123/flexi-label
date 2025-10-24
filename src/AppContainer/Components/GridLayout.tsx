@@ -3,6 +3,12 @@ import { useDemoData } from "@mui/x-data-grid-generator";
 import { alpha, styled } from "@mui/material/styles";
 import "../../styles/grid.css";
 import {
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarDensitySelector,
+  GridToolbarExport,
+} from "@mui/x-data-grid";
+import {
   DataGrid,
   gridClasses,
   GridActionsCellItem,
@@ -43,7 +49,8 @@ import { checkAlreadyApproved } from "../../Modal/utilModal";
 import LabelHistory from "../../UiComponents/LabelHistory";
 import { LabelHistoryContextProvider } from "../../Context/LabelHistoryContext";
 import LabelReview from "../../UiComponents/LabelReview";
-// import AdvancedFilter from "../../UiComponents/AdvanceFilter";
+import AdvancedFilter from "../../UiComponents/AdvanceFilter";
+import { useFilterContext } from "../../Context/FilterContext";
 
 const {
   TLabelStatus,
@@ -206,7 +213,9 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
       display: true,
       headerClassName: "super-app-theme--header",
       renderCell: (params: any) => {
+        // debugger
         const id = +params.row.id;
+        const currentVersionId = +params.row.currentVersionId;
 
         return (
           <React.Fragment>
@@ -218,7 +227,8 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
                   console.log("event", e);
                   const historyParams: IHistoryPopupParams = {
                     show: true,
-                    fileId: +e.currentTarget.value,
+                    // fileId: +e.currentTarget.value,
+                    fileId: +currentVersionId,
                   };
                   historyPopupState(historyParams);
                 }}
@@ -455,6 +465,7 @@ function GridLayout(props: any) {
     createNewVersionState,
   } = props;
   const { authData } = useAuthContext();
+  const { setPageSize,setPage,pageSize,setPaginationChange,page,paginationData } = useFilterContext();
   const labelVersionId = React.useRef(0);
   const fileVersionId = React.useRef(0);
 
@@ -465,7 +476,10 @@ function GridLayout(props: any) {
   //   rowLength: 100,
   //   editable: true,
   // });
-  console.log("selectedTab:", selectedTab,columnData);
+  console.log("selectedTab:", selectedTab, "columnData:", columnData);
+  console.log("paginationData:", paginationData);
+  console.log("rowData length:", rowData?.length);
+  console.log("rowData:", rowData);
 
   type IColumnState = {
     [key: string]: boolean;
@@ -513,6 +527,7 @@ function GridLayout(props: any) {
   };
 
   const historyPopupState = (val: IHistoryPopupParams) => {
+    // debugger
     setHistoryPopup((prevState: any) => ({
       ...prevState,
       id: val.fileId,
@@ -903,24 +918,47 @@ function GridLayout(props: any) {
 //     </Box>
 //   );
 // };
-  return (
-    // <DataGrid
-    //   sx={{
-    //     boxShadow: 0,
-    //     border: 0,
-    //     borderColor: "primary.light",
-    //     "& .MuiDataGrid-cell:hover": {
-    //       color: "primary.main",
-    //     },
-    //   }}
-    //   {...data}
-    //   loading={data.rows.length === 0}
-    //   rowHeight={38}
-    //   checkboxSelection
-    //   disableSelectionOnClick
-    //   experimentalFeatures={{ newEditingApi: true }}
-    // />
 
+
+const CustomToolbar = ({ selectedTab }: any) => {
+  return (
+    <GridToolbarContainer
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        p: 1,
+      }}
+    >
+      {/* Keep only the buttons you want */}
+      <Box sx={{ display: "flex", gap: 1 }}>
+        <GridToolbarColumnsButton />
+        <GridToolbarDensitySelector />
+        <GridToolbarExport />
+      </Box>
+
+      {/* Your custom filter */}
+      <Box sx={{ ml: 2 }}>
+        <AdvancedFilter selectedTab={selectedTab} />
+      </Box>
+    </GridToolbarContainer>
+  );
+};
+
+
+  // Calculate rowCount properly from pagination data
+  const rowCount = React.useMemo(() => {
+    if (paginationData && typeof paginationData.totalRecords === 'number') {
+      console.log("Using paginationData.totalRecords:", paginationData.totalRecords);
+      return paginationData.totalRecords;
+    }
+    // Fallback to current page data length
+    const fallback = rowData?.length || 0;
+    console.log("Using fallback rowCount:", fallback);
+    return fallback;
+  }, [paginationData, rowData]);
+
+  return (
     <Box sx={{position: 'relative'}}>
       <Box
       sx={{
@@ -1064,23 +1102,31 @@ function GridLayout(props: any) {
         // disableSelectionOnClick
         getRowClassName={getRowClass}
         disableColumnSelector={true}
-        // components={{
-        //   Toolbar: GridToolbar,
+        rowCount={rowCount}
+              pagination
+              paginationMode="server"
+              paginationModel={{ page, pageSize }}
+                 onPaginationModelChange={(model) => {
+            console.log("Pagination model change:", model);
+            setPaginationChange(true);
+            if (model.pageSize !== pageSize) {
+              console.log("Page size changed from", pageSize, "to", model.pageSize);
+            setPage(0); 
+            } else {
+              console.log("Page changed to:", model.page);
+            setPage(model.page);
+            }
+            setPageSize(model.pageSize);
+            }}
+        pageSizeOptions={[25, 50, 100]}
+            slots={{
+        toolbar: CustomToolbar,
+      }}
+        // slotProps={{
+        //   toolbar: {
+        //     showQuickFilter:true,
+        //   }
         // }}
-        // componentsProps={{
-        //   toolbar: { showQuickFilter: true },
-        // }}
-        slots={{
-          toolbar: GridToolbar,
-        }}
-      //       slots={{
-      //   toolbar: CustomToolbar,
-      // }}
-        slotProps={{
-          toolbar: {
-            showQuickFilter:true,
-          }
-        }}
         columnVisibilityModel={{
           ...columnVisibilityState,
         }}

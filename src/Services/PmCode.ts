@@ -63,11 +63,33 @@ function updatePmCode(params: any) {
   return response;
 }
 
-function getPmCodeListEx() {
+// function getPmCodeListEx() {
+//   const response = axios({
+//     method: "GET",
+//     url: "PmCode/GetPmCodeListEx",
+//     baseURL: baseUrl,
+//   });
+//   return response;
+// }
+function getPmCodeListEx(params?: {
+  filterCol?: string;
+  filterOperator?: string;
+  filterValue?: string;
+  ItemsPerPage?: number;
+  PageNumber?: number;
+}) {
+  const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params || {};
   const response = axios({
     method: "GET",
     url: "PmCode/GetPmCodeListEx",
     baseURL: baseUrl,
+    params: {
+      filterCol,
+      filterOperator,
+      filterValue,
+      ItemsPerPage,
+      PageNumber
+    },
   });
   return response;
 }

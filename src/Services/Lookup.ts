@@ -3,11 +3,34 @@ import config from "./config";
 
 const baseUrl = config.baseUrl;
 
-function getLookupList(type: string) {
+// function getLookupList(type: string) {
+//   const response = axios({
+//     method: "GET",
+//     url: `/LookUpData/GetLookupListByType?type=${type}`,
+//     baseURL: baseUrl,
+//   });
+//   return response;
+// }
+function getLookupList(type: string, params?: {
+  filterCol?: string;
+  filterOperator?: string;
+  filterValue?: string;
+  ItemsPerPage?: number;
+  PageNumber?: number;
+}) {
+  const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params || {};
   const response = axios({
     method: "GET",
-    url: `/LookUpData/GetLookupListByType?type=${type}`,
+    url: `/LookUpData/GetLookupListByType`,
     baseURL: baseUrl,
+    params: {
+      type,
+      filterCol,
+      filterOperator,
+      filterValue,
+      ItemsPerPage,
+      PageNumber
+    },
   });
   return response;
 }

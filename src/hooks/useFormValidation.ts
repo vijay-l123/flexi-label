@@ -10,7 +10,7 @@ export function useFormValidation(
 
   const handleInputChange = (e: any) => {
     const { name, value, isAddValue = false, setIdFlag = "" } = e.target;
-
+// debugger
     if (name === "fileData") {
       setValues({
         ...values,

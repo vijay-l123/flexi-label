@@ -54,11 +54,33 @@ function updateCustomer(params: any) {
   return response;
 }
 
-function getCustomerListEx() {
+// function getCustomerListEx() {
+//   const response = axios({
+//     method: "GET",
+//     url: "Customer/GetCustomerListExs",
+//     baseURL: baseUrl,
+//   });
+//   return response;
+// }
+function getCustomerListEx(params?: {
+  filterCol?: string;
+  filterOperator?: string;
+  filterValue?: string;
+  ItemsPerPage?: number;
+  PageNumber?: number;
+}) {
+  const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params || {};
   const response = axios({
     method: "GET",
     url: "Customer/GetCustomerListExs",
     baseURL: baseUrl,
+    params: {
+      filterCol,
+      filterOperator,
+      filterValue,
+      ItemsPerPage,
+      PageNumber
+    },
   });
   return response;
 }

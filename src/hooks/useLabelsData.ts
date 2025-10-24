@@ -3,6 +3,7 @@ import React from "react";
 import useAuthContext from "../Authentication/AuthProvider";
 import Services from "../Services/Services";
 import common from "../utils/common";
+import { useFilterContext } from "../Context/FilterContext";
 
 const {
   TLabelStatus,
@@ -20,6 +21,14 @@ export function useLabelsData() {
   const [labelAction, setLabelAction] = React.useState<boolean>(false);
 
   const { authData } = useAuthContext();
+  const {
+    pageSize,
+    page,
+    paginationChange,
+    setPaginationChange,
+    setPaginationData,
+    filter,
+  } = useFilterContext();
 
   const clearState = () => {
     setRowData([]);
@@ -34,67 +43,297 @@ export function useLabelsData() {
     setLabelAction(val);
   }, []);
 
+  // Helper function to construct filter parameters
+  const getFilterParams = React.useCallback(() => {
+    console.log("Current filter state:", filter);
+    
+    // Check if filter has been applied (has filterValue or all required fields)
+    if (filter.column?.field && filter.operator && (filter.filterValue !== undefined || filter.value)) {
+      const filterParams = {
+        filterCol: filter.column.field,
+        filterOperator: filter.operator,
+        filterValue: filter.filterValue || filter.value || "",
+      };
+      console.log("Using filter params:", filterParams);
+      return filterParams;
+    }
+    
+    // Return empty filter params if no valid filter is applied
+    console.log("No valid filter applied, using empty params");
+    return {
+      filterCol: "",
+      filterOperator: "",
+      filterValue: "",
+    };
+  }, [filter]);
+
+  // Fetch data when selectedTab changes (initial load)
   React.useMemo(() => {
     const getLabels = async () => {
       try {
+        console.log("Fetching labels for tab:", selectedTab, "page:", page + 1, "pageSize:", pageSize);
+        
+        const filterParams = getFilterParams();
+
         const response = await Services.LabelVersion.getLableVersionList(
           selectedTab,
-          authData.roleId
-        );
-        setColumnData(
-          response.data["columns"].map((i: any) => {
-            return { ...i, field: camelCase(i.name) };
-          })
+          authData.roleId,
+          page + 1, // Convert 0-based to 1-based page number
+          pageSize,
+          filterParams.filterCol,
+          filterParams.filterOperator,
+          filterParams.filterValue
         );
 
-        setRowData(
-          response.data["rows"].map((i: any, index: number) => {
-            return { ...camelizeKeys(i), index: index };
-          })
-        );
+        console.log("API Response:", response.data);
+
+        // Handle new API response structure
+        const apiData = response.data;
+        
+        // Check if response has the new structure with paging
+        if (apiData.paging && apiData.data) {
+          // New API structure
+          setPaginationData({
+            totalRecords: apiData.paging.totalRecords,
+            maxPage: apiData.paging.maxPage,
+            contentRange: apiData.paging.contentRange,
+            previousPage: apiData.paging.previousPage,
+            nextPage: apiData.paging.nextPage,
+          });
+
+          // Set column data
+          setColumnData(
+            apiData.data.columns.map((i: any) => {
+              return { ...i, field: camelCase(i.name) };
+            })
+          );
+
+          // Set row data
+          setRowData(
+            apiData.data.rows.map((i: any, index: number) => {
+              return { ...camelizeKeys(i), index: (page * pageSize) + index };
+            })
+          );
+
+          console.log("New API - Processed rowData length:", apiData.data.rows.length);
+          console.log("New API - Total records:", apiData.paging.totalRecords);
+        } else {
+          // Fallback to old API structure
+          console.log("Using old API structure");
+          setPaginationData({
+            totalRecords: apiData.rows?.length || 0,
+            maxPage: 1,
+            contentRange: `1-${apiData.rows?.length || 0}/${apiData.rows?.length || 0}`,
+            previousPage: 0,
+            nextPage: 0,
+          });
+
+          setColumnData(
+            apiData["columns"]?.map((i: any) => {
+              return { ...i, field: camelCase(i.name) };
+            }) || []
+          );
+
+          setRowData(
+            apiData["rows"]?.map((i: any, index: number) => {
+              return { ...camelizeKeys(i), index: index };
+            }) || []
+          );
+        }
+        
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching labels:", error);
+        // Set empty data on error
+        setPaginationData({
+          totalRecords: 0,
+          maxPage: 1,
+          contentRange: "0-0/0",
+          previousPage: 0,
+          nextPage: 0,
+        });
+        setRowData([]);
+        setColumnData([]);
       }
 
       return () => clearState();
     };
-    if (selectedTab) getLabels();
-  }, [selectedTab]);
 
+    if (selectedTab !== undefined && selectedTab !== null) {
+      getLabels();
+    }
+  }, [selectedTab, page, pageSize, getFilterParams]); // Added getFilterParams to dependencies
+
+  // Fetch data when pagination changes
   React.useMemo(() => {
     const getLabels = async () => {
       try {
+        console.log("Fetching labels (pagination change):", selectedTab, "page:", page + 1, "pageSize:", pageSize);
+        
+        const filterParams = getFilterParams();
+
         const response = await Services.LabelVersion.getLableVersionList(
           selectedTab,
-          authData.roleId
-        );
-        setColumnData(
-          response.data["columns"].map((i: any) => {
-            return { ...i, field: camelCase(i.name) };
-          })
+          authData.roleId,
+          page + 1, // Convert 0-based to 1-based page number
+          pageSize,
+          filterParams.filterCol,
+          filterParams.filterOperator,
+          filterParams.filterValue
         );
 
-        setRowData(
-          response.data["rows"].map((i: any, index: number) => {
-            return { ...camelizeKeys(i), index: index };
-          })
-        );
+        console.log("API Response (pagination):", response.data);
+
+        // Handle new API response structure
+        const apiData = response.data;
+        
+        // Check if response has the new structure with paging
+        if (apiData.paging && apiData.data) {
+          // New API structure
+          setPaginationData({
+            totalRecords: apiData.paging.totalRecords,
+            maxPage: apiData.paging.maxPage,
+            contentRange: apiData.paging.contentRange,
+            previousPage: apiData.paging.previousPage,
+            nextPage: apiData.paging.nextPage,
+          });
+
+          // Set column data
+          setColumnData(
+            apiData.data.columns.map((i: any) => {
+              return { ...i, field: camelCase(i.name) };
+            })
+          );
+
+          // Set row data
+          setRowData(
+            apiData.data.rows.map((i: any, index: number) => {
+              return { ...camelizeKeys(i), index: (page * pageSize) + index };
+            })
+          );
+
+          console.log("Pagination - Processed rowData length:", apiData.data.rows.length);
+          console.log("Pagination - Total records:", apiData.paging.totalRecords);
+        } else {
+          // Fallback to old API structure
+          console.log("Using old API structure (pagination)");
+          setPaginationData({
+            totalRecords: apiData.rows?.length || 0,
+            maxPage: 1,
+            contentRange: `1-${apiData.rows?.length || 0}/${apiData.rows?.length || 0}`,
+            previousPage: 0,
+            nextPage: 0,
+          });
+
+          setColumnData(
+            apiData["columns"]?.map((i: any) => {
+              return { ...i, field: camelCase(i.name) };
+            }) || []
+          );
+
+          setRowData(
+            apiData["rows"]?.map((i: any, index: number) => {
+              return { ...camelizeKeys(i), index: index };
+            }) || []
+          );
+        }
+        
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching labels (pagination):", error);
       }
 
       return () => clearState();
     };
-    if (labelAction) {
+
+    if (paginationChange && selectedTab !== undefined && selectedTab !== null) {
+      getLabels();
+      setPaginationChange(false);
+    }
+  }, [paginationChange, getFilterParams]);
+
+  // Fetch data when labelAction is triggered (for updates, etc.)
+  React.useMemo(() => {
+    const getLabels = async () => {
+      try {
+        console.log("Fetching labels (action):", selectedTab, "page:", page + 1, "pageSize:", pageSize);
+        
+        const filterParams = getFilterParams();
+
+        const response = await Services.LabelVersion.getLableVersionList(
+          selectedTab,
+          authData.roleId,
+          page + 1, // Convert 0-based to 1-based page number
+          pageSize,
+          filterParams.filterCol,
+          filterParams.filterOperator,
+          filterParams.filterValue
+        );
+
+        // Handle new API response structure
+        const apiData = response.data;
+        
+        // Check if response has the new structure with paging
+        if (apiData.paging && apiData.data) {
+          // New API structure
+          setPaginationData({
+            totalRecords: apiData.paging.totalRecords,
+            maxPage: apiData.paging.maxPage,
+            contentRange: apiData.paging.contentRange,
+            previousPage: apiData.paging.previousPage,
+            nextPage: apiData.paging.nextPage,
+          });
+
+          // Set column data
+          setColumnData(
+            apiData.data.columns.map((i: any) => {
+              return { ...i, field: camelCase(i.name) };
+            })
+          );
+
+          // Set row data
+          setRowData(
+            apiData.data.rows.map((i: any, index: number) => {
+              return { ...camelizeKeys(i), index: (page * pageSize) + index };
+            })
+          );
+        } else {
+          // Fallback to old API structure
+          setPaginationData({
+            totalRecords: apiData.rows?.length || 0,
+            maxPage: 1,
+            contentRange: `1-${apiData.rows?.length || 0}/${apiData.rows?.length || 0}`,
+            previousPage: 0,
+            nextPage: 0,
+          });
+
+          setColumnData(
+            apiData["columns"]?.map((i: any) => {
+              return { ...i, field: camelCase(i.name) };
+            }) || []
+          );
+
+          setRowData(
+            apiData["rows"]?.map((i: any, index: number) => {
+              return { ...camelizeKeys(i), index: index };
+            }) || []
+          );
+        }
+        
+      } catch (error) {
+        console.error("Error fetching labels (action):", error);
+      }
+
+      return () => clearState();
+    };
+
+    if (labelAction && selectedTab !== undefined && selectedTab !== null) {
       getLabels();
       updateLabelsData(false);
     }
-  }, [labelAction]);
+  }, [labelAction, getFilterParams]);
 
   return {
     columnData,
     rowData,
-
     updateSelectedTab,
     updateLabelsData,
   };

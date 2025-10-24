@@ -5,20 +5,37 @@ import config from "./config";
 
 const baseUrl = config.baseUrl;
 
-function getLableVersionList(selectedTab: number, roleId: number) {
-  const postProps = {
+function getLableVersionList(
+  selectedTab: number, 
+  roleId: number, 
+  pageNumber: number = 1, 
+  itemsPerPage: number = 25,
+  filterCol?: string,
+  filterOperator?: string,
+  filterValue?: string
+) {
+
+  const postProps: any = {
     userRole: +roleId,
     status: selectedTab,
+    pageNumber: +pageNumber,
+    itemsPerPage: +itemsPerPage,
+    filterCol: (filterCol),
+    filterOperator: filterOperator ?? "",
+    filterValue: filterValue ?? "",
   };
-  const url = "LabelVersion/GetLableListEx2";
+
+  const url = `LabelVersion/GetLableListEx2`;
+
+  console.log("API Request URL:", url);
+  console.log("API Request Body:", postProps);
 
   const response = axios({
     method: "POST",
     url: url,
     baseURL: baseUrl,
-    data: {
-      ...postProps,
-    },
+    headers: { "Content-Type": "application/json" },
+    data: postProps,
   });
   return response;
 }
@@ -32,6 +49,8 @@ function addLabelVersion(params: any) {
     isFileInfoChanged,
     fileId,
     remarks,
+    //    implementationDate,
+    // color,
     printer,
     proofNum,
     jobNumber,
@@ -45,6 +64,8 @@ function addLabelVersion(params: any) {
     labelInfoId: labelInfoId,
     versionNo: versionNo,
     fileName: fileName,
+    // implementationDate:implementationDate,
+    // color:color,
     isFileInfoChanged: fileName === "" ? false : isFileInfoChanged,
     fileId: +fileId,
     remarks: remarks,
@@ -56,10 +77,6 @@ function addLabelVersion(params: any) {
     foldSize,
     flatSize,
     ccf
-    // createdDate: new Date(),
-    // modifiedDate: new Date(),
-    // createdBy: 0,
-    // modifiedBy: 0,
   };
 
   const response = axios({
@@ -93,19 +110,12 @@ function updateLabelVersion(params: any) {
     id: id,
     labelInfoId: labelInfoId,
     versionNo: versionNo,
-    //fileData: null,
-    // fileName: fileName,
-    // isFileInfoChanged: isFileInfoChanged,
     fileId: fileId,
     remarks: remarks,
     status: 0,
     foldSize,
     flatSize,
     ccf
-    // createdDate: new Date(),
-    // modifiedDate: new Date(),
-    // createdBy: 0,
-    // modifiedBy: 0,
   };
 
   const response = axios({
@@ -126,10 +136,6 @@ function submitForReview(params: any) {
   const postProps = {
     labelVersionId: labelVersionId,
     remarks: remarks,
-    // createdDate: new Date(),
-    // modifiedDate: new Date(),
-    // createdBy: 0,
-    // modifiedBy: 0,
   };
 
   const response = axios({
@@ -151,10 +157,6 @@ function processReview(params: any) {
     labelVersionId: labelVersionId,
     remarks: remarks,
     action: action,
-    // createdDate: new Date(),
-    // modifiedDate: new Date(),
-    // createdBy: 0,
-    // modifiedBy: 0,
   };
 
   const response = axios({

@@ -58,7 +58,7 @@ function uploadDocument(params: any) {
 
   // Loop through the files and append each one to the formData
   fileData.forEach((file: File) => {
-    formData.append("uploadFile", file);
+    formData.append("uploadFiles", file);
   });
 
   const response = axios({

@@ -13,12 +13,36 @@ function getLabelList() {
   return response;
 }
 
-function getLabels() {
+function getLabels(params: any = {}) {
   const response = axios({
     method: "GET",
     url: "Label/GetLabelListEx",
     baseURL: baseUrl,
+    params, // pass pagination / filter / sort params to API (e.g. page, pageSize, search)
+  }).then((res) => {
+    // Normalize new API shape:
+    // {
+    //   pagedInfo: { ... },
+    //   data: { columns: [...], rows: [...], name: ... }
+    // }
+    const payload = res?.data || {};
+    const pagedInfo = payload.pagedInfo || {};
+    const dataNode = payload.data || {};
+    const columns = dataNode.columns || [];
+    const rows = dataNode.rows || [];
+    const name = dataNode.name ?? null;
+
+    return {
+      pagedInfo,
+      data: {
+        columns,
+        rows,
+        name,
+      },
+      raw: payload, // keep raw payload if callers need other fields
+    };
   });
+
   return response;
 }
 

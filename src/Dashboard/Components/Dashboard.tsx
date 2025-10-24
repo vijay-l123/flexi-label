@@ -12,7 +12,7 @@ import withLabels from "../../HOC/withLabels";
 import { IModalProps } from "../../utils/types";
 import { useDispatch } from "react-redux";
 import { setCreateNewVersionRedux } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
-// import { useFilterContext } from "../../Context/FilterContext";
+import { useFilterContext } from "../../Context/FilterContext";
 
 const { TRoleType } = common;
 
@@ -39,7 +39,7 @@ function Dashboard() {
   const [isCreateNewVersion, setCreateNewVersion] = React.useState(false);
   const selectedTab = React.useRef(1);
   const { authData } = useAuthContext();
-    // const {setErrors,setFilter} = useFilterContext();
+    const {setErrors,setFilter,setPage,setPageSize} = useFilterContext();
 
   const dispatch = useDispatch();
 
@@ -49,8 +49,10 @@ function Dashboard() {
   const handleTabChange = (event: any, value: any) => {
     setTabValue(value);
     selectedTab.current = value;
-  //     setFilter({});
-  // setErrors({});
+      setFilter({});
+  setErrors({});
+     setPageSize(25)
+      setPage(0);
   };
 
   const setModalState = (val: boolean) => setModalOpen(val);

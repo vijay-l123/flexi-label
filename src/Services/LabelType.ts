@@ -63,11 +63,33 @@ function updateLabelType(params: any) {
   return response;
 }
 
-function getLabelTypeListEx() {
+// function getLabelTypeListEx() {
+//   const response = axios({
+//     method: "GET",
+//     url: "LabelType/GetLabelTypeListEx",
+//     baseURL: baseUrl,
+//   });
+//   return response;
+// }
+function getLabelTypeListEx(params?: {
+  filterCol?: string;
+  filterOperator?: string;
+  filterValue?: string;
+  ItemsPerPage?: number;
+  PageNumber?: number;
+}) {
+  const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params || {};
   const response = axios({
     method: "GET",
     url: "LabelType/GetLabelTypeListEx",
     baseURL: baseUrl,
+    params: {
+      filterCol,
+      filterOperator,
+      filterValue,
+      ItemsPerPage,
+      PageNumber
+    },
   });
   return response;
 }

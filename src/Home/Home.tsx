@@ -72,7 +72,9 @@ function DashboardPage() {
 function UserPage() {
   return (
     <React.Fragment>
+      <Box sx={{mt:-7}}>
       <Page content={<User />} title={TAppPage.UserManagement} />
+      </Box>
     </React.Fragment>
   );
 }

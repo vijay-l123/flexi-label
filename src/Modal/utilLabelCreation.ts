@@ -270,8 +270,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
       jobNumber: data.get("jobNumber"),
       tabletCount: data.get("tabletCount"),
       proofNum: data.get("proofNum") || data.get("proofNumber") || "",
+      //  implementationDate: data.get("ImplementationDate") ?? values.ImplementationDate,
+      // color: data.get("color") ?? values.color,
       /////////
-      versionNo: data.get("versionNumber"),
+      versionNo: data.get("versionNumber")||"",
       foldSize: data.get("foldSize"),
       flatSize: data.get("flatSize"),
       ccf: data.get("ccf"),
@@ -363,7 +365,7 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   //label version
   if (newType === 6 && isCreateNewVersion) {
     apiParams = {
-      versionNo: data.get("versionNumber"),
+      versionNo: data.get("versionNumber") || "",
       foldSize: data.get("foldSize"),
       flatSize: data.get("flatSize"),
       ccf: data.get("ccf"),

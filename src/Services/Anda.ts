@@ -65,11 +65,34 @@ function updateAnda(params: any) {
   return response;
 }
 
-function getAndaListEx() {
+// function getAndaListEx() {
+//   const response = axios({
+//     method: "GET",
+//     url: "Anda/GetAndaListEx",
+//     baseURL: config.baseUrl,
+//   });
+
+//   return response;
+// }
+function getAndaListEx(params?: {
+  filterCol?: string;
+  filterOperator?: string;
+  filterValue?: string;
+  ItemsPerPage?: number;
+  PageNumber?: number;
+}) {
+  const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params || {};
   const response = axios({
     method: "GET",
     url: "Anda/GetAndaListEx",
     baseURL: config.baseUrl,
+    params: {
+      filterCol,
+      filterOperator,
+      filterValue,
+      ItemsPerPage,
+      PageNumber
+    },
   });
 
   return response;

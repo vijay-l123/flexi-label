@@ -67,11 +67,33 @@ function updateProduct(params: any) {
   return response;
 }
 
-function getProductListEx() {
+// function getProductListEx() {
+//   const response = axios({
+//     method: "GET",
+//     url: "Product/GetProductListEx",
+//     baseURL: baseUrl,
+//   });
+//   return response;
+// }
+function getProductListEx(params?: {
+  filterCol?: string;
+  filterOperator?: string;
+  filterValue?: string;
+  ItemsPerPage?: number;
+  PageNumber?: number;
+}) {
+  const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params || {};
   const response = axios({
     method: "GET",
     url: "Product/GetProductListEx",
     baseURL: baseUrl,
+    params: {
+      filterCol,
+      filterOperator,
+      filterValue,
+      ItemsPerPage,
+      PageNumber
+    },
   });
   return response;
 }

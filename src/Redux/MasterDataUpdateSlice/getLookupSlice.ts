@@ -13,7 +13,7 @@ const initialState = {
 export const fetchLookupDataAsync = createAsyncThunk('lookupData/fetchLookupData', async () => {
   // const response = await axios.get(`http://194.113.194.151:8080/LookUpData/GetAllLookupList`);
   const response = await axios.get(`${config.baseUrl}LookUpData/GetAllLookupList`);
-  return response.data;
+  return response.data.data;
 });
 
 const lookupDataSlice = createSlice({

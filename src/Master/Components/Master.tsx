@@ -17,7 +17,7 @@ import {
   setEditClick,
   setPopulatedValues,
 } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
-// import { useFilterContext } from "../../Context/FilterContext";
+import { useFilterContext } from "../../Context/FilterContext";
 
 const { TRoleType } = common;
 function Master(): JSX.Element {
@@ -31,7 +31,7 @@ function Master(): JSX.Element {
     // handleLookupChange
   } = useMasterAuthContext();
   const { authData } = useAuthContext();
-  // const {filter} =useFilterContext();
+  const {filter} =useFilterContext();
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [isEdit, setEdit] = React.useState(false);
@@ -106,6 +106,7 @@ function Master(): JSX.Element {
       })),
     ],
     rowData: gridData.rowData,
+    pagedInfo: gridData.pagedInfo,
   };
 
   const setModalState = (val: boolean) => setModalOpen(val);

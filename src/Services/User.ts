@@ -136,12 +136,25 @@ function resetUserPassword(params: any) {
   return response;
 }
 
-function getUserListEx() {
-    // const { filterCol, filterOperator, filterValue, itemPerPage, pageNo } = params;
+function getUserListEx(params: {
+  filterCol?: string;
+  filterOperator?: string;
+  filterValue?: string;
+  ItemsPerPage?: number;
+  PageNumber?: number;
+}) {
+    const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params;
   const response = axios({
     method: "GET",
     url: "User/GetUsersEx",
     baseURL: baseUrl,
+     params: {
+      filterCol,
+      filterOperator,
+      filterValue,
+      ItemsPerPage, 
+      PageNumber
+    },
   });
   return response;
 }
