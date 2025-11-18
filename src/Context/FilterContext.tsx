@@ -246,8 +246,8 @@ export const FilterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [pageSize, setPageSize] = useState(25); // Changed default to 25
   const [page, setPage] = useState(0);
 
-  console.log("context filter:", filter);
-  console.log("context paginationData:", paginationData);
+  // console.log("context filter:", filter);
+  // console.log("context paginationData:", paginationData);
 
   const handleChange = (key: keyof Filter, value: any) => {
     setFilter((prev) => {

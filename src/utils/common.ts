@@ -39,6 +39,7 @@ enum TLabelStatus {
   Draft = "Draft",
   UnderReview = "UnderReview",
   Resend = "Resend",
+  MoveToLive ="Approved"
 }
 
 enum TButtonClick {
@@ -103,6 +104,17 @@ const tabData = [
   {
     label: "Under Review",
     value: 3,
+    role: [
+      TRoleType.Initiator,
+      TRoleType.FinalHOD,
+      TRoleType.HOD,
+      TRoleType.PackingDepartment,
+      TRoleType.QA,
+    ],
+  },
+  {
+    label: "Approved",
+    value: 4,
     role: [
       TRoleType.Initiator,
       TRoleType.FinalHOD,

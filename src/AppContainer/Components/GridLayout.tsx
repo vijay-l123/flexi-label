@@ -1,6 +1,7 @@
-import { Box, FormControl, FormLabel } from "@mui/material";
+import { Box, FormControl, FormHelperText, FormLabel, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput } from "@mui/material";
 import { useDemoData } from "@mui/x-data-grid-generator";
 import { alpha, styled } from "@mui/material/styles";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import "../../styles/grid.css";
 import {
   GridToolbarContainer,
@@ -51,6 +52,8 @@ import { LabelHistoryContextProvider } from "../../Context/LabelHistoryContext";
 import LabelReview from "../../UiComponents/LabelReview";
 import AdvancedFilter from "../../UiComponents/AdvanceFilter";
 import { useFilterContext } from "../../Context/FilterContext";
+import AuthService from "../../Services/AuthService";
+import { useAxiosHandlerContext } from "../../AxiosHandler/AxiosHandler";
 
 const {
   TLabelStatus,
@@ -140,6 +143,9 @@ interface IColParams {
   setEditRowState: (val: any) => void;
   authData: any;
   createNewVersionState: any;
+  changeColorState: any;
+  changeToLiveState: any;
+  changeImplementationDateState: any;
 }
 
 interface formParams {
@@ -190,11 +196,12 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
     authData,
     setEditRowState,
     createNewVersionState,
+    changeColorState,
+    changeToLiveState,
+    changeImplementationDateState
   } = params;
 
   const dynamicColDef: any[] = [];
-  console.log("columndata", columnData);
-
   const calculateColumnWidth = (field: string, headerName: string, rowData: any[]) => {
     const padding = 30; // space for padding, sort icons etc.
     const longestValueLength = Math.max(
@@ -202,7 +209,7 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
       ...rowData.map((row) => (row[field] ? String(row[field]).length : 0))
     );
   
-    return Math.max(100, longestValueLength * 8 + padding); // 8px per character as a rough estimate
+    return Math.max(100, longestValueLength * 8 + padding); 
   };
   
   if (selectedTab === 1 && authData.roleId !== TRoleType.LabelViewers) {
@@ -224,7 +231,7 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
                 value={id}
                 aria-label="close"
                 onClick={(e: any) => {
-                  console.log("event", e);
+                  // console.log("event", e);
                   const historyParams: IHistoryPopupParams = {
                     show: true,
                     // fileId: +e.currentTarget.value,
@@ -254,23 +261,69 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
         // hideable: item.display,
         // editable: !item.display,
         headerClassName: "super-app-theme--header",
-        width: calculateColumnWidth(item.field, item.name, rowData),
+        // width: calculateColumnWidth(item.field, item.name, rowData),
+        width: 200,
         // flexGrow: 1,
         // flexShrink: 1,
         // width: "150",
         
       };
+// if (item.name?.trim().toLowerCase() === "implementation date") {
+//     const updatedCols = {
+//       renderCell: (params: any) => {
+//         const dateStr = params.value; 
+//         if (!dateStr) return "";
 
-      if (
-        !item.name?.trim().toLowerCase().includes("date") &&
-        item.name?.trim().toLowerCase().includes("approved")
-      ) {
-        const updatedCols = {
-          align: "center",
-          renderCell: (params: any) => <ApprovedCellRenderer {...params} />,
-        };
-        cols = { ...cols, ...updatedCols };
-      }
+//         const parsedDate = new Date(dateStr);
+
+//         // Handle invalid date (Safari/macOS case)
+//         if (isNaN(parsedDate.getTime())) {
+//           const parts = dateStr.split(" ")[0].split("/");
+//           if (parts.length === 3) {
+//             const [month, day, year] = parts.map((p:any) => parseInt(p));
+//             if (year && month && day) {
+//               const fixedDate = new Date(year, month - 1, day);
+//               return `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}-${year}`;
+//             }
+//           }
+//           return "";
+//         }
+
+//         // Always format as MM-DD-YYYY
+//         const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+//         const day = String(parsedDate.getDate()).padStart(2, "0");
+//         const year = parsedDate.getFullYear();
+
+//         return `${month}-${day}-${year}`;
+//       },
+//     };
+//     cols = { ...cols, ...updatedCols };
+//   }
+      // if (
+      //   !item.name?.trim().toLowerCase().includes("date") &&
+      //   item.name?.trim().toLowerCase().includes("approved")
+      // ) {
+      //   const updatedCols = {
+      //     align: "center",
+      //     renderCell: (params: any) => <ApprovedCellRenderer {...params} />,
+      //   };
+      //   cols = { ...cols, ...updatedCols };
+      // }
+
+const name = item.name?.trim().toLowerCase() || "";
+const includeKeywords = ["approved", "hod initiated"];
+const excludeKeywords = ["date", "by"];
+
+if (
+  !excludeKeywords.some(keyword => name.includes(keyword)) &&
+  includeKeywords.some(keyword => name.includes(keyword))
+) {
+  const updatedCols = {
+    align: "center",
+    renderCell: (params: any) => <ApprovedCellRenderer {...params} />,
+  };
+  cols = { ...cols, ...updatedCols };
+}
 
       if (item.field === "currentVersionFileId") {
         const updatedCols = {
@@ -288,12 +341,12 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
                       value={dFileId}
                       aria-label="close"
                       onClick={(e: any) => {
-                        console.log("event", e);
+                        // console.log("event", e);
                         const pdfParams: IPdfParams = {
                           show: true,
                           fileId: +e.currentTarget.value,
                         };
-                        console.log("pdfParams", pdfParams);
+                        // console.log("pdfParams", pdfParams);
                         
                         pdfPopupState(pdfParams);
                       }}
@@ -326,7 +379,7 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
                       value={dFileId}
                       aria-label="close"
                       onClick={(e: any) => {
-                        console.log("event", e);
+                        // console.log("event", e);
                         const pdfParams: IPdfParams = {
                           show: true,
                           fileId: +e.currentTarget.value,
@@ -350,7 +403,7 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
     });
 
   const editClickEvent = (params: any): void => {
-    console.log("popupdata", params);
+    // console.log("popupdata", params);
     modalState(true);
     rowState(params.row);
     editState(true);
@@ -362,9 +415,21 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
     editState(true);
     createNewVersionState(true);
   };
+  const changeColorClickEvent = (params: any): void => {
+    modalState(true);
+    rowState(params.row);
+    editState(true);
+    changeColorState(true);
+  };
+  const changeImplemantationDateClickEvent = (params: any): void => {
+    modalState(true);
+    rowState(params.row);
+    editState(true);
+    changeImplementationDateState(true);
+  };
 
   function handleReviewClickEvent(params: any) {
-    console.log(params);
+    // console.log(params);
     const popupStateParams = {
       show: true,
     };
@@ -407,7 +472,21 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
           isCreateVersion={
             selectedTab === 1 && authData.roleId === TRoleType.Initiator
           }
+          isChangeColor={
+            selectedTab === 1 && authData.roleId === TRoleType.Initiator
+          }
+          isApproved={
+            selectedTab === 4 && authData.roleId === TRoleType.FinalHOD
+          }
+          isImplementationDateChange={
+            (selectedTab === 1 && authData.roleId === TRoleType.Initiator) || (selectedTab === 1 && authData.roleId === TRoleType.FinalHOD)
+          }
           createVersionClick={() => createVersionClickEvent(params)}
+          changeColorClick={() => changeColorClickEvent(params)}
+                changeToLiveClick={() =>
+            handleWorkflowProcess(TButtonClick.Approve, params)
+          }
+          changeImplemantationDateClick={() => changeImplemantationDateClickEvent(params)}
         />
       ),
 
@@ -436,6 +515,7 @@ function isValidPassword(val: string) {
 }
 
 function checkErrorValidation(params: formParams) {
+  // debugger
   const { name, value } = params;
 
   if (name === "password")
@@ -463,7 +543,12 @@ function GridLayout(props: any) {
     isEdit,
     editRowData,
     createNewVersionState,
+    changeColorState,
+    changeToLiveState,
+    changeImplementationDateState
   } = props;
+    const { setAlertMessage, setSbOpen, setAlertSeverity } =
+    useAxiosHandlerContext();
   const { authData } = useAuthContext();
   const { setPageSize,setPage,pageSize,setPaginationChange,page,paginationData } = useFilterContext();
   const labelVersionId = React.useRef(0);
@@ -476,10 +561,10 @@ function GridLayout(props: any) {
   //   rowLength: 100,
   //   editable: true,
   // });
-  console.log("selectedTab:", selectedTab, "columnData:", columnData);
-  console.log("paginationData:", paginationData);
-  console.log("rowData length:", rowData?.length);
-  console.log("rowData:", rowData);
+  // console.log("selectedTab:", selectedTab, "columnData:", columnData);
+  // console.log("paginationData:", paginationData);
+  // console.log("rowData length:", rowData?.length);
+  // console.log("rowData:", rowData);
 
   type IColumnState = {
     [key: string]: boolean;
@@ -566,8 +651,9 @@ function GridLayout(props: any) {
       let actionColState = true;
       if (
         tabData.find(({ value }) => value === selectedTab)?.label ===
-          TLabelStatus.Active &&
-        authData.roleId !== TRoleType.Initiator
+          TLabelStatus.Active
+           &&
+        (authData.roleId !== TRoleType.Initiator && authData.roleId !== TRoleType.FinalHOD)
       ) {
         actionColState = false;
       }
@@ -580,14 +666,20 @@ function GridLayout(props: any) {
         actionColState = false;
       }
       obj["actions"] = actionColState;
-      console.log("columnstate", {
-        ...obj,
-      });
+      // console.log("columnstate", {
+      //   ...obj,
+      // });
       return obj;
     }
   }, [columnData]);
 
   //const rowData = React.useRef([]);
+const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
+  // Reset row selection when tab changes
+  React.useEffect(() => {
+    // console.log("Tab changed to:", selectedTab, "- Clearing row selection");
+    setRowSelectionModel({});
+  }, [selectedTab]);
 
   React.useEffect(() => {
     updateSelectedTab(selectedTab);
@@ -685,8 +777,11 @@ function GridLayout(props: any) {
               notesPopupState({ id: 0, show: false });
             }
           );
-
-          console.log(response);
+          setFormValues((prev) => ({
+          ...prev,
+          notes: { value: "", error: "" },
+        }));
+          // console.log(response);
         } catch (error) {
           console.log(error);
         }
@@ -737,14 +832,16 @@ function GridLayout(props: any) {
     }
   };
 
-  const onOkClick = (event: React.FormEvent<HTMLFormElement>) => {
+  const onOkClick =async (event: React.FormEvent<HTMLFormElement>) => {
+    // debugger
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-
-    console.log({
-      password: data.get("password"),
-      remarks: data.get("remarks"),
-    });
+  const password = data.get("password") as string;
+  const remarks = data.get("remarks") as string;
+    // console.log({
+    //   password: data.get("password"),
+    //   remarks: data.get("remarks"),
+    // });
 
     const formData = [
       {
@@ -784,6 +881,41 @@ function GridLayout(props: any) {
     Object.values(temp).forEach((item: any) => {
       if (item.error) hasError = item.error;
     });
+if (hasError) return;
+
+ 
+  try {
+    const response = await AuthService.passwordCheckForProcees({
+      userId: authData?.userId,
+      password,
+    });
+
+    const apiResult = response?.data;
+
+    
+    if (apiResult?.status != 200) {
+      // debugger
+      setFormValues((prev) => ({
+        ...prev,
+        password: {
+          ...prev.password,
+          error: apiResult?.message || "Invalid password. Please try again.",
+        },
+      }));
+      setAlertSeverity("error");
+      setAlertMessage(apiResult?.message || "Invalid password. Please try again.");
+      return; 
+    }
+
+    console.log("Password validated successfully!");
+  } catch (error: any) {
+    console.error("Password validation error:", error);
+    setAlertSeverity("error");
+    setAlertMessage("Invalid password. Please try again.");
+    return; 
+  }
+
+
 
     if (!hasError) {
       const updateLabelVersion = async () => {
@@ -805,9 +937,10 @@ function GridLayout(props: any) {
               reviewPopupState(popupStateParams);
             });
           if (
-            buttonState === TButtonClick.Resend ||
-            buttonState === TButtonClick.Approve
-          )
+            (((buttonState === TButtonClick.Resend) && (selectedTab != 4))) ||
+            ((buttonState === TButtonClick.Approve) && (selectedTab != 4))
+          ){
+          // debugger
             response = await Services.LabelVersion.processReview({
               ...apiParams,
               action: Number(buttonState),
@@ -819,8 +952,25 @@ function GridLayout(props: any) {
               };
               reviewPopupState(popupStateParams);
             });
+          }
+          if (
+            ((buttonState === TButtonClick.Approve )&& (selectedTab == 4))
+          ){
+          // debugger
+            response = await Services.LabelVersion.moveToLiveProcessReview({
+              ...apiParams,
+              action: Number(buttonState),
+            }).then((success) => {
+              updateLabelsData(true);
+              modalState(false);
+              const popupStateParams = {
+                show: false,
+              };
+              reviewPopupState(popupStateParams);
+            });
 
-          console.log(response);
+          // console.log(response);
+          }
         } catch (error) {
           console.log(error);
         }
@@ -846,6 +996,9 @@ function GridLayout(props: any) {
     authData,
     setEditRowState,
     createNewVersionState,
+    changeColorState,
+    changeToLiveState,
+    changeImplementationDateState
   };
 
   const submitReviewConfirmationProps = {
@@ -897,16 +1050,47 @@ function GridLayout(props: any) {
     maxWidth: "md",
   };
 
-  const getRowClass = (params: any) => {
-    if (params.row?.hasReview && params.row?.hasReview === "True") {
-      return "hasReview";
-    }
-    if (params.row?.hasReview && params.row?.hasReview === "False") {
-      return "hasNoReview";
-    }
+  // const getRowClass = (params: any) => {
+  //   if (params.row?.hasReview && params.row?.hasReview === "True") {
+  //     return "hasReview";
+  //   }
+  //   if (params.row?.hasReview && params.row?.hasReview === "False") {
+  //     return "hasNoReview";
+  //   }
 
-    return params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
-  };
+  //   return params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
+  // };
+  const getRowClass = (params: any) => {
+  if (params.row?.colorCode) {
+    const cleanCode = params.row.colorCode.replace("#", "");
+    return `row-color-${cleanCode}`;
+  }
+  return "";
+};
+const getContrastColor = (hexColor: string) => {
+  if (!hexColor) return "#000";
+  const color = hexColor.replace("#", "");
+  const r = parseInt(color.substring(0, 2), 16);
+  const g = parseInt(color.substring(2, 4), 16);
+  const b = parseInt(color.substring(4, 6), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  return brightness > 125 ? "#000000" : "#FFFFFF";
+};
+// Create a style object dynamically before JSX
+const dynamicRowColors: Record<string, any> = {};
+rowData?.forEach((row: any) => {
+  if (row?.colorCode) {
+    const cleanCode = row.colorCode.replace("#", "");
+    dynamicRowColors[`& .row-color-${cleanCode}`] = {
+      color: row.colorCode,
+      // color: getContrastColor(row.colorCode),
+      fontWeight: 500,
+    };
+  }
+});
+
+
+
 // const CustomToolbar = () => {
 //   return (
 //     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
@@ -920,7 +1104,7 @@ function GridLayout(props: any) {
 // };
 
 
-const CustomToolbar = ({ selectedTab }: any) => {
+const CustomToolbar = () => {
   return (
     <GridToolbarContainer
       sx={{
@@ -949,15 +1133,21 @@ const CustomToolbar = ({ selectedTab }: any) => {
   // Calculate rowCount properly from pagination data
   const rowCount = React.useMemo(() => {
     if (paginationData && typeof paginationData.totalRecords === 'number') {
-      console.log("Using paginationData.totalRecords:", paginationData.totalRecords);
+      // console.log("Using paginationData.totalRecords:", paginationData.totalRecords);
       return paginationData.totalRecords;
     }
     // Fallback to current page data length
     const fallback = rowData?.length || 0;
-    console.log("Using fallback rowCount:", fallback);
+    // console.log("Using fallback rowCount:", fallback);
     return fallback;
   }, [paginationData, rowData]);
+  const [showPassword, setShowPassword] = React.useState(false);
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
   return (
     <Box sx={{position: 'relative'}}>
       <Box
@@ -1027,13 +1217,54 @@ const CustomToolbar = ({ selectedTab }: any) => {
           sx={{ mx: 2 }}
           id="confirmationBox"
         >
-          <FormControl required>
+          {/* <FormControl required>
             {" "}
             <Password
               formValues={formValues}
               handleTextChange={handleTextChange}
             ></Password>
-          </FormControl>
+          </FormControl> */}
+       <FormControl variant="outlined" fullWidth size="small" required  error={!!formValues.password.error} >
+  <Grid container sx={{ alignItems: "center" }}>
+    <Grid item xs={3}>
+      <FormLabel>Confirm Password:</FormLabel>
+    </Grid>
+    <Grid item xs={9}>
+      <OutlinedInput
+        id="password"
+        name="password"
+        type={showPassword ? "text" : "password"}
+        value={formValues.password?.value || ""}
+        onChange={handleTextChange}
+        
+        required
+        placeholder="Enter your password"
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={handleClickShowPassword}
+              onMouseDown={handleMouseDownPassword}
+              edge="end"
+            >
+              {showPassword ? <VisibilityOff /> : <Visibility />}
+            </IconButton>
+          </InputAdornment>
+        }
+        sx={{
+          mt: 1,
+          '& input::placeholder': {
+            opacity: 0.7,
+          },
+        }}
+      />
+            {formValues.password.error && (
+        <FormHelperText>{formValues.password.error}</FormHelperText>
+      )}
+    </Grid>
+  </Grid>
+</FormControl>
+
           <FormControl
             variant="filled"
             sx={{
@@ -1091,14 +1322,30 @@ const CustomToolbar = ({ selectedTab }: any) => {
             visibility: "visible"
           },
           "& .MuiDataGrid-cell:hover": {
-            color: CustomTheme.CustomColor.Primary.light,
+            color: CustomTheme.CustomColor.Primary.dark,
           },
+      ...dynamicRowColors,
+    //          "& .MuiDataGrid-cell": {
+    //   whiteSpace: "normal",  
+    //   wordWrap: "break-word",  
+    //   overflowY: "auto",    
+    //   overflowX: "hidden",
+    //   display: "block",
+    //   lineHeight: "1.4em",
+    //   maxHeight: "70px", 
+    //   p: 1,
+    //   alignItems: "flex-start",
+    // },
+    // "& .MuiDataGrid-row": {
+    //   maxHeight: "none !important",
+    // },
         }}
         getRowId={(row) => row.index}
         columns={columnData && getColumnDefinitions(colDefParams,rowData)}
         rows={rowData && rowData}
         //loading={rowData.length === 0}
         rowHeight={38}
+
         // disableSelectionOnClick
         getRowClassName={getRowClass}
         disableColumnSelector={true}
@@ -1107,13 +1354,13 @@ const CustomToolbar = ({ selectedTab }: any) => {
               paginationMode="server"
               paginationModel={{ page, pageSize }}
                  onPaginationModelChange={(model) => {
-            console.log("Pagination model change:", model);
+            // console.log("Pagination model change:", model);
             setPaginationChange(true);
             if (model.pageSize !== pageSize) {
-              console.log("Page size changed from", pageSize, "to", model.pageSize);
+              // console.log("Page size changed from", pageSize, "to", model.pageSize);
             setPage(0); 
             } else {
-              console.log("Page changed to:", model.page);
+              // console.log("Page changed to:", model.page);
             setPage(model.page);
             }
             setPageSize(model.pageSize);
@@ -1130,7 +1377,13 @@ const CustomToolbar = ({ selectedTab }: any) => {
         columnVisibilityModel={{
           ...columnVisibilityState,
         }}
-
+        rowSelectionModel={rowSelectionModel}
+        onRowSelectionModelChange={(newSelection) => {
+          // console.log("Row selection changed:", newSelection, "for tab:", selectedTab);
+          setRowSelectionModel(newSelection);
+        }}
+        checkboxSelection={false}
+        disableRowSelectionOnClick={true}
         // initialState={{
         //   columns: {
         //     columnVisibilityModel: {

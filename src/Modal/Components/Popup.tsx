@@ -63,7 +63,7 @@ function Popup(props: IPopupProps) {
   } = props;
 
   let mxWidth = !maxWidth ? "xs" : (maxWidth as Breakpoint);
-  console.log("popupparams", props);
+  // console.log("popupparams", props);
 
   const handleClose = () => {
     closePopup(false);

@@ -27,8 +27,8 @@ function getLableVersionList(
 
   const url = `LabelVersion/GetLableListEx2`;
 
-  console.log("API Request URL:", url);
-  console.log("API Request Body:", postProps);
+  // console.log("API Request URL:", url);
+  // console.log("API Request Body:", postProps);
 
   const response = axios({
     method: "POST",
@@ -41,6 +41,7 @@ function getLableVersionList(
 }
 
 function addLabelVersion(params: any) {
+  // debugger
   const {
     versionNo,
     labelInfoId,
@@ -49,8 +50,8 @@ function addLabelVersion(params: any) {
     isFileInfoChanged,
     fileId,
     remarks,
-    //    implementationDate,
-    // color,
+       implementationDate,
+    color,
     printer,
     proofNum,
     jobNumber,
@@ -64,8 +65,8 @@ function addLabelVersion(params: any) {
     labelInfoId: labelInfoId,
     versionNo: versionNo,
     fileName: fileName,
-    // implementationDate:implementationDate,
-    // color:color,
+    implementationDate:implementationDate,
+    color:color,
     isFileInfoChanged: fileName === "" ? false : isFileInfoChanged,
     fileId: +fileId,
     remarks: remarks,
@@ -92,8 +93,102 @@ function addLabelVersion(params: any) {
 }
 
 function updateLabelVersion(params: any) {
+  // debugger
   const {
     id,
+    labelInfoId,
+    versionNo,
+    fileData,
+    fileName,
+    isFileInfoChanged,
+    fileId,
+    remarks,
+    implementationDate,
+    color,
+    printer,
+    proofNum,
+    jobNumber,
+    foldSize,
+    flatSize,
+    ccf,
+    labelDescription
+  } = params;
+
+  const postProps = {
+    // id: id,
+    // labelInfoId: labelInfoId,
+    // versionNo: versionNo,
+    // fileId: fileId,
+    // remarks: remarks,
+    // status: 0,
+    // foldSize,
+    // flatSize,
+    // ccf
+    id: id,
+    labelInfoId: labelInfoId,
+    versionNo: versionNo,
+    fileId: fileId,
+    remarks: remarks,
+    status: 1,
+    foldSize,
+    flatSize,
+    implementationDate:implementationDate,
+    color:color,
+    isFileInfoChanged: fileName === "" ? false : isFileInfoChanged,
+    printer: printer,
+    proofNum: proofNum,
+    jobNumber: jobNumber,
+    ccf,
+    labelDescription
+  };
+
+  const response = axios({
+    method: "POST",
+    url: "LabelVersion/UpdateLabelVersion",
+    baseURL: baseUrl,
+    data: {
+      ...postProps,
+    },
+  });
+
+  return response;
+}
+function updateImplementaionDate(params: any) {
+  // debugger
+  const {
+    id,
+    implementationDate,
+    versionNo,
+    fileData,
+    fileName,
+    isFileInfoChanged,
+    fileId,
+    remarks,
+    foldSize,
+    flatSize,
+    ccf
+  } = params;
+
+  const postProps = {
+    id: id,
+    implementationDate: implementationDate,
+  };
+
+  const response = axios({
+    method: "POST",
+    url: "LabelVersion/UpdateImplementationDate",
+    baseURL: baseUrl,
+    data: {
+      ...postProps,
+    },
+  });
+
+  return response;
+}
+function updateLabelVersionColorCode(params: any) {
+  const {
+    id,
+    colorcode,
     labelInfoId,
     versionNo,
     fileData,
@@ -108,19 +203,20 @@ function updateLabelVersion(params: any) {
 
   const postProps = {
     id: id,
-    labelInfoId: labelInfoId,
-    versionNo: versionNo,
-    fileId: fileId,
-    remarks: remarks,
-    status: 0,
-    foldSize,
-    flatSize,
-    ccf
+    // labelInfoId: labelInfoId,
+   colorcode: colorcode,
+    // versionNo: versionNo,
+    // fileId: fileId,
+    // remarks: remarks,
+    // status: 0,
+    // foldSize,
+    // flatSize,
+    // ccf
   };
 
   const response = axios({
     method: "POST",
-    url: "LabelVersion/UpdateLabelVersion",
+    url: "LabelVersion/UpdateLabelColorCode",
     baseURL: baseUrl,
     data: {
       ...postProps,
@@ -170,6 +266,26 @@ function processReview(params: any) {
 
   return response;
 }
+function moveToLiveProcessReview(params: any) {
+  const { labelVersionId, remarks, action } = params;
+
+  const postProps = {
+    labelVersionId: labelVersionId,
+    remarks: remarks,
+    action: action,
+  };
+
+  const response = axios({
+    method: "POST",
+    url: "LabelVersion/ProcessNewLabelVersion",
+    baseURL: baseUrl,
+    data: {
+      ...postProps,
+    },
+  });
+
+  return response;
+}
 
 function addNotes(params: any) {
   const { id, notes } = params;
@@ -192,7 +308,10 @@ function addNotes(params: any) {
 const LabelVersion = {
   getLableVersionList,
   updateLabelVersion,
+  updateLabelVersionColorCode,
+  moveToLiveProcessReview,
   addLabelVersion,
+  updateImplementaionDate,
   submitForReview,
   processReview,
   addNotes,

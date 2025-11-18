@@ -62,7 +62,7 @@ export function AuthProvider({ children }: IProps): JSX.Element {
   function login(params: ILoginParams) {
     AuthService.authenticate(params).then(
       (response) => {
-        console.log(response);
+        // console.log(response);
         const {
           authToken: token,
           logIn: userName,
@@ -93,10 +93,13 @@ export function AuthProvider({ children }: IProps): JSX.Element {
         setAlertMessage("Logged In Successfully!");
       },
       (error) => {
-        console.log(error);
+        // debugger
+        // console.log(error);
         setAlertSeverity("error");
         setSbOpen(true);
-        setAlertMessage("401: Unauthorized!");
+        // setAlertMessage("401: Unauthorized!");
+        setAlertMessage( error?.message
+    ? `${error.message}`: "401 Unauthorized!");
         removeAuthData();
       }
     );

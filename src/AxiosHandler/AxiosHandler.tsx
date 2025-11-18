@@ -86,7 +86,7 @@ export const AxiosHandlerContextProvider = ({
             ? error.response.data
             : "Error Saving!"
         );
-        console.log(error);
+        // console.log(error);
         return Promise.reject(
           (error.response && error.response.data) ?? "Error Saving!"
         );

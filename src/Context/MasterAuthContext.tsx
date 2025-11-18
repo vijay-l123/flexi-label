@@ -13,6 +13,8 @@ interface IMasterAuthProps {
   gridData: any;
   lookupvalue:any;
   setLookupvalue:any;
+  columnVisibilityModel:any;
+  setColumnVisibilityModel:any;
   handleTabChange: (val: any) => void;
   updateMasterData: (val: any) => void;
   // handleLookupChange: (val: any) => void;
@@ -26,9 +28,10 @@ export function MasterAuthProvider({ children }: IMasterProps): JSX.Element {
   const [lookupvalue, setLookupvalue] = React.useState('1');
   const [addLookupFlag, setAddLookupFlag] = React.useState(false);
   const [editLookupFlag, setEditLookupFlag] = React.useState(false);
-  console.log("MasterAuthContext : lookupvalue",lookupvalue);
+  // console.log("MasterAuthContext : lookupvalue",lookupvalue);
   const {isCreate , isEdit} = useSelector((state: any) => state.lookupDataFlags)
   const {setErrors,setFilter,setPage,setPageSize} = useFilterContext();
+    const [columnVisibilityModel, setColumnVisibilityModel] = React.useState({});
   
   const handleTabChange = (val: number) => {
     setTabValue(val)
@@ -37,6 +40,7 @@ export function MasterAuthProvider({ children }: IMasterProps): JSX.Element {
       setErrors({});
       setPageSize(25);
       setPage(0);
+     setColumnVisibilityModel({});
   };
 
   // const handleLookupChange = (e:any) : void => {
@@ -62,9 +66,10 @@ export function MasterAuthProvider({ children }: IMasterProps): JSX.Element {
       gridData,
       updateMasterData,
       setLookupvalue,
-      lookupvalue
+      lookupvalue,
+      setColumnVisibilityModel,columnVisibilityModel
     }),
-    [tabValue, gridData, lookupvalue,setLookupvalue, setAddLookupFlag, setEditLookupFlag]
+    [tabValue, gridData, lookupvalue,setLookupvalue, setAddLookupFlag, setEditLookupFlag,columnVisibilityModel]
   );
   return (
     <MasterAuthContext.Provider value={memoedValue}>

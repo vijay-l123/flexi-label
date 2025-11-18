@@ -13,6 +13,8 @@ import { IModalProps } from "../../utils/types";
 import { useDispatch } from "react-redux";
 import { setCreateNewVersionRedux } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
 import { useFilterContext } from "../../Context/FilterContext";
+import useLabelsContext from "../../Context/LabelsContext";
+import { GridColumnVisibilityModel } from "@mui/x-data-grid";
 
 const { TRoleType } = common;
 
@@ -37,15 +39,20 @@ function Dashboard() {
   const [isEdit, setEdit] = React.useState(false);
   const [newType, setNewType] = React.useState(0);
   const [isCreateNewVersion, setCreateNewVersion] = React.useState(false);
+  const [isChangeColor, setChangeColor] = React.useState(false);
+  const [isImplementationDate, setImplementationDate] = React.useState(false);
   const selectedTab = React.useRef(1);
   const { authData } = useAuthContext();
+  const { setLabelversionAPiCall } = useLabelsContext();
     const {setErrors,setFilter,setPage,setPageSize} = useFilterContext();
+// const [columnVisibilityModel, setColumnVisibilityModel] = React.useState<GridColumnVisibilityModel>({});
 
+setLabelversionAPiCall(false);
   const dispatch = useDispatch();
 
   const { tabs } = useTabs(authData.roleId);
 
-  console.log("tabs", tabs);
+  // console.log("tabs", tabs);
   const handleTabChange = (event: any, value: any) => {
     setTabValue(value);
     selectedTab.current = value;
@@ -53,7 +60,9 @@ function Dashboard() {
   setErrors({});
      setPageSize(25)
       setPage(0);
+      // setColumnVisibilityModel({});
   };
+// console.log("tabValue",tabValue);
 
   const setModalState = (val: boolean) => setModalOpen(val);
 
@@ -67,13 +76,23 @@ function Dashboard() {
     rowState: isEdit && rowData,
     newTypeState: 5, //isEdit ? 5 : newType,//To make it new label information by default
     defaultToLabel: true,
+    selectedTab: selectedTab.current,
     setNewTypeState: (val: number) => setNewType(val),
     isCreateNewVersion: isCreateNewVersion,
+    isChangeColor: isChangeColor,
+    isImplementationDate: isImplementationDate,
+        // ...(isChangeColor ? {} : { newTypeState: 5 }),
   };
 
   const editmodalHandler = (val: any) => {
     setCreateNewVersion(val);
     dispatch(setCreateNewVersionRedux(val));
+  }
+  const editColormodalHandler = (val: any) => {
+    setChangeColor(val);
+  }
+  const editimplementaiondatemodalHandler = (val: any) => {
+    setImplementationDate(val);
   }
 
   const editModalProps: any = {
@@ -84,7 +103,11 @@ function Dashboard() {
     rowState: (val: any) => setRowData({ ...val }),
     editState: (val: any) => setEdit(val),
     selectedTab: selectedTab.current,
+    // columnVisibilityModel:columnVisibilityModel, 
+    // setColumnVisibilityModel:setColumnVisibilityModel,
     createNewVersionState: (val: any) => editmodalHandler(val),
+    changeColorState: (val: any) => editColormodalHandler(val),
+    changeImplementationDateState: (val: any) => editimplementaiondatemodalHandler(val),
   };
 
   function resetStates() {
@@ -92,6 +115,8 @@ function Dashboard() {
     setEdit(false);
     setNewType(0);
     setCreateNewVersion(false);
+    setChangeColor(false);
+    setImplementationDate(false);
   }
 
   //const;

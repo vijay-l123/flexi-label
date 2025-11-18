@@ -21,9 +21,27 @@ function authenticate(params: any) {
 
   return response;
 }
+function passwordCheckForProcees(params: any) {
+  const postProps = {
+    userId: params.userId,
+    password: params.password,
+  };
+
+  const response = axios({
+    method: "POST",
+    url: "api/Authenticate/validatePassword",
+    baseURL: config.baseUrl,
+    data: {
+      ...postProps,
+    },
+  });
+
+  return response;
+}
 
 const AuthService = {
   authenticate,
+  passwordCheckForProcees
 };
 
 export default AuthService;

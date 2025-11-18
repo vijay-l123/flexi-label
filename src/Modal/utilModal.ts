@@ -11,7 +11,7 @@ interface IShowButtonProps {
 
 export function checkAlreadyApproved(params: any) {
   const { authData, rowState } = params;
-  console.log("NGX ACtion cell rendered", rowState, authData);
+  // console.log("NGX ACtion cell rendered", rowState, authData);
 
   if (authData.roleId === TRoleType.QA) {
     return rowState.qaApproved === ""
@@ -26,18 +26,31 @@ export function checkAlreadyApproved(params: any) {
       ? true
       : false;
   } else if (authData.roleId === TRoleType.HOD) {
-    return rowState.hodApproved === ""
+    // return rowState.hodApproved === ""
+    return rowState.hodInitiated === ""
       ? true
-      : rowState.hodApproved?.trim().toLowerCase() === "true"
+      // : rowState.hodApproved?.trim().toLowerCase() === "true"
+      : rowState.hodInitiated?.trim().toLowerCase() === "true"
       ? true
       : false;
-  } else if (authData.roleId === TRoleType.FinalHOD) {
+  } 
+  // else if (authData.roleId === TRoleType.FinalHOD) {
+  //   return rowState.finalHodApproved === ""
+  //     ? true
+  //     : rowState.finalHodApproved?.trim().toLowerCase() === "true"
+  //     ? true
+  //     : false;
+  // } 
+    else if (authData.roleId === TRoleType.FinalHOD) {
     return rowState.finalHodApproved === ""
       ? true
-      : rowState.finalHodApproved?.trim().toLowerCase() === "true"
+      : (rowState.finalHodApproved?.trim().toLowerCase() === "true" && rowState.status === "Approved")
+      ? false
+      :rowState.finalHodApproved?.trim().toLowerCase() === "true"
       ? true
       : false;
-  } else if (
+  } 
+  else if (
     authData.roleId === TRoleType.Initiator &&
     (rowState.status === TLabelStatus.Draft ||
       rowState.status === TLabelStatus.Resend)
@@ -51,6 +64,8 @@ export function showButton(params: IShowButtonProps) {
   const { rowState, currentButton, authData, isCreateNew } = params;
 
   const { status } = rowState;
+  // console.log("rowState :status",rowState);
+  
 
   if (isCreateNew) return true;
 
@@ -68,6 +83,25 @@ export function showButton(params: IShowButtonProps) {
   if (status === TLabelStatus.UnderReview) {
     //const eligibleButton = ["Approve", "Resend"];
     const eligibleButton = ["Approve", "Resend", "Review"];
+    const eligibleRole = [
+      TRoleType.QA,
+      TRoleType.PackingDepartment,
+      TRoleType.LabelViewers,
+      TRoleType.FinalHOD,
+      TRoleType.HOD,
+    ];
+
+    const isValid =
+      eligibleButton.includes(currentButton) &&
+      eligibleRole.includes(authData.roleId);
+
+    //const isApproved = checkAlreadyApproved({ authData, rowState });
+
+    return isValid; // && isApproved;
+  }
+  if (status === TLabelStatus.MoveToLive) {
+    //const eligibleButton = ["Approve", "Resend"];
+    const eligibleButton = ["Move to Live"];
     const eligibleRole = [
       TRoleType.QA,
       TRoleType.PackingDepartment,

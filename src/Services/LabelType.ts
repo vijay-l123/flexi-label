@@ -19,7 +19,7 @@ function addLabelType(params: any) {
   const postProps = {
     typeId: 0,
     type: type,
-    description: description,
+    Descrption: description,
     // createdDate: new Date(),
     // modifiedDate: new Date(),
     // createdBy: 0,
@@ -44,7 +44,8 @@ function updateLabelType(params: any) {
   const postProps = {
     typeId: typeId,
     type: type,
-    description: description,
+     Descrption: description,
+    // description: description,
     // createdDate: new Date(),
     // modifiedDate: new Date(),
     // createdBy: 0,

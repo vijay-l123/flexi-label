@@ -24,7 +24,7 @@ import logo from "../../Images/flexielabel-logo.png";
 
 export default function AppBarMenuNav() {
   const { logout, authData } = useAuthContext();
-  console.log("NGXauthData", authData);
+  // console.log("NGXauthData", authData);
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 

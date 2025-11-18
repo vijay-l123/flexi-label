@@ -169,7 +169,8 @@ interface IAutoCompleteProps {
 
 export default function AutoComplete(props: IAutoCompleteProps) {
   const {
-    listData,
+    // listData,
+      listData = [],
     selectedKey,
     selectedId,
     id,
@@ -183,6 +184,8 @@ export default function AutoComplete(props: IAutoCompleteProps) {
     isAddOption = false,
     disabled,
   } = props;
+  // console.log("props11",props);
+  
   const [value, setValue] = React.useState<any | null>(selectedValue);
 
   return (
@@ -246,11 +249,16 @@ export default function AutoComplete(props: IAutoCompleteProps) {
 
         return filtered;
       }}
+        isOptionEqualToValue={(option, value) =>
+    option?.[selectedId] === value?.[selectedId] ||
+    option?.[selectedKey] === value?.[selectedKey]
+  } 
       selectOnFocus
       clearOnBlur
       handleHomeEndKeys
       id={id}
       // options={listData}
+      // options={Array.isArray(listData) ? listData : []}
       options={Array.isArray(listData) ? listData : []}
       getOptionLabel={(option: any) => {
         // Value selected with enter, right from the input

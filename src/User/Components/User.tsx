@@ -1,6 +1,8 @@
-import { BorderColorOutlined, ClearAll, Save } from "@mui/icons-material";
+// import { BorderColorOutlined, ClearAll, Save } from "@mui/icons-material";
+import { BorderColorOutlined, ClearAll, Save, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Box,
+  Checkbox,
   FormControl,
   FormHelperText,
   FormLabel,
@@ -77,12 +79,16 @@ function User(): JSX.Element {
     handleInputChange,
     resetValidationState,
   } = useFormValidation(initialFValues, true, validate);
+// console.log("User- values",values);
 
   const [isUpdate, setUpdateflag] = React.useState<boolean>(false);
-
+  const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  const [previousActiveState, setPreviousActiveState] = React.useState<boolean>(true);
+  const [iseditState, setEditState] = React.useState<boolean>(true);
   function updateUserData(params: any) {
     setUpdateflag(true);
-    console.log("ngx-edituserparams", params);
+    setEditState(false);
+    // console.log("ngx-edituserparams", params);
     setValues((prevState: any) => ({
       ...prevState,
       firstName: params.row.firstName,
@@ -94,6 +100,7 @@ function User(): JSX.Element {
       isActive: params.row.isActive,
       userId: params.row.userId,
     }));
+     setPreviousActiveState(params.row.isActive);
   }
 
   const gridProps = {
@@ -115,7 +122,7 @@ function User(): JSX.Element {
                   value={id}
                   aria-label="close"
                   onClick={(e: any) => {
-                    console.log("event", e);
+                    // console.log("event", e);
                     updateUserData(params);
                   }}
                   sx={{ color: CustomTheme.CustomColor.Primary }}
@@ -146,7 +153,7 @@ function User(): JSX.Element {
     rowData: gridData.rowData,
     pagedInfo: gridData.pagedInfo, // Pass pagedInfo to DisplayGrid
   };
-  console.log("====gridprops", gridProps);
+  // console.log("====gridprops", gridProps);
 
   function handleSave(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -165,44 +172,102 @@ function User(): JSX.Element {
     });
     if (isValid.every((i) => i === true)) {
       const addUser = async () => {
-        try {
-          const apiParams: any = {
-            firstName: data.get("firstName"),
-            lastName: data.get("lastName"),
-            logIn: data.get("userName"),
-            password: data.get("password"),
-            roleId: data.get("selectedRole"),
-            userId: 0,
-            roleName: roles.find(
-              (i) => i.value === Number(data.get("selectedRole"))
-            )?.name,
-            isActive: data.get("isActive") === "true" ? true : false,
-          };
-          let response;
-          if (isUpdate) {
-            const updateApiParams = {
-              ...apiParams,
-              userId: values?.userId,
-            };
-            response = await Services.User.updateUser(updateApiParams).then(
-              (success) => {
-                console.log("updateusertriggered");
-                updateUsersData(true);
-              }
-            );
-          } else {
-            response = await Services.User.addUser(apiParams).then(
-              (success) => {
-                console.log("updateusertriggered");
-                updateUsersData(true);
-              }
-            );
-          }
+        // try {
+        //   const apiParams: any = {
+        //     firstName: data.get("firstName"),
+        //     lastName: data.get("lastName"),
+        //     logIn: data.get("userName"),
+        //     password: data.get("password"),
+        //     roleId: data.get("selectedRole"),
+        //     userId: 0,
+        //     roleName: roles.find(
+        //       (i) => i.value === Number(data.get("selectedRole"))
+        //     )?.name,
+        //     isActive: data.get("isActive") === "true" ? true : false,
+        //   };
+        //   let response;
+        //   if (isUpdate) {
+        //     const updateApiParams = {
+        //       ...apiParams,
+        //       userId: values?.userId,
+        //     };
+        //     response = await Services.User.updateUser(updateApiParams).then(
+        //       (success) => {
+        //         console.log("updateusertriggered");
+        //         updateUsersData(true);
+        //         handleReset();
+        //       }
+        //     );
+        //   } else {
+        //     response = await Services.User.addUser(apiParams).then(
+        //       (success) => {
+        //         console.log("updateusertriggered");
+        //         updateUsersData(true);
+        //         handleReset();
+        //       }
+        //     );
+        //   }
+        //   setUpdateflag(false);
+        //   console.log(response);
+        // } catch (error) {
+        //   console.log(error);
+        // }
+         try {
+          // debugger
+      if (isUpdate) {
+        
+        if (values.isActive !== previousActiveState) {
+          const apiUrl = values.isActive === "True"
+            ? Services.User.activeUser
+            : Services.User.inactiveUser;
+          
+          await apiUrl({ userId: values.userId });
+          updateUsersData(true);
+          handleReset();
           setUpdateflag(false);
-          console.log(response);
-        } catch (error) {
-          console.log(error);
+          // return;
         }
+        const updateApiParams = {
+          firstName: data.get("firstName"),
+          lastName: data.get("lastName"),
+          logIn: data.get("userName"),
+          password: data.get("password"),
+          roleId: data.get("selectedRole"),
+          userId: values.userId,
+          roleName: roles.find(
+            (i) => i.value === Number(data.get("selectedRole"))
+          )?.name,
+          // isActive: values.isActive,
+            //  isActive: data.get("isActive") === "true" ? true : false,
+             isActive: values?.isActive === "True" ? true : false,
+        };
+
+        await Services.User.updateUser(updateApiParams);
+        updateUsersData(true);
+        handleReset();
+        setUpdateflag(false);
+      } else {
+        // Add new user case
+        const apiParams = {
+          firstName: data.get("firstName"),
+          lastName: data.get("lastName"),
+          logIn: data.get("userName"),
+          password: data.get("password"),
+          roleId: data.get("selectedRole"),
+          roleName: roles.find(
+            (i) => i.value === Number(data.get("selectedRole"))
+          )?.name,
+          // isActive: data.get("isActive") === "true" ? true : false,
+          // isActive: values?.isActive === "True" ? true : false,
+          isActive: true,
+        };
+        await Services.User.addUser(apiParams);
+        updateUsersData(true);
+        handleReset();
+      }
+    } catch (error) {
+      console.error(error);
+    }
       };
 
       addUser();
@@ -211,12 +276,13 @@ function User(): JSX.Element {
 
   function handleReset() {
     setUpdateflag(false);
+    setEditState(true);
     resetValidationState();
   }
 
   return (
     <div>
-      <Box
+      {/* <Box
         noValidate
         component="form"
         onSubmit={handleSave}
@@ -236,7 +302,31 @@ function User(): JSX.Element {
             },
           },
         }}
-      >
+      > */}
+      <Box
+      noValidate
+      component="form"
+      onSubmit={handleSave}
+      id="userForm"
+      sx={{
+        height: "100%",
+        width: "100%",
+          //py: "0.5rem",
+          //  mt: "-0.6rem",
+          // boxShadow: 6,
+          // border: 1,
+          // borderColor: CustomTheme.CustomColor.Primary.light,
+          // "& .super-app-theme--header": {
+          //   backgroundColor: CustomTheme.CustomColor.Primary.main,
+          //   color: CustomTheme.CustomColor.Common.white,
+          //   "& .MuiSvgIcon-root": {
+          //     color: CustomTheme.CustomColor.Common.white,
+          //   },
+          // },
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
         <Grid container spacing={0} sx={{ paddingLeft: "30px" }}>
           <Grid item md={10}>
             <Grid container spacing={2}>
@@ -354,18 +444,31 @@ function User(): JSX.Element {
                     }}
                   >
                     {" "}
-                    Passord:
+                    Password:
                   </FormLabel>
                   <Controls.Input
                     required
                     name="password"
                     label="Password"
-                    type="password"
+                    // type="password"
+                    type={showPassword ? "text" : "password"}
                     size="small"
                     value={values.password}
                     error={errors.password}
+                    // onChange={handleInputChange}
                     onChange={handleInputChange}
-                  ></Controls.Input>
+                    InputProps={{
+                      endAdornment: (
+                        <Controls.IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          aria-label="toggle password visibility"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </Controls.IconButton>
+                      )
+                    }}
+                  />
                 </FormControl>
                 </Grid>
             
@@ -441,10 +544,30 @@ function User(): JSX.Element {
                   >
                     IsActive:
                   </FormLabel>
-                  <Controls.Checkbox //TODO BUG ONCHANGE
+                  {/* <Controls.Checkbox //TODO BUG ONCHANGE
                     name="isActive"
                     isChecked={values.isActive || true}
-                  ></Controls.Checkbox>
+                    // isChecked={values.isActive ==="True" ? false : false}
+                    // onChange={handleInputChange}
+                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setValues((prev: any) => ({
+                    ...prev,
+                   isActive: e.target.checked,
+                   }));
+                   }}
+                  ></Controls.Checkbox> */}
+                  <Checkbox 
+                  name="isActive"
+                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setValues((prev: any) => ({
+                    ...prev,
+                   isActive: e.target.checked ? "True" : "False",
+                   }));
+                   }}
+                  //  checked={values.isActive ==="True" ? true : false}
+                  checked={!iseditState ? values.isActive === "True" : true}
+                  disabled={iseditState}
+                  />
                 </FormControl>
                 </Grid>
                 <Grid item md={12}>
@@ -481,7 +604,10 @@ function User(): JSX.Element {
             }}
           ></Grid>
         </Grid>
-        <Box width={"79%"} position={"absolute"} >
+        {/* <Box width={"79%"} position={"absolute"} >
+          <DisplayGrid {...gridProps} />
+        </Box> */}
+        <Box width={"100%"} position={"relative"} sx={{ mt: 2, px: 2 }}>
           <DisplayGrid {...gridProps} />
         </Box>
       </Box>

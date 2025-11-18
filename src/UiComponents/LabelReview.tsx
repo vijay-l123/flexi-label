@@ -42,11 +42,11 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function CustomizedTables(props: ILabelReviewProps) {
-  console.log("ngx-labelreviewprops", props);
+  // console.log("ngx-labelreviewprops", props);
   const {
     editRowState: { row },
   } = props;
-  console.log("row111", row);
+  // console.log("row111", row);
   const fileVersionId = React.useRef(0);
   const [pdfPopup, setPdfPopup] = React.useState<boolean>(false);
 
@@ -87,13 +87,17 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">Label Type</StyledTableCell>
               <StyledTableCell align="left">{row.labelType}</StyledTableCell>
             </StyledTableRow>
-            <StyledTableRow key="labelDescription">
+            <StyledTableRow key="lableDescription">
               <StyledTableCell align="left">Label Description</StyledTableCell>
-              <StyledTableCell align="left">{row.labelDescription}</StyledTableCell>
+              <StyledTableCell align="left">{row.lableDescription}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="pmCode">
               <StyledTableCell align="left">PM Code</StyledTableCell>
               <StyledTableCell align="left">{row.pmCode}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="tabletCount">
+              <StyledTableCell align="left">Tablet Count</StyledTableCell>
+              <StyledTableCell align="left">{row.tabletCount}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="printer">
               <StyledTableCell align="left">Printer</StyledTableCell>
@@ -118,6 +122,18 @@ export default function CustomizedTables(props: ILabelReviewProps) {
             <StyledTableRow key="foldSize">
               <StyledTableCell align="left">Fold Size</StyledTableCell>
               <StyledTableCell align="left">{row.foldSize}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="ccf">
+              <StyledTableCell align="left">CCF</StyledTableCell>
+              <StyledTableCell align="left">{row.ccf}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="implementationDate">
+              <StyledTableCell align="left">Implementation Date</StyledTableCell>
+              <StyledTableCell align="left">{row.implementationDate}</StyledTableCell>
+            </StyledTableRow>
+            <StyledTableRow key="color">
+              <StyledTableCell align="left">Color</StyledTableCell>
+              <StyledTableCell align="left">{row.color}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="approvedDate">
               <StyledTableCell align="left">Approved Date</StyledTableCell>
@@ -156,10 +172,10 @@ export default function CustomizedTables(props: ILabelReviewProps) {
                 </React.Fragment>
               </StyledTableCell>
             </StyledTableRow>
-            <StyledTableRow key="customerCode">
+            {/* <StyledTableRow key="customerCode">
               <StyledTableCell align="left">Customer Code</StyledTableCell>
               <StyledTableCell align="left">{row.customerCode}</StyledTableCell>
-            </StyledTableRow>
+            </StyledTableRow> */}
             <StyledTableRow key="finalHodApproved">
               <StyledTableCell align="left">Final HOD Approved</StyledTableCell>
               <StyledTableCell align="left">

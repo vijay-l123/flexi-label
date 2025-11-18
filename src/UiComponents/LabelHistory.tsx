@@ -141,6 +141,7 @@ function LabelHistory(props: any) {
 
   const getColumnDefinitions = (params: IColParams) => {
     const { columnData, pdfStateChange } = params;
+// console.log('columnData',params);
 
     const dynamicColDef: any[] = [];
 
@@ -160,6 +161,8 @@ function LabelHistory(props: any) {
         };
 
         if (item.field === "lableFile") {
+          // console.log("item.field",);
+          
           const updatedCols = {
             headerName: "Versions",
             display: true,
@@ -170,12 +173,13 @@ function LabelHistory(props: any) {
               return (
                 <React.Fragment>
                   <>
-                    {dFileId && (
+                    {/* {dFileId && ( */}
+                    {dFileId && dFileId !== "0" && dFileId !== 0 && (
                       <Controls.IconButton
                         value={dFileId}
                         aria-label="close"
                         onClick={(e: any) => {
-                          console.log("event", e);
+                          // console.log("event", e);
                           const pdfParams: IPdfParams = {
                             show: true,
                             fileId: +e.currentTarget.value,
@@ -194,6 +198,43 @@ function LabelHistory(props: any) {
           };
           cols = { ...cols, ...updatedCols };
         }
+            // if (item.field === "previousVersionFileId") {
+            if (item.field === "PreviousVersionFileId") {
+                const updatedCols = {
+                  headerName: "Previous Version File",
+                  align: "center",
+                  display: true,
+                  renderCell: (params: any) => {
+                    // const dFileId = params.row.previousVersionFileId;
+                    const dFileId = params.row.PreviousVersionFileId;
+        
+                    return (
+                      <React.Fragment>
+                        <>
+                          {dFileId && (
+                            <Controls.IconButton
+                              value={dFileId}
+                              aria-label="close"
+                              onClick={(e: any) => {
+                                // console.log("event", e);
+                                const pdfParams: IPdfParams = {
+                                  show: true,
+                                  fileId: +e.currentTarget.value,
+                                };
+                                pdfStateChange(pdfParams);
+                              }}
+                              color="error"
+                            >
+                              <PictureAsPdf />
+                            </Controls.IconButton>
+                          )}
+                        </>
+                      </React.Fragment>
+                    );
+                  },
+                };
+                cols = { ...cols, ...updatedCols };
+              }
         dynamicColDef.push(cols);
       });
 

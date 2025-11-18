@@ -34,6 +34,15 @@ function getLookupList(type: string, params?: {
   });
   return response;
 }
+function getversionLookupList() {
+  // const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params || {};
+  const response = axios({
+    method: "GET",
+    url: `/LookUpData/GetAllLookupList`,
+    baseURL: baseUrl,
+  });
+  return response;
+}
 
 function addLookup(params: any) {
   const { type, description } = params;
@@ -81,6 +90,7 @@ const Lookup = {
   getLookupList,
   addLookup,
   updateLookup,
+  getversionLookupList
 };
 
 export default Lookup;

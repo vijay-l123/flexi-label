@@ -15,6 +15,8 @@ import {
 import CustomTheme from "../../Theme/CustomTheme";
 import { checkAlreadyApproved, showButton } from "../../Modal/utilModal";
 import useAuthContext from "../../Authentication/AuthProvider";
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
 import common from "../../utils/common";
 
 type params = {
@@ -26,12 +28,18 @@ type params = {
   isEditMasterData?: boolean;
   reviewClick?: () => void;
   isCreateVersion?: boolean;
+  isChangeColor?: boolean;
+  isApproved?: boolean;
+  isImplementationDateChange?: boolean;
   createVersionClick?: () => void;
+  changeColorClick?: () => void;
+  changeToLiveClick?: () => void;
+  changeImplemantationDateClick?: () => void;
   addNotesClick?: () => void;
 };
 
 export default function ActionCellRenderer(inputParams: params) {
-  console.log("inputparams", inputParams.rowParams);
+  // console.log("inputparams", inputParams.rowParams);
 
   const { TLabelStatus, TRoleType, roles } = common;
   const [anchorMenu, setAnchorMenu] = React.useState<null | HTMLElement>(null);
@@ -48,6 +56,7 @@ export default function ActionCellRenderer(inputParams: params) {
   // console.log("TRoleType", authData.roleId,TRoleType.Initiator,inputParams.rowParams.row.status);
   // console.log("Cndition", authData.roleId != 1 && TRoleType.Initiator != '1' && inputParams.rowParams.row.status === "Draft");
 const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.status === "Draft";
+
   return (
     <React.Fragment>
       {(!checkAlreadyApproved({
@@ -186,7 +195,22 @@ const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.
                 <Typography fontSize="small">Review</Typography>
               </MenuItem>
             )}
-             {showButton({
+            {/* {showButton({
+              rowState: inputParams.rowParams.row,
+              currentButton: "Move to Live",
+              authData,
+            }) && (
+              <MenuItem onClick={inputParams.changeToLiveClick} disableRipple>
+                <Controls.SvgIcon
+                  fontSize="small"
+                  sx={{ mx: 1, color: CustomTheme.CustomColor.Alert.info }}
+                >
+                  <Wysiwyg />
+                </Controls.SvgIcon>
+                <Typography fontSize="small">Move to Live</Typography>
+              </MenuItem>
+            )} */}
+             {/* {showButton({
               rowState: inputParams.rowParams.row,
               currentButton: "Review",
               authData,
@@ -200,7 +224,7 @@ const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.
                 </Controls.SvgIcon>
                 <Typography fontSize="small">Delete</Typography>
               </MenuItem>
-            )}
+            )} */}
             {/* {showButton({
               rowState: inputParams.rowParams.row,
               currentButton: "Approve",
@@ -231,6 +255,39 @@ const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.
                 <Typography fontSize="small">Resend</Typography>
               </MenuItem>
             )} */}
+            {inputParams.isApproved && (
+              <MenuItem onClick={inputParams.changeToLiveClick} disableRipple>
+                <Controls.SvgIcon
+            fontSize="small"
+                  sx={{ mx: 1, color: CustomTheme.CustomColor.Alert.info }}
+                >
+                  <AddCardRounded />
+                </Controls.SvgIcon>
+                <Typography fontSize="small">Approve</Typography>
+              </MenuItem>
+            )}
+            {inputParams.isImplementationDateChange && (
+              <MenuItem onClick={inputParams.changeImplemantationDateClick} disableRipple>
+                <Controls.SvgIcon
+            fontSize="small"
+                  sx={{ mx: 1, color: CustomTheme.CustomColor.Alert.info }}
+                >
+                  <CalendarMonthIcon />
+                </Controls.SvgIcon>
+                <Typography fontSize="small">Edit Implementation Date</Typography>
+              </MenuItem>
+            )}
+            {inputParams.isChangeColor && (
+              <MenuItem onClick={inputParams.changeColorClick} disableRipple>
+                <Controls.SvgIcon
+                  fontSize="medium"
+                  sx={{ mx: 1, color: CustomTheme.CustomColor.Green.main }}
+                >
+                  <ColorLensIcon />
+                </Controls.SvgIcon>
+                <Typography fontSize="small">Edit Color</Typography>
+              </MenuItem>
+            )}
             {inputParams.isCreateVersion && (
               <MenuItem onClick={inputParams.createVersionClick} disableRipple>
                 <Controls.SvgIcon

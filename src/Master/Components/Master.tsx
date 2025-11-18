@@ -31,7 +31,7 @@ function Master(): JSX.Element {
     // handleLookupChange
   } = useMasterAuthContext();
   const { authData } = useAuthContext();
-  const {filter} =useFilterContext();
+  const {filter,setFilter} =useFilterContext();
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [isEdit, setEdit] = React.useState(false);
@@ -41,10 +41,10 @@ function Master(): JSX.Element {
 
   //
   const { masterTabData, LookupDropdownData } = common;
-  console.log("masterTabData", masterTabData, tabValue, LookupDropdownData);
+  // console.log("masterTabData", masterTabData, tabValue, LookupDropdownData);
 
   const editClickEvent = (params: any): void => {
-    console.log("popupdata", params.row);
+    // console.log("popupdata", params.row);
     dispatch(setPopulatedValues(params.row));
     setModalState(true);
     setRowData(params.row);
@@ -182,7 +182,12 @@ function Master(): JSX.Element {
               name="Select Lookup"
               value={lookupvalue}
               // defaultValue={lookupvalue[0]}
-              onChange={(e) => setLookupvalue(e.target.value)}
+              // onChange={(e) => setLookupvalue(e.target.value)}
+              onChange={(e) => {
+              setLookupvalue(e.target.value);
+              setFilter({});
+              }}
+
               // disabled={true}
               // sx={{
               //   backgroundColor: CustomTheme.CustomColor.Common.white,
@@ -203,15 +208,21 @@ function Master(): JSX.Element {
         )}
       </Box>
       {/* <div style={{ width: '170vh', overflowX: 'auto' }}> */}
+      {/* <DisplayGrid {...gridProps} /> */}
+      <Box width={"100%"} position={"relative"} sx={{ mt: 2, px: 2 }}>
       <DisplayGrid {...gridProps} />
+      </Box>
       {/* </div> */}
     </React.Fragment>
   );
 }
 
+// const paperLayoutGridProps = {
+//   paperHeight: "85vh",
+//   boxHeight: "70vh",
+// };
 const paperLayoutGridProps = {
-  paperHeight: "85vh",
+  paperHeight: "70vh",
   boxHeight: "70vh",
 };
-
 export default withPaperLayout(withMaster(Master), paperLayoutGridProps);

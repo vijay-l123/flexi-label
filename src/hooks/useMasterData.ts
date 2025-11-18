@@ -36,10 +36,12 @@ export function useMasterData(tabValue: number, lookupType: string) {
 
   const setGridState = React.useCallback(
     (param: any) => {
+      // console.log("param.rowData",param);
+      
       setGridData((prevState: any) => ({
         ...prevState,
         colDefs: param.colDefs,
-        rowData: param.rowData,
+        rowData: tabValue === 6 ? param.rowData?.reverse() :param.rowData,
         pagedInfo: param.pagedInfo,
       }));
       if (tabValue === 6) {

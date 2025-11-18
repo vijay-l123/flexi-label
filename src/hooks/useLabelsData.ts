@@ -14,13 +14,15 @@ const {
   camelizeKeys,
 } = common;
 
-export function useLabelsData() {
+export function useLabelsData(LabelversionAPiCall: boolean) {
   const [rowData, setRowData] = React.useState<any[]>([]);
   const [columnData, setColumnData] = React.useState<any[]>([]);
   const [selectedTab, setSelectedTab] = React.useState<any>();
   const [labelAction, setLabelAction] = React.useState<boolean>(false);
 
   const { authData } = useAuthContext();
+  // console.log("LabelversionAPiCall :useLabelsData",LabelversionAPiCall);
+  
   const {
     pageSize,
     page,
@@ -45,7 +47,7 @@ export function useLabelsData() {
 
   // Helper function to construct filter parameters
   const getFilterParams = React.useCallback(() => {
-    console.log("Current filter state:", filter);
+    // console.log("Current filter state:", filter);
     
     // Check if filter has been applied (has filterValue or all required fields)
     if (filter.column?.field && filter.operator && (filter.filterValue !== undefined || filter.value)) {
@@ -54,12 +56,12 @@ export function useLabelsData() {
         filterOperator: filter.operator,
         filterValue: filter.filterValue || filter.value || "",
       };
-      console.log("Using filter params:", filterParams);
+      // console.log("Using filter params:", filterParams);
       return filterParams;
     }
     
     // Return empty filter params if no valid filter is applied
-    console.log("No valid filter applied, using empty params");
+    // console.log("No valid filter applied, using empty params");
     return {
       filterCol: "",
       filterOperator: "",
@@ -71,7 +73,7 @@ export function useLabelsData() {
   React.useMemo(() => {
     const getLabels = async () => {
       try {
-        console.log("Fetching labels for tab:", selectedTab, "page:", page + 1, "pageSize:", pageSize);
+        // console.log("Fetching labels for tab:", selectedTab, "page:", page + 1, "pageSize:", pageSize);
         
         const filterParams = getFilterParams();
 
@@ -85,7 +87,7 @@ export function useLabelsData() {
           filterParams.filterValue
         );
 
-        console.log("API Response:", response.data);
+        // console.log("API Response:", response.data);
 
         // Handle new API response structure
         const apiData = response.data;
@@ -115,11 +117,11 @@ export function useLabelsData() {
             })
           );
 
-          console.log("New API - Processed rowData length:", apiData.data.rows.length);
-          console.log("New API - Total records:", apiData.paging.totalRecords);
+          // console.log("New API - Processed rowData length:", apiData.data.rows.length);
+          // console.log("New API - Total records:", apiData.paging.totalRecords);
         } else {
           // Fallback to old API structure
-          console.log("Using old API structure");
+          // console.log("Using old API structure");
           setPaginationData({
             totalRecords: apiData.rows?.length || 0,
             maxPage: 1,
@@ -161,13 +163,14 @@ export function useLabelsData() {
     if (selectedTab !== undefined && selectedTab !== null) {
       getLabels();
     }
-  }, [selectedTab, page, pageSize, getFilterParams]); // Added getFilterParams to dependencies
+  }, [selectedTab, page, pageSize,LabelversionAPiCall]); // Added getFilterParams to dependencies
+  // }, [selectedTab, page, pageSize, getFilterParams]); // Added getFilterParams to dependencies
 
   // Fetch data when pagination changes
   React.useMemo(() => {
     const getLabels = async () => {
       try {
-        console.log("Fetching labels (pagination change):", selectedTab, "page:", page + 1, "pageSize:", pageSize);
+        // console.log("Fetching labels (pagination change):", selectedTab, "page:", page + 1, "pageSize:", pageSize);
         
         const filterParams = getFilterParams();
 
@@ -181,7 +184,7 @@ export function useLabelsData() {
           filterParams.filterValue
         );
 
-        console.log("API Response (pagination):", response.data);
+        // console.log("API Response (pagination):", response.data);
 
         // Handle new API response structure
         const apiData = response.data;
@@ -211,8 +214,8 @@ export function useLabelsData() {
             })
           );
 
-          console.log("Pagination - Processed rowData length:", apiData.data.rows.length);
-          console.log("Pagination - Total records:", apiData.paging.totalRecords);
+          // console.log("Pagination - Processed rowData length:", apiData.data.rows.length);
+          // console.log("Pagination - Total records:", apiData.paging.totalRecords);
         } else {
           // Fallback to old API structure
           console.log("Using old API structure (pagination)");
@@ -238,7 +241,7 @@ export function useLabelsData() {
         }
         
       } catch (error) {
-        console.error("Error fetching labels (pagination):", error);
+        // console.error("Error fetching labels (pagination):", error);
       }
 
       return () => clearState();
@@ -254,7 +257,7 @@ export function useLabelsData() {
   React.useMemo(() => {
     const getLabels = async () => {
       try {
-        console.log("Fetching labels (action):", selectedTab, "page:", page + 1, "pageSize:", pageSize);
+        // console.log("Fetching labels (action):", selectedTab, "page:", page + 1, "pageSize:", pageSize);
         
         const filterParams = getFilterParams();
 
@@ -319,7 +322,7 @@ export function useLabelsData() {
         }
         
       } catch (error) {
-        console.error("Error fetching labels (action):", error);
+        // console.error("Error fetching labels (action):", error);
       }
 
       return () => clearState();
@@ -330,6 +333,66 @@ export function useLabelsData() {
       updateLabelsData(false);
     }
   }, [labelAction, getFilterParams]);
+
+// React.useEffect(() => {
+//   if (selectedTab === undefined || selectedTab === null) return;
+
+//   // const controller = new AbortController();
+//   // const { signal } = controller;
+
+//   const getLabels = async () => {
+//     try {
+//       console.log("Fetching labels for tab:", selectedTab, "page:", page + 1);
+
+//       const filterParams = getFilterParams();
+
+//       const response = await Services.LabelVersion.getLableVersionList(
+//         selectedTab,
+//         authData.roleId,
+//         page + 1,
+//         pageSize,
+//         filterParams.filterCol,
+//         filterParams.filterOperator,
+//         filterParams.filterValue,
+//         // signal 
+//       );
+
+//       // if (signal.aborted) return; 
+
+//       const apiData = response.data;
+
+//       if (apiData.paging && apiData.data) {
+//         setPaginationData({
+//           totalRecords: apiData.paging.totalRecords,
+//           maxPage: apiData.paging.maxPage,
+//           contentRange: apiData.paging.contentRange,
+//           previousPage: apiData.paging.previousPage,
+//           nextPage: apiData.paging.nextPage,
+//         });
+
+//         setColumnData(apiData.data.columns.map((i: any) => ({
+//           ...i,
+//           field: camelCase(i.name),
+//         })));
+
+//         setRowData(apiData.data.rows.map((i: any, index: number) => ({
+//           ...camelizeKeys(i),
+//           index: page * pageSize + index,
+//         })));
+//       }
+//     } catch (error: any) {
+//       if (error.name === "CanceledError") {
+//         console.log("Previous request aborted");
+//         return;
+//       }
+//       console.error("Error fetching labels:", error);
+//     }
+//   };
+
+//   getLabels();
+
+//   // return () => controller.abort();
+// }, [selectedTab, page, pageSize, getFilterParams]);
 
   return {
     columnData,

@@ -7,7 +7,7 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import Typography from "@mui/material/Typography";
-
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import bgIcon from "../../Images/newbg.png";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
@@ -15,7 +15,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
 import { useNavigate } from "react-router-dom";
-import { FormHelperText } from "@mui/material";
+import { FormHelperText, FormLabel, IconButton, InputAdornment, OutlinedInput } from "@mui/material";
 import Controls from "../../Controls/Controls";
 import useAuthContext from "../../Authentication/AuthProvider";
 import common from "../../utils/common";
@@ -111,11 +111,11 @@ function SignInSide() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-      roles: data.get("roles"),
-    });
+    // console.log({
+    //   email: data.get("email"),
+    //   password: data.get("password"),
+    //   roles: data.get("roles"),
+    // });
 
     const formData = [
       {
@@ -203,10 +203,30 @@ function SignInSide() {
     temp = updatedValues;
 
     setFormValues(temp);
-    console.log("handletext", temp);
+    // console.log("handletext", temp);
   };
+  const [showPassword, setShowPassword] = React.useState(false);
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+  };
   return (
+    // <Grid
+    //   container
+    //   component="main"
+    //   sx={{
+    //     height: "100vh",
+    //   }}
+    // >
+    //   <CssBaseline />
+    //   <Grid item xs={6}>
+    //     <div className="loginImg">
+    //       <LoginSvg />
+    //     </div>
+    //   </Grid>
+    //   <Grid item xs={6}>
     <Grid
       container
       component="main"
@@ -215,12 +235,26 @@ function SignInSide() {
       }}
     >
       <CssBaseline />
-      <Grid item xs={6}>
+      {/* <Grid item xs={6}>
         <div className="loginImg">
           <LoginSvg />
         </div>
-      </Grid>
-      <Grid item xs={6}>
+      </Grid> */}
+      <Grid
+  item
+  xs={false}
+  sm={false}
+  md={false}
+  lg={6}
+  sx={{
+    display: { xs: "none", sm: "none", md: "none",lg: "block" }, 
+  }}
+>
+  <div className="loginImg">
+    <LoginSvg />
+  </div>
+</Grid>
+    <Grid item xs={12} sm={12} md={12} lg={6}>
         <div className="loginScreen">
           <div className="loginContent">
             <div className="loginLogo">
@@ -250,7 +284,7 @@ function SignInSide() {
                 onChange={handleTextChange}
                 error={formValues.email.error}
               ></Controls.Input>
-              <Controls.Input
+              {/* <Controls.Input
                 required
                 fullWidth
                 margin="normal"
@@ -262,7 +296,44 @@ function SignInSide() {
                 value={formValues.password.value}
                 onChange={handleTextChange}
                 error={formValues.password.error}
-              />
+              /> */}
+                    <FormControl variant="outlined" fullWidth required  error={!!formValues.password.error} >
+  {/* <Grid container >
+    <Grid item xs={12}> */}
+      <OutlinedInput
+        id="password"
+        name="password"
+        type={showPassword ? "text" : "password"}
+        value={formValues.password?.value || ""}
+        onChange={handleTextChange}
+        
+        required
+        placeholder="Enter your password"
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={handleClickShowPassword}
+              onMouseDown={handleMouseDownPassword}
+              edge="end"
+            >
+              {showPassword ? <VisibilityOff /> : <Visibility />}
+            </IconButton>
+          </InputAdornment>
+        }
+        sx={{
+          mt: 1,
+          '& input::placeholder': {
+            opacity: 0.7,
+          },
+        }}
+      />
+            {formValues.password.error && (
+        <FormHelperText>{formValues.password.error}</FormHelperText>
+      )}
+    {/* </Grid>
+  </Grid> */}
+</FormControl>
               {/* <Box>
               <FormControl
                 required

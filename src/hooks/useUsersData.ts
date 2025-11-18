@@ -21,7 +21,7 @@ export function useUsersData() {
   const { filter, pageSize, page } = useFilterContext();
 
   const updateUsersData = React.useCallback((val: boolean) => {
-    console.log("updateUsersData", val);
+    // console.log("updateUsersData", val);
     setUserAction(val);
   }, []);
 
@@ -46,7 +46,7 @@ export function useUsersData() {
   //   }
   // }, [userAction, pageSize, page]); 
     React.useMemo(() => {
-    console.log("usememo pagination change - page:", page, "pageSize:", pageSize, "filter:", filter);
+    // console.log("usememo pagination change - page:", page, "pageSize:", pageSize, "filter:", filter);
     if (userAction) {
       fetchUsers(setGridState, { filter, pageSize, page });
       updateUsersData(false);
@@ -55,7 +55,7 @@ export function useUsersData() {
 
   React.useMemo(() => {
     if (!initLoad.current) {
-      console.log("Initial load - page:", page, "pageSize:", pageSize);
+      // console.log("Initial load - page:", page, "pageSize:", pageSize);
       fetchUsers(setGridState, { filter: {}, pageSize, page }); 
       initLoad.current = true;
     }
@@ -64,7 +64,7 @@ export function useUsersData() {
   //new
   React.useEffect(() => {
     if (initLoad.current) {
-      console.log("Pagination effect triggered - page:", page, "pageSize:", pageSize);
+      // console.log("Pagination effect triggered - page:", page, "pageSize:", pageSize);
       fetchUsers(setGridState, { filter, pageSize, page });
     }
   }, [pageSize, page, filter]);
@@ -98,7 +98,7 @@ function fetchUsers(setGridState: any, { filter, pageSize, page }: any) {
       
       // Process the new pagedInfo structure
       const pagedInfo = apiData.pagedInfo;
-      console.log('Pagination Info:', pagedInfo);
+      // console.log('Pagination Info:', pagedInfo);
       
       // Transform the new data structure
       const transformedData = {
@@ -114,7 +114,7 @@ function fetchUsers(setGridState: any, { filter, pageSize, page }: any) {
       };
       setGridState(params);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      // console.error("Error fetching users:", error);
       setGridState({ colDefs: [], rowData: [], pagedInfo: null });
     }
   };

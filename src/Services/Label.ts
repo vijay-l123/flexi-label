@@ -63,6 +63,7 @@ function addLabel(params: any) {
     labelType,
     pmCode,
     labelDescription,
+    remarks
   } = params;
 
   const postProps = {
@@ -82,6 +83,7 @@ function addLabel(params: any) {
     labelType,
     pmCode,
     labelDescription,
+    remarks,
 
     // createdDate: new Date(),
     // modifiedDate: new Date(),

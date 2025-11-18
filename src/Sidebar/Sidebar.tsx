@@ -58,7 +58,7 @@ const Sidebar = (props: any) => {
         >
           <Controls.SvgIcon
             fontSize="medium"
-            sx={{ color: CustomTheme.CustomColor.Primary.main }}
+            sx={{ color: "CustomTheme.CustomColor.Primary.main" }}
           >
             {closeMenu === false ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </Controls.SvgIcon>

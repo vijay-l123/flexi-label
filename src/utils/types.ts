@@ -6,8 +6,12 @@ export interface IModalProps {
   defaultToLabel: boolean;
   editState: boolean;
   rowState: any;
+  selectedTab?: any;
   newTypeState: number;
   isCreateNewVersion: boolean;
+  isChangeColor?: boolean;
+  isApproved?: boolean;
+  isImplementationDate?: boolean;
   setNewTypeState: (val: number) => void;
 }
 

@@ -22,6 +22,14 @@ export function useLabelHistoryData(id: number) {
             return { ...i, field: camelCase(i.name) };
           })
         );
+//         setColumnData(
+//   response.data["labelVersionHistory"].columns.map((i: any) => ({
+//     ...i,
+//     // field: camelizeKeys({ [i.name]: "" }) && Object.keys(camelizeKeys({ [i.name]: "" }))[0],
+//     field: i.name === "CCF" ? "cCf" : camelCase(i.name),
+//   }))
+// );
+
 
         setRowData(
           response.data["labelVersionHistory"].rows.map(

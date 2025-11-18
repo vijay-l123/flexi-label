@@ -12,11 +12,16 @@ import {
   Autocomplete,
   TextField,
   IconButton,
+  styled,
+  Grid,
+  OutlinedInput,
+  InputAdornment,
 } from "@mui/material";
 import {
   Close,
   Save,
   Visibility,
+  VisibilityOff,
   ReplyAll,
   TaskAlt,
 } from "@mui/icons-material";
@@ -37,11 +42,19 @@ import useMasterAuthContext from "../../Context/MasterAuthContext";
 import { createLabelData, ICreateLabelParams } from "../utilLabelCreation";
 import AutoComplete from "../../Controls/AutoComplete";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchLookupDataAsync, resetLookupData } from "../../Redux/MasterDataUpdateSlice/getLookupSlice";
+import {
+  fetchLookupDataAsync,
+  resetLookupData,
+} from "../../Redux/MasterDataUpdateSlice/getLookupSlice";
 import { setEditClick } from "../../Redux/MasterDataUpdateSlice/LookupUpdate";
 import PdfIconButton from "../../PDFIconBtn/Components/PdfIconButton";
 import PDFViewer from "../../PDFViewer/Components/PDFViewer";
 import { setPdfPopupOpen } from "../../Redux/PopupSlice/PopupSlice";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs, { Dayjs } from "dayjs";
+import { useAxiosHandlerContext } from "../../AxiosHandler/AxiosHandler";
+import AuthService from "../../Services/AuthService";
 
 const { TButtonClick, fetchConfirmationTitle, TAppPage } = common;
 
@@ -136,32 +149,18 @@ const initialFValues = {
   ccf: "",
   labelDescription: "",
 };
-
-//TODO
-// function fetchFileData(fileId: number) {
-//   const fetchDocument: any = async () => {
-//     try {
-//       let response = await Services.Document.downloadDocument(fileId);
-//       return response;
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
-//   fileId &&
-//     fetchDocument().then((response: any) => {
-//       console.log(response.data);
-
-//       console.log(response);
-//       const url = window.URL.createObjectURL(new Blob([response.data]));
-//       const link = document.createElement("a");
-//       link.href = url;
-//       link.setAttribute("download", "file.pdf");
-//       document.body.appendChild(link);
-//       link.click();
-//       link.remove();
-//     });
-//   return [];
-// }
+export const colorOptions = [
+  { label: "Red", value: "#FF0000" },
+  { label: "Green", value: "#008000" },
+  { label: "Blue", value: "#0000FF" },
+  { label: "Yellow", value: "#ba8759" },
+  { label: "Orange", value: "#E65100" },
+  { label: "Purple", value: "#800080" },
+  { label: "Gray", value: "#808080" },
+  { label: "Cyan", value: "#00FFFF" },
+  { label: "Brown", value: "#A52A2A" },
+  { label: "Navy", value: "#000080" },
+];
 
 interface formParams {
   name: string;
@@ -175,7 +174,7 @@ interface IKeyMapping {
 }
 
 function isValidPassword(val: string) {
-  return val.length === 0;
+  return val?.length === 0;
 }
 
 function checkErrorValidation(params: formParams) {
@@ -193,6 +192,35 @@ function checkErrorValidation(params: formParams) {
 }
 
 function LabelModalPopup(props: IModalProps) {
+  const StyledSelect = styled(Select)(({ theme }) => ({
+    "&.MuiOutlinedInput-root": {
+      borderRadius: 8,
+      transition: "all 0.2s ease",
+      "& .MuiOutlinedInput-notchedOutline": {
+        borderColor: theme.palette.grey[400],
+      },
+      "&:hover .MuiOutlinedInput-notchedOutline": {
+        borderColor: theme.palette.primary.main,
+        boxShadow: `0 0 0 2px ${theme.palette.primary.main}33`,
+      },
+      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+        borderColor: theme.palette.primary.main,
+        boxShadow: `0 0 0 3px ${theme.palette.primary.main}33`,
+      },
+    },
+    "& .MuiSelect-select": {
+      padding: "10px 14px",
+      backgroundColor: theme.palette.background.paper,
+    },
+    "& .MuiSvgIcon-root": {
+      color: theme.palette.grey[600],
+      transition: "transform 0.2s ease",
+    },
+    "&.MuiSelect-iconOpen .MuiSvgIcon-root": {
+      transform: "rotate(180deg)",
+    },
+  }));
+
   const { authData, canEdit } = useAuthContext();
   const {
     isOpen,
@@ -202,27 +230,33 @@ function LabelModalPopup(props: IModalProps) {
     setNewTypeState,
     rowState,
     defaultToLabel,
+    selectedTab,
     isCreateNewVersion,
-  } = props;
-  const { updateLabelsData } = useLabelsContext();
-  const { updateMasterData,lookupvalue,setLookupvalue } = useMasterAuthContext();
-  console.log("rowstate", rowState);
-  console.log("modalprops", props);
-  console.log("lookupvalue", lookupvalue);
-  console.log("isCreateNewVersion", isCreateNewVersion);
+    isChangeColor,
+    isImplementationDate,
 
+    isApproved,
+  } = props;
+  const { updateLabelsData, setLabelversionAPiCall, LabelversionAPiCall } =
+    useLabelsContext();
+  const { updateMasterData, lookupvalue, setLookupvalue } =
+    useMasterAuthContext();
+  const { setAlertMessage, setSbOpen, setAlertSeverity } =
+    useAxiosHandlerContext();
   const [andaList, setAndaList] = React.useState<IAndaTypes[]>([]);
   const [productList, setProductList] = React.useState<any[]>([]);
   const [pmCodes, setPmCodes] = React.useState<any[]>([]);
   const [labelTypes, setLabelTypes] = React.useState<any[]>([]);
   const [customers, setCustomers] = React.useState<any[]>([]);
-  const dispatch = useDispatch()
-  const { tabValue, lookupData, populatedValue, editClickEvent } = useSelector((state : any) => state.lookupDataFlags);
+  const dispatch = useDispatch();
+  const { tabValue, lookupData, populatedValue, editClickEvent } = useSelector(
+    (state: any) => state.lookupDataFlags
+  );
   const lookupView = lookupData.rowData;
-  console.log("try lookup", lookupView);
-  const [selectedOption, setSelectedOption] = React.useState(null);    
-  console.log('selectedOption',selectedOption);
-  
+  const [selectedOption, setSelectedOption] = React.useState(null);
+  const lookupDataSlice = useSelector(
+    (state: any) => state.fetchGetLookupData.data
+  );
   const [formValues, setFormValues] = React.useState<IKeyMapping>({
     password: {
       value: "",
@@ -235,7 +269,15 @@ function LabelModalPopup(props: IModalProps) {
   });
 
   const [buttonState, setButtonState] = React.useState<any>();
+  const [showPassword, setShowPassword] = React.useState(false);
 
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
   const handleTextChange = (e: any) => {
     let temp = JSON.parse(JSON.stringify(formValues));
 
@@ -257,6 +299,8 @@ function LabelModalPopup(props: IModalProps) {
     React.useState<boolean>(false);
 
   const handleClose = () => {
+    // debugger;
+    // setLabelversionAPiCall(false);
     resetValidationState();
     closeModal(false);
     updateLabelsData(false);
@@ -280,11 +324,12 @@ function LabelModalPopup(props: IModalProps) {
     }));
   };
 
-  const newType = newTypeState;
+  const newType: any = newTypeState;
 
   const handleTypeChange = (event: any) => setNewTypeState(event.target.value);
 
   const validate = (fieldValues = values): any => {
+    // debugger
     let temp: any = { ...errors };
     if ("andaNumber" in fieldValues) {
       temp.andaNumber = fieldValues.andaNumber
@@ -312,7 +357,9 @@ function LabelModalPopup(props: IModalProps) {
     // }
     if ("description" in fieldValues) {
       temp.description = fieldValues.description
-        ? false: newType == 4 ? false
+        ? false
+        : newType == 4
+        ? false
         : "Description is required.";
     }
     if ("customerName" in fieldValues) {
@@ -374,28 +421,31 @@ function LabelModalPopup(props: IModalProps) {
         ? false
         : "Proof Number is required.";
     }
+    if ("implementationDate" in fieldValues) {
+      const rawValue = String(fieldValues.implementationDate || "").trim();
+
+      if (!rawValue) {
+        temp.implementationDate = "Implementation Date is required.";
+      } else {
+        temp.implementationDate = false;
+      }
+    }
+
+    if ("color" in fieldValues) {
+      temp.color = fieldValues.color ? false : "color is required.";
+    }
+
     // if ("fileData" in fieldValues) {
     //   console.log("filedata", fieldValues.fileData);
     //   temp.fileData = fieldValues.fileData?.name
     //     ? false
     //     : "File Data is required.";
     // }
+
+    // ======
     if ("fileName" in fieldValues) {
       temp.fileName = fieldValues.fileName ? false : "File Name is required.";
     }
-    // if ("fileId" in fieldValues) {
-    //   temp.fileId = fieldValues.fileId ? false : "File Id is required.";
-    // }
-    // if ("email" in fieldValues)
-    //   temp.email = /$^|.+@.+..+/.test(fieldValues.email)
-    //     ? false
-    //     : "Email is not valid.";
-    // if ("mobile" in fieldValues)
-    //   temp.mobile =
-    //     fieldValues.mobile.length > 9 ? false : "Minimum 1false numbers required.";
-    // if ("departmentId" in fieldValues)
-    //   temp.departmentId =
-    //     fieldValues.departmentId.length != 0 ? false : "This field is required.";
     setErrors((prevState: any) => ({
       ...prevState,
       ...temp,
@@ -412,18 +462,19 @@ function LabelModalPopup(props: IModalProps) {
     errors,
     setErrors,
     handleInputChange,
+    handleDateChange,
     resetValidationState,
   } = useFormValidation(initialFValues, true, validate);
   const isPdfOpen = useSelector((state: any) => state.popupSlice.isOpen);
   const handleClosePdf = () => {
     dispatch(setPdfPopupOpen(false));
-  }
-  console.log("values",values);
-  
+  };
+
   React.useMemo(() => {
     const fetchAndaList = async () => {
       try {
         let response = await Services.Anda.getAndaList();
+        // console.log("response",response);
         setAndaList(response.data);
       } catch (error) {
         console.log(error);
@@ -470,13 +521,6 @@ function LabelModalPopup(props: IModalProps) {
       case 1:
         fetchAndaList();
         break;
-      // case 5:
-      //   fetchAndaList();
-      //   fetchProductList();
-      //   fetchPmCodes();
-      //   fetchLabelTypes();
-      //   fetchCustomers();
-      //   break;
       case 5:
       case 6:
         fetchAndaList();
@@ -492,6 +536,12 @@ function LabelModalPopup(props: IModalProps) {
 
   React.useMemo(() => {
     if (editState) {
+      const parsedDate = rowState.implementationDate
+        ? rowState.implementationDate
+        : "";
+      //   const parsedDate = rowState.implementationDate
+      // ? dayjs(rowState.implementationDate).format("MM-DD-YYYY")
+      // : "";
       setValues((prevState: any) => ({
         ...prevState,
         labelVersionId: +rowState.id, // +rowState.currentVersionId,
@@ -512,6 +562,9 @@ function LabelModalPopup(props: IModalProps) {
         description: rowState.description,
         printer: rowState.printer,
         ndcNumber: rowState.ndcNumber,
+        color: rowState.color,
+        colorcode: rowState.colorCode,
+        implementationDate: parsedDate,
         jobNumber: rowState.jobNumber,
         tabletCount: rowState.tabletCount,
         versionNumber: rowState.currentVersion,
@@ -520,7 +573,7 @@ function LabelModalPopup(props: IModalProps) {
         ccf: rowState.ccf,
         labelDescription: rowState.labelDescription,
         proofNumber: rowState.proofNumber,
-        fileData: { name: rowState.currentVersionFileName }, //TODOfetchFileData(rowState.currentVerstionFileId), //{ name: rowState.currentVersionFileName },
+        fileData: { name: rowState.currentVersionFileName },
         fileName: rowState.currentVersionFileName || "",
         fileId: rowState.currentVersionFileId || "-1",
       }));
@@ -534,22 +587,30 @@ function LabelModalPopup(props: IModalProps) {
   }
 
   useEffect(() => {
-    if(editClickEvent) {
-      setValues({...values, description: populatedValue?.description});
+    if (editClickEvent) {
+      setValues({ ...values, description: populatedValue?.description });
     }
-  }, [populatedValue?.description])
-  
+  }, [populatedValue?.description]);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    // debugger
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const currKeys = [...new FormData(event.currentTarget).keys()];
 
     const temp: any[] = [];
-    
+
     currKeys.forEach((key) => {
       temp.push({ [key]: data.get(key) });
     });
-
+    if (values.implementationDate || isCreateNewVersion) {
+      temp.push({
+        implementationDate: !editState
+          ? values.implementationDate
+          : values?.implementationDate,
+        color: values.color,
+      });
+    }
     const isValid: any[] = [];
     temp.forEach((target: any) => {
       isValid.push(validate(target));
@@ -564,14 +625,18 @@ function LabelModalPopup(props: IModalProps) {
         updateMasterData,
         triggerUpdateMasterData,
         editState,
+        isChangeColor,
+        isApproved,
+        selectedTab,
         updateLabelsData,
+        setLabelversionAPiCall,
+        LabelversionAPiCall,
         rowState,
         isCreateNewVersion,
+        isImplementationDate,
       };
       createLabelData(createLabelParams, dispatch);
-console.log('values : Labelmodal',values,data)
       handleClose();
-
       //resetValidationState();
     }
   };
@@ -584,7 +649,8 @@ console.log('values : Labelmodal',values,data)
     }
   };
 
-  const onOkClick = (event: React.FormEvent<HTMLFormElement>) => {
+  const onOkClick = async (event: React.FormEvent<HTMLFormElement>) => {
+    // debugger
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
@@ -592,7 +658,8 @@ console.log('values : Labelmodal',values,data)
       password: data.get("password"),
       remarks: data.get("remarks"),
     });
-
+    const password = data.get("password") as string;
+    const remarks = data.get("remarks") as string;
     const formData = [
       {
         target: {
@@ -631,6 +698,39 @@ console.log('values : Labelmodal',values,data)
     Object.values(temp).forEach((item: any) => {
       if (item.error) hasError = item.error;
     });
+    if (hasError) return;
+
+    try {
+      const response = await AuthService.passwordCheckForProcees({
+        userId: authData?.userId,
+        password,
+      });
+
+      const apiResult = response?.data;
+
+      if (apiResult?.status != 200) {
+        // debugger
+        setFormValues((prev) => ({
+          ...prev,
+          password: {
+            ...prev.password,
+            error: apiResult?.message || "Invalid password. Please try again.",
+          },
+        }));
+        setAlertSeverity("error");
+        setAlertMessage(
+          apiResult?.message || "Invalid password. Please try again."
+        );
+        return;
+      }
+
+      console.log("Password validated successfully!");
+    } catch (error: any) {
+      console.error("Password validation error:", error);
+      setAlertSeverity("error");
+      setAlertMessage("Invalid password. Please try again.");
+      return;
+    }
 
     if (!hasError) {
       const updateLabelVersion = async () => {
@@ -651,6 +751,7 @@ console.log('values : Labelmodal',values,data)
             buttonState === TButtonClick.Resend ||
             buttonState === TButtonClick.Approve
           )
+            // debugger
             response = await Services.LabelVersion.processReview({
               ...apiParams,
               action: Number(buttonState),
@@ -659,7 +760,7 @@ console.log('values : Labelmodal',values,data)
               handleClose();
             });
 
-          console.log(response);
+          // console.log(response);
         } catch (error) {
           console.log(error);
         }
@@ -677,11 +778,11 @@ console.log('values : Labelmodal',values,data)
     form: "confirmationBox",
   };
 
-  const [selectedPrinter, setSelectedPrinter] = useState<any>('');
-  const [selectedRevision, setSelectedRevision] = useState<any>('');
-  const [selectedProof, setSelectedProof] = useState<any>('');
-  const [selectedFlat, setSelectedFlat] = useState<any>('');
-  const [selectedFold, setSelectedFold] = useState<any>('');
+  const [selectedPrinter, setSelectedPrinter] = useState<any>("");
+  const [selectedRevision, setSelectedRevision] = useState<any>("");
+  const [selectedProof, setSelectedProof] = useState<any>("");
+  const [selectedFlat, setSelectedFlat] = useState<any>("");
+  const [selectedFold, setSelectedFold] = useState<any>("");
 
   const handlePrinterChange = (event: any, newValue: any) => {
     // debugger
@@ -703,29 +804,80 @@ console.log('values : Labelmodal',values,data)
   const handleFoldChange = (event: any, newValue: any) => {
     setSelectedFold(newValue);
   };
-  
+
   useEffect(() => {
     dispatch(fetchLookupDataAsync());
 
     return () => {
       dispatch(resetLookupData());
     };
-  },[dispatch])
-  const lookupDataSlice = useSelector((state: any) => state.fetchGetLookupData.data);
-  console.log('lookupDataSlice', lookupDataSlice);
-  
+  }, [dispatch, newTypeState]);
+
   useEffect(() => {
-    // Update values.code whenever selectedOption changes
     if (selectedOption) {
-      // handleInputChange({ target: { name: 'code', value: selectedOption } });
-      const fieldsToUpdate = ['code', 'versionNumber', 'printer', 'proofNumber', 'flatSize', 'foldSize', 'remarks']; // Add more field names here if needed
-      fieldsToUpdate.forEach(field => {
+      const fieldsToUpdate = [
+        "code",
+        "versionNumber",
+        "printer",
+        "proofNumber",
+        "flatSize",
+        "foldSize",
+        "remarks",
+      ]; // Add more field names here if needed
+      fieldsToUpdate.forEach((field) => {
         handleInputChange({ target: { name: field, value: selectedOption } });
       });
     }
   }, [selectedOption]);
+  const selectedAndaObj = andaList?.find(
+    (a) => a.andaid == values.selectedAnda
+  ) || {
+    andaid: rowState.andaid || rowState.andaId,
+    andanumber: rowState.andaNumber,
+  };
 
-  console.log("label values", values);
+  const displayList = [
+    ...andaList,
+    ...(andaList.some((a) => a.andaid == selectedAndaObj.andaid)
+      ? []
+      : [selectedAndaObj]),
+  ];
+  // console.log("label values", values);
+  const foldSizeOptions =
+    lookupDataSlice?.rows?.filter((x: any) => x.Type === "6") || [];
+
+  const selectedFoldSize =
+    foldSizeOptions.find((x: any) => x.Description === values.foldSize) ||
+    (values.foldSize ? { Description: values.foldSize } : null);
+  //////
+  const flateSizeOptions =
+    (lookupDataSlice?.rows &&
+      lookupDataSlice?.rows?.filter((item: any) => item?.Type === "5")) ||
+    [];
+
+  const selectedFlateSize =
+    flateSizeOptions.find((x: any) => x.Description === values.flatSize) ||
+    (values.flatSize ? { Description: values.flatSize } : null);
+  ///////
+  const versionNumberOptions =
+    (lookupDataSlice?.rows &&
+      lookupDataSlice?.rows?.filter((item: any) => item?.Type === "2")) ||
+    [];
+
+  const selectedversionNumber =
+    versionNumberOptions.find(
+      (x: any) => x.Description === values.versionNumber
+    ) || (values.versionNumber ? { Description: values.versionNumber } : null);
+  ///////
+  const proofNumberOptions =
+    (lookupDataSlice?.rows &&
+      lookupDataSlice?.rows?.filter((item: any) => item?.Type === "4")) ||
+    [];
+
+  const selectedProofNumber =
+    versionNumberOptions.find(
+      (x: any) => x.Description === values.proofNumber
+    ) || (values.proofNumber ? { Description: values.proofNumber } : null);
 
   return (
     <div>
@@ -733,7 +885,10 @@ console.log('values : Labelmodal',values,data)
         submitReviewConfirmationProps,
         onOkClick,
         formValues,
-        handleTextChange
+        handleTextChange,
+        showPassword,
+        handleClickShowPassword,
+        handleMouseDownPassword
       )}
       <Dialog
         open={isOpen}
@@ -753,7 +908,7 @@ console.log('values : Labelmodal',values,data)
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
-            backgroundColor: CustomTheme.CustomColor.Primary.dark, // "#d1c4e9",
+            backgroundColor: CustomTheme.CustomColor.Primary.dark,
             color: CustomTheme.CustomColor.Common.white,
           }}
         >
@@ -777,8 +932,6 @@ console.log('values : Labelmodal',values,data)
               sx={{
                 backgroundColor: CustomTheme.CustomColor.Common.white,
               }}
-
-              // error={formValues.roles.error}
             >
               {types.map((type, index) => (
                 <MenuItem key={type.value} value={type.value}>
@@ -786,9 +939,6 @@ console.log('values : Labelmodal',values,data)
                 </MenuItem>
               ))}
             </Select>
-            {/* <FormHelperText sx={{ color: "#D32F2F" }}>
-                {formValues.roles.error && formValues.roles.errorMessage}
-              </FormHelperText> */}
           </FormControl>
           <Controls.IconButton
             aria-label="close"
@@ -840,7 +990,7 @@ console.log('values : Labelmodal',values,data)
                   id="andaNumber"
                   size={"small"}
                   value={values.andaNumber}
-                  error={errors.andaNumber}
+                  error={errors?.andaNumber}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
@@ -875,87 +1025,96 @@ console.log('values : Labelmodal',values,data)
                   id="productName"
                   size={"small"}
                   value={values.productName}
-                  error={errors.productName}
+                  error={errors?.productName}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
               </FormControl>
             )}
-            {(newType === 1 || newType === 5 || isCreateNewVersion) && (
-              <FormControl
-                required
-                variant="filled"
-                disabled={(canEdit && editState) || isCreateNewVersion}
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  mt: 2,
-                  mb: 2,
-                }}
-              >
-                <FormLabel
+            {(newType === 1 || newType === 5 || isCreateNewVersion) &&
+              !isChangeColor && (
+                <FormControl
+                  required
+                  variant="filled"
+                  // disabled={(canEdit && editState) || isCreateNewVersion}
                   sx={{
-                    //color: "#212B36",
-                    width: "25%",
-                  }}
-                >
-                  ANDA Number:
-                </FormLabel>
-                <Box
-                  sx={{
-                    width: "40%",
                     display: "flex",
-                    flexDirection: "column",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
                   }}
                 >
-                  {/* <Select
-                    required
-                    fullWidth
-                    displayEmpty
-                    size="small"
-                    variant="outlined"
-                    labelId="select-anda"
-                    id="selectAnda"
-                    name="selectedAnda"
-                    value={values.selectedAnda || ""}
-                    error={
-                      errors.selectedAnda && errors.selectedAnda.length > 0
-                    }
-                    onChange={handleInputChange}
-                    //onChange={handleTypeChange}
-
-                    // error={formValues.roles.error}
+                  <FormLabel
+                    sx={{
+                      //color: "#212B36",
+                      width: "25%",
+                    }}
                   >
-                    {andaList.map((type, index) => (
-                      <MenuItem key={type.andaid} value={type.andaid}>
-                        {type.andanumber}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
-                  <AutoComplete
-                    required
-                    isAddOption={!editState}
-                    listData={andaList}
-                    selectedKey="andanumber"
-                    selectedId="andaid"
-                    id="selectAnda"
-                    name="selectedAnda"
-                    actualNameValue="andaNumber"
-                    label="ANDA Number"
-                    selectedValue={values.andaNumber || ""}
-                    errors={
-                      errors.selectedAnda && errors.selectedAnda.length > 0
-                    }
-                    handleInputChange={handleInputChange}
-                    disabled={(canEdit && editState) || isCreateNewVersion}
-                  ></AutoComplete>
-                  <FormHelperText sx={{ color: "#D32F2F" }}>
-                    {errors.selectedAnda && errors.selectedAnda}
-                  </FormHelperText>
-                </Box>
-              </FormControl>
-            )}
+                    ANDA Number:
+                  </FormLabel>
+                  <Box
+                    sx={{
+                      width: "40%",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <Autocomplete
+                      fullWidth
+                      size="small"
+                      // options={andaList || []}
+                      options={displayList}
+                      getOptionLabel={(option) => option.andanumber || ""}
+                      // value={
+                      //   andaList.find(
+                      //     (anda) => anda.andaid == values.selectedAnda
+                      //   ) || null
+                      // }
+                      value={
+                        displayList.find(
+                          (anda) => anda.andaid == values.selectedAnda
+                        ) || null
+                      }
+                      onChange={(event, newValue) => {
+                        handleInputChange({
+                          target: {
+                            name: "selectedAnda",
+                            value: newValue ? newValue.andaid : "",
+                          },
+                        });
+                      }}
+                      isOptionEqualToValue={(option, value) =>
+                        option.andaid === value.andaid
+                      }
+                      disabled={
+                        (canEdit && editState) || isCreateNewVersion || !canEdit
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          required
+                          label="ANDA Number"
+                          name="selectedAnda"
+                          variant="outlined"
+                          disabled={
+                            (canEdit && editState) ||
+                            isCreateNewVersion ||
+                            !canEdit
+                          }
+                          error={!!errors.selectedAnda}
+                          helperText={
+                            Array.isArray(errors.selectedAnda)
+                              ? errors.selectedAnda[0]
+                              : errors.selectedAnda || ""
+                          }
+                        />
+                      )}
+                      sx={{ width: 300 }}
+                    />
+                  </Box>
+                </FormControl>
+              )}
             {newType === 2 && (
               <FormControl
                 required
@@ -984,7 +1143,7 @@ console.log('values : Labelmodal',values,data)
                   id="pmCode"
                   size={"small"}
                   value={values.pmCode}
-                  error={errors.pmCode}
+                  error={errors?.pmCode}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
@@ -1018,7 +1177,7 @@ console.log('values : Labelmodal',values,data)
                   id="customerName"
                   size={"small"}
                   value={values.customerName}
-                  error={errors.customerName}
+                  error={errors?.customerName}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
@@ -1052,62 +1211,14 @@ console.log('values : Labelmodal',values,data)
                   id="address"
                   size={"small"}
                   value={values.address}
-                  error={errors.address}
+                  error={errors?.address}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.InputTextArea>
               </FormControl>
             )}
 
-            {
-            tabValue == 6 && lookupvalue == '1' && newType === 6  ? 
-            <FormControl
-            required
-            variant="filled"
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              mt: 2,
-              mb: 2,
-            }}
-          >
-            <FormLabel
-              sx={{
-                width: "25%",
-              }}
-            >
-              Customer Code:
-            </FormLabel>
-            <Autocomplete
-            sx={{width:'30%'}}
-              id="customer-code-autocomplete"
-              options={lookupData.rowData?.map((item: any) => item.description)}
-              getOptionLabel={(option: any) => option}
-              value={values.description ?? selectedOption}
-              onChange={(event, newValue) => {
-                setSelectedOption(newValue);
-                handleInputChange(event); // You may need to adapt how you handle input change here
-              }}
-              freeSolo
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  name="code"
-                  label="Customer Code"
-                  required
-                  fullWidth
-                  size="small"
-                  error={errors.code}
-                  helperText={errors.code && 'Customer Code is required'}
-                  onChange={handleInputChange}
-                />
-              )}
-            />
-          </FormControl>
-             :
-             ((lookupvalue == '1' && newType === 6)) &&
-              (
+            {tabValue == 6 && lookupvalue == "1" && newType === 6 ? (
               <FormControl
                 required
                 variant="filled"
@@ -1121,25 +1232,75 @@ console.log('values : Labelmodal',values,data)
               >
                 <FormLabel
                   sx={{
-                    //color: "#212B36",
                     width: "25%",
                   }}
                 >
                   Customer Code:
                 </FormLabel>
-                <Controls.Input
-                  required
-                  name="code"
-                  label="Customer Code"
-                  type="text"
-                  id="code"
-                  size={"small"}
-                  value={values.code}
-                  error={errors.code}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
+                <Autocomplete
+                  sx={{ width: "30%" }}
+                  id="customer-code-autocomplete"
+                  options={lookupData?.rowData
+                    ?.map((item: any) => item?.description)
+                    ?.reverse()}
+                  getOptionLabel={(option: any) => option}
+                  value={values?.description ?? selectedOption}
+                  onChange={(event, newValue) => {
+                    setSelectedOption(newValue);
+                    handleInputChange(event);
+                  }}
+                  freeSolo
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name="code"
+                      label="Customer Code"
+                      required
+                      fullWidth
+                      size="small"
+                      error={errors?.code}
+                      helperText={errors?.code && "Customer Code is required"}
+                      onChange={handleInputChange}
+                    />
+                  )}
+                />
               </FormControl>
+            ) : (
+              lookupvalue == "1" &&
+              newType === 6 && (
+                <FormControl
+                  required
+                  variant="filled"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      //color: "#212B36",
+                      width: "25%",
+                    }}
+                  >
+                    Customer Code:
+                  </FormLabel>
+                  <Controls.Input
+                    required
+                    name="code"
+                    label="Customer Code"
+                    type="text"
+                    id="code"
+                    size={"small"}
+                    value={values.code}
+                    error={errors?.code}
+                    onChange={handleInputChange}
+                    // sx={{ width: "75%" }}
+                  ></Controls.Input>
+                </FormControl>
+              )
             )}
             {newType === 4 && (
               <FormControl
@@ -1169,18 +1330,17 @@ console.log('values : Labelmodal',values,data)
                   id="labelType"
                   size={"small"}
                   value={values.labelType}
-                  error={errors.labelType}
+                  error={errors?.labelType}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
               </FormControl>
             )}
 
-            {(newType === 5 || isCreateNewVersion) && (
+            {(newType === 5 || isCreateNewVersion) && !isChangeColor && (
               <FormControl
                 required
                 variant="filled"
-                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1204,65 +1364,68 @@ console.log('values : Labelmodal',values,data)
                     flexDirection: "column",
                   }}
                 >
-                  {/* <Select
-                    required
+                  <Autocomplete
                     fullWidth
-                    displayEmpty
                     size="small"
-                    variant="outlined"
-                    labelId="select-product"
-                    id="selectProduct"
-                    name="selectedProduct"
-                    value={values.selectedProduct || ""}
-                    error={
-                      errors.selectedProduct &&
-                      errors.selectedProduct.length > 0
+                    options={productList || []}
+                    getOptionLabel={(option) => option.productname || ""}
+                    value={
+                      productList.find(
+                        (product) => product.productId == values.selectedProduct
+                      ) || null
                     }
-                    onChange={handleInputChange}
-                    //onChange={handleTypeChange}
-
-                    // error={formValues.roles.error}
-                  >
-                    {productList.map((product, index) => (
-                      <MenuItem
-                        key={product.productId}
-                        value={product.productId}
-                      >
-                        {product.productname}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
-
-                  <AutoComplete
-                    required
-                    listData={productList}
-                    selectedKey="productname"
-                    selectedId="productId"
-                    id="selectProduct"
-                    name="selectedProduct"
-                    actualNameValue="productName"
-                    label="Product"
-                    isAddOption={!editState}
-                    selectedValue={values.productName || ""}
-                    errors={
-                      errors.selectedProduct &&
-                      errors.selectedProduct.length > 0
+                    onChange={(event, newValue) => {
+                      // debugger
+                      handleInputChange({
+                        target: {
+                          name: "selectedProduct",
+                          value: newValue ? newValue.productId : "",
+                        },
+                      });
+                    }}
+                    onBlur={() => {}}
+                    isOptionEqualToValue={(option, value) =>
+                      option.productId === value.productId
                     }
-                    handleInputChange={handleInputChange}
-                    disabled={(canEdit && editState) || isCreateNewVersion}
-                  ></AutoComplete>
-                  <FormHelperText sx={{ color: "#D32F2F" }}>
-                    {errors.selectedProduct && errors.selectedProduct}
-                  </FormHelperText>
+                    disabled={
+                      (canEdit &&
+                        editState &&
+                        (selectedTab == 2 || selectedTab == 1)) ||
+                      isCreateNewVersion ||
+                      !canEdit
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required
+                        label="Product"
+                        name="selectedProduct"
+                        variant="outlined"
+                        disabled={
+                          (canEdit &&
+                            editState &&
+                            (selectedTab == 2 || selectedTab == 1)) ||
+                          isCreateNewVersion ||
+                          !canEdit
+                        }
+                        error={!!errors.selectedProduct}
+                        helperText={
+                          Array.isArray(errors.selectedProduct)
+                            ? errors.selectedProduct[0]
+                            : errors.selectedProduct || ""
+                        }
+                      />
+                    )}
+                    sx={{ width: 300 }}
+                  />
                 </Box>
               </FormControl>
             )}
 
-            {(newType === 5 || isCreateNewVersion) && (
+            {(newType === 5 || isCreateNewVersion) && !isChangeColor && (
               <FormControl
                 required
                 variant="filled"
-                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1286,59 +1449,66 @@ console.log('values : Labelmodal',values,data)
                     flexDirection: "column",
                   }}
                 >
-                  {/* <Select
-                    required
+                  <Autocomplete
                     fullWidth
-                    displayEmpty
                     size="small"
-                    variant="outlined"
-                    labelId="select-pmcode"
-                    id="selectPmCode"
-                    name="selectedPmCode"
-                    value={values.selectedPmCode || ""}
-                    error={
-                      errors.selectedPmCode && errors.selectedPmCode.length > 0
+                    options={pmCodes || []}
+                    getOptionLabel={(option) => option.pmcode || ""}
+                    value={
+                      pmCodes.find(
+                        (code) => code.pmcodeId == values.selectedPmCode
+                      ) || null
                     }
-                    onChange={handleInputChange}
-                    //onChange={handleTypeChange}
-
-                    // error={formValues.roles.error}
-                  >
-                    {pmCodes.map((code, index) => (
-                      <MenuItem key={code.pmcodeId} value={code.pmcodeId}>
-                        {code.pmcode}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
-                  <AutoComplete
-                    required
-                    listData={pmCodes}
-                    selectedKey="pmcode"
-                    selectedId="pmcodeId"
-                    id="selectPmCode"
-                    name="selectedPmCode"
-                    actualNameValue="pmCode"
-                    label="PM Code"
-                    isAddOption={!editState}
-                    selectedValue={values.pmCode || ""}
-                    errors={
-                      errors.selectedPmCode && errors.selectedPmCode.length > 0
+                    onChange={(event, newValue) => {
+                      handleInputChange({
+                        target: {
+                          name: "selectedPmCode",
+                          value: newValue ? newValue.pmcodeId : "",
+                        },
+                      });
+                    }}
+                    isOptionEqualToValue={(option, value) =>
+                      option.pmcodeId === value.pmcodeId
                     }
-                    handleInputChange={handleInputChange}
-                    disabled={(canEdit && editState) || isCreateNewVersion}
-                  ></AutoComplete>
-                  <FormHelperText sx={{ color: "#D32F2F" }}>
-                    {errors.selectedPmCode && errors.selectedPmCode}
-                  </FormHelperText>
+                    disabled={
+                      (canEdit &&
+                        editState &&
+                        (selectedTab == 2 || selectedTab == 1)) ||
+                      isCreateNewVersion ||
+                      !canEdit
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required
+                        label="PM Code"
+                        name="selectedPmCode"
+                        variant="outlined"
+                        disabled={
+                          (canEdit &&
+                            editState &&
+                            (selectedTab == 2 || selectedTab == 1)) ||
+                          isCreateNewVersion ||
+                          !canEdit
+                        }
+                        error={!!errors.selectedPmCode}
+                        helperText={
+                          Array.isArray(errors.selectedPmCode)
+                            ? errors.selectedPmCode[0]
+                            : errors.selectedPmCode || ""
+                        }
+                      />
+                    )}
+                    sx={{ width: 300 }}
+                  />
                 </Box>
               </FormControl>
             )}
 
-            {(newType === 5 || isCreateNewVersion) && (
+            {(newType === 5 || isCreateNewVersion) && !isChangeColor && (
               <FormControl
                 required
                 variant="filled"
-                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1362,61 +1532,67 @@ console.log('values : Labelmodal',values,data)
                     flexDirection: "column",
                   }}
                 >
-                  {/* <Select
-                    required
+                  <Autocomplete
                     fullWidth
-                    displayEmpty
                     size="small"
-                    variant="outlined"
-                    labelId="select-labeltypeid"
-                    id="selectLabelType"
-                    name="selectedLabelType"
-                    value={values.selectedLabelType || ""}
-                    error={
-                      errors.selectedLabelType &&
-                      errors.selectedLabelType.length > 0
+                    options={labelTypes || []}
+                    getOptionLabel={(option) => option.type || ""}
+                    value={
+                      labelTypes.find(
+                        (labelType) =>
+                          labelType.typeId == values.selectedLabelType
+                      ) || null
                     }
-                    onChange={handleInputChange}
-                    //onChange={handleTypeChange}
-
-                    // error={formValues.roles.error}
-                  >
-                    {labelTypes.map((labelType, index) => (
-                      <MenuItem key={labelType.typeId} value={labelType.typeId}>
-                        {labelType.type}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
-                  <AutoComplete
-                    required
-                    listData={labelTypes}
-                    selectedKey="type"
-                    selectedId="typeId"
-                    id="selectLabelType"
-                    name="selectedLabelType"
-                    actualNameValue="labelType"
-                    label="Label Type"
-                    isAddOption={!editState}
-                    selectedValue={values.labelType || ""}
-                    errors={
-                      errors.selectedLabelType &&
-                      errors.selectedLabelType.length > 0
+                    onChange={(event, newValue) => {
+                      handleInputChange({
+                        target: {
+                          name: "selectedLabelType",
+                          value: newValue ? newValue.typeId : "",
+                        },
+                      });
+                    }}
+                    isOptionEqualToValue={(option, value) =>
+                      option.typeId === value.typeId
                     }
-                    handleInputChange={handleInputChange}
-                    disabled={(canEdit && editState) || isCreateNewVersion}
-                  ></AutoComplete>
-                  <FormHelperText sx={{ color: "#D32F2F" }}>
-                    {errors.selectedLabelType && errors.selectedLabelType}
-                  </FormHelperText>
+                    disabled={
+                      (canEdit &&
+                        editState &&
+                        (selectedTab == 2 || selectedTab == 1)) ||
+                      isCreateNewVersion ||
+                      !canEdit
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required
+                        label="Label Type"
+                        name="selectedLabelType"
+                        variant="outlined"
+                        disabled={
+                          (canEdit &&
+                            editState &&
+                            (selectedTab == 2 || selectedTab == 1)) ||
+                          isCreateNewVersion ||
+                          !canEdit
+                        }
+                        error={!!errors.selectedLabelType}
+                        helperText={
+                          Array.isArray(errors.selectedLabelType)
+                            ? errors.selectedLabelType[0]
+                            : errors.selectedLabelType || ""
+                        }
+                      />
+                    )}
+                    sx={{ width: 300 }}
+                  />
                 </Box>
               </FormControl>
             )}
 
-            {(newType === 5 || isCreateNewVersion) && (
+            {(newType === 5 || isCreateNewVersion) && !isChangeColor && (
               <FormControl
                 required
                 variant="filled"
-                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1440,64 +1616,68 @@ console.log('values : Labelmodal',values,data)
                     flexDirection: "column",
                   }}
                 >
-                  {/* <Select
-                    required
+                  <Autocomplete
                     fullWidth
-                    displayEmpty
                     size="small"
-                    variant="outlined"
-                    labelId="select-customer"
-                    id="selectCustomer"
-                    name="selectedCustomer"
-                    value={values.selectedCustomer || ""}
-                    error={
-                      errors.selectedCustomer &&
-                      errors.selectedCustomer.length > 0
+                    options={customers || []}
+                    getOptionLabel={(option) => option.name || ""}
+                    value={
+                      customers.find(
+                        (customer) =>
+                          customer.customerId == values.selectedCustomer
+                      ) || null
                     }
-                    onChange={handleInputChange}
-                    //onChange={handleTypeChange}
-
-                    // error={formValues.roles.error}
-                  >
-                    {customers.map((customer, index) => (
-                      <MenuItem
-                        key={customer.customerId}
-                        value={customer.customerId}
-                      >
-                        {customer.name}
-                      </MenuItem>
-                    ))}
-                  </Select> */}
-                  <AutoComplete
-                    required
-                    listData={customers}
-                    selectedKey="name"
-                    selectedId="customerId"
-                    id="selectCustomer"
-                    name="selectedCustomer"
-                    actualNameValue="customerName"
-                    label="Customer"
-                    isAddOption={!editState}
-                    selectedValue={values.customerName || ""}
-                    errors={
-                      errors.selectedCustomer &&
-                      errors.selectedCustomer.length > 0
+                    onChange={(event, newValue) => {
+                      handleInputChange({
+                        target: {
+                          name: "selectedCustomer",
+                          value: newValue ? newValue.customerId : "",
+                        },
+                      });
+                    }}
+                    isOptionEqualToValue={(option, value) =>
+                      option.customerId === value.customerId
                     }
-                    handleInputChange={handleInputChange}
-                    disabled={(canEdit && editState) || isCreateNewVersion}
-                  ></AutoComplete>
-                  <FormHelperText sx={{ color: "#D32F2F" }}>
-                    {errors.selectedCustomer && errors.selectedCustomer}
-                  </FormHelperText>
+                    disabled={
+                      (canEdit &&
+                        editState &&
+                        (selectedTab == 2 || selectedTab == 1)) ||
+                      isCreateNewVersion ||
+                      !canEdit
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        required
+                        label="Customer"
+                        name="selectedCustomer"
+                        variant="outlined"
+                        disabled={
+                          (canEdit &&
+                            editState &&
+                            (selectedTab == 2 || selectedTab == 1)) ||
+                          isCreateNewVersion ||
+                          !canEdit
+                        }
+                        error={!!errors.selectedCustomer}
+                        helperText={
+                          Array.isArray(errors.selectedCustomer)
+                            ? errors.selectedCustomer[0]
+                            : errors.selectedCustomer || ""
+                        }
+                      />
+                    )}
+                    sx={{ width: 300 }}
+                  />
                 </Box>
               </FormControl>
             )}
 
-            {(newType === 5 || (isCreateNewVersion && editState)) && (
+            {((newType === 5 && !isChangeColor) ||
+              (isCreateNewVersion && editState && !isChangeColor)) && (
               <FormControl
                 required
                 variant="filled"
-                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1506,7 +1686,7 @@ console.log('values : Labelmodal',values,data)
                   mb: 2,
                 }}
               >
-                <FormLabel  
+                <FormLabel
                   sx={{
                     //color: "#212B36",
                     width: "25%",
@@ -1516,25 +1696,30 @@ console.log('values : Labelmodal',values,data)
                 </FormLabel>
                 <Controls.Input
                   required
-                  disabled={(canEdit && editState) || isCreateNewVersion}
+                  disabled={
+                    (canEdit &&
+                      editState &&
+                      (selectedTab == 2 || selectedTab == 1)) ||
+                    isCreateNewVersion ||
+                    !canEdit
+                  }
                   name="ndcNumber"
                   label="Ndc Number"
                   type="text"
                   id="ndcNumber"
                   size={"small"}
                   value={values.ndcNumber}
-                  error={errors.ndcNumber}
+                  error={errors?.ndcNumber}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
               </FormControl>
             )}
 
-            {(newType === 5 || isCreateNewVersion) && (
+            {(newType === 5 || isCreateNewVersion) && !isChangeColor && (
               <FormControl
-                required
+                // required
                 variant="filled"
-                disabled={(canEdit && editState) || isCreateNewVersion}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1552,141 +1737,34 @@ console.log('values : Labelmodal',values,data)
                   Tablet Count:
                 </FormLabel>
                 <Controls.Input
-                  required
-                  disabled={(canEdit && editState) || isCreateNewVersion}
+                  // required
+                  disabled={
+                    (canEdit &&
+                      editState &&
+                      (selectedTab == 2 || selectedTab == 1)) ||
+                    isCreateNewVersion ||
+                    !canEdit
+                  }
                   name="tabletCount"
                   label="Tablet Count"
                   type="text"
                   id="tabletCount"
                   size={"small"}
                   value={values.tabletCount}
-                  error={errors.tabletCount}
+                  error={errors?.tabletCount}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
               </FormControl>
             )}
-            {
-              (( tabValue == 6 && lookupvalue == '3' && newType == 6) || (tabValue == 6 && lookupvalue == '3' && newType == 6 && editState)) ?
-              <FormControl
-              required
-              variant="filled"
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                mt: 2,
-                mb: 2,
-              }}
-            >
-              <FormLabel
-                sx={{
-                  width: "25%",
-                }}
-              >
-                Printer:
-              </FormLabel>
-              <Autocomplete
-              sx={{width:'30%'}}
-                // options={lookupDataSlice ? (lookupDataSlice?.rows ? lookupData?.rows?.map((item: any) => item?.Description) : []) :lookupData.rowData ? lookupData.rowData.map((item: any) => item.description) : []}
-                // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-                options={
-                  lookupData?.rowData 
-                    ? lookupData?.rowData?.map((item: any) => item.description) 
-                    : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '3')?.map((item: any) => item.Description)
-                }
-                getOptionLabel={(option: any) => option}
-                value={values.description ?? selectedOption}
-                onChange={(event, newValue) => {
-                  setSelectedOption(newValue);
-                  handleInputChange(event); // You may need to adapt how you handle input change here
-                }}
-                freeSolo
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    name="printer"
-                    label="Printer"
-                    required
-                    fullWidth
-                    size="small"
-                    error={errors.printer}
-                    helperText={errors.printer && 'Printer is required'}
-                    onChange={handleInputChange}
-                  />
-                )}
-              />
-            </FormControl>
-               :
-              // ((isCreateNewVersion || editState) && values.printer) &&
-              (isCreateNewVersion || editState) &&
-             (
-              <FormControl
-              required
-              variant="filled"
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                mt: 2,
-                mb: 2,
-              }}
-            >
-              <FormLabel
-                sx={{
-                  width: "25%",
-                }}
-              >
-                Printer:
-              </FormLabel>
-              <Autocomplete
-              sx={{width:'26.7%'}}
-                // options={lookupDataSlice ? (lookupDataSlice?.rows ? lookupData?.rows?.map((item: any) => item?.Description) : []) :lookupData.rowData ? lookupData.rowData.map((item: any) => item.description) : []}
-                // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-                // options={
-                //   lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '3')?.map((item: any) => item.Description)
-                // }
-                // getOptionLabel={(option: any) => option}
-                // value={values.printer || selectedPrinter}
-                // onChange={handlePrinterChange}
-               options={
-               lookupDataSlice?.rows?.filter((item: any) => item?.Type === "3") || []
-              }
-             getOptionLabel={(option: any) => option?.Description || ""}
-             value={
-             lookupDataSlice?.rows?.find((item: any) => item?.Description === values.printer) || null
-            }
-             onChange={(event, newValue) => {
-             handleInputChange({
-              target: { name: "printer", value: newValue?.Description || "" },
-             });
-              }}
-
-                freeSolo
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    name="printer"
-                    label="Printer"
-                    required
-                    fullWidth
-                    size="small"
-                    error={errors.printer}
-                    helperText={errors.printer && 'Printer is required'}
-                    // onChange={handleInputChange}
-                  />
-                )}
-              />
-            </FormControl>
-            )
-            }
-
-            {/* {(isCreateNewVersion || editState) && values.jobNumber && ( */}
-            {(isCreateNewVersion || editState)  && (
+            {(tabValue == 6 && lookupvalue == "3" && newType == 6) ||
+            (tabValue == 6 &&
+              lookupvalue == "3" &&
+              newType == 6 &&
+              editState) ? (
               <FormControl
                 required
                 variant="filled"
-                disabled={!canEdit}
                 sx={{
                   display: "flex",
                   flexDirection: "row",
@@ -1697,83 +1775,171 @@ console.log('values : Labelmodal',values,data)
               >
                 <FormLabel
                   sx={{
-                    //color: "#212B36",
                     width: "25%",
                   }}
                 >
-                  Job Number:
+                  Printer:
                 </FormLabel>
-                <Controls.Input
-                  required
-                  disabled={!canEdit}
-                  name="jobNumber"
-                  label="Job Number"
-                  type="text"
-                  id="jobNumber"
-                  size={"small"}
-                  value={values.jobNumber}
-                  error={errors.jobNumber}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
-              </FormControl>
-            )}
-            {
-            ((tabValue == 6 && lookupvalue == '4' && newType == 6) || (tabValue == 6 && lookupvalue == '4' && newType == 6 && editState)) ?
-            <FormControl
-            required
-            variant="filled"
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              mt: 2,
-              mb: 2,
-            }}
-          >
-            <FormLabel
-              sx={{
-                width: "25%",
-              }}
-            >
-              Proof Number:
-            </FormLabel>
-            <Autocomplete
-            sx={{width:'30%'}}
-              // options={lookupData.rowData?.map((item: any) => item.description)}
-              // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-              options={
-                lookupData?.rowData 
-                  ? lookupData?.rowData?.map((item: any) => item.description) 
-                  : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '4')?.map((item: any) => item.Description)
-              }
-              getOptionLabel={(option: any) => option}
-              value={values.description ?? selectedOption}
-              onChange={(event, newValue) => {
-                setSelectedOption(newValue);
-                handleInputChange(event); // You may need to adapt how you handle input change here
-              }}
-              freeSolo
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  name="proofNumber"
-                  label="Proof Number"
-                  required
-                  fullWidth
-                  size="small"
-                  error={errors.proofNumber}
-                  helperText={errors.proofNumber && 'proofNumber is required'}
-                  onChange={handleInputChange}
+                <Autocomplete
+                  sx={{ width: "30%" }}
+                  options={
+                    lookupData?.rowData
+                      ? lookupData?.rowData
+                          ?.map((item: any) => item.description)
+                          ?.reverse()
+                      : lookupDataSlice?.rows &&
+                        lookupDataSlice?.rows
+                          ?.filter((item: any) => item?.Type === "3")
+                          ?.map((item: any) => item.Description)
+                          ?.reverse()
+                  }
+                  getOptionLabel={(option: any) => option}
+                  value={values?.description ?? selectedOption}
+                  onChange={(event, newValue) => {
+                    setSelectedOption(newValue);
+                    handleInputChange(event);
+                  }}
+                  freeSolo
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name="printer"
+                      label="Printer"
+                      required
+                      fullWidth
+                      size="small"
+                      error={errors?.printer}
+                      helperText={errors?.printer && "Printer is required"}
+                      onChange={handleInputChange}
+                    />
+                  )}
                 />
-              )}
-            />
-          </FormControl>
-             :  
-            ((isCreateNewVersion || editState) && values.proofNumber
-              //  || (lookupvalue == '4' && newType === 6) || (lookupvalue == '4' && newType === 6 && editState)
-              ) && (
+              </FormControl>
+            ) : (
+              (newType === 5 || isCreateNewVersion) &&
+              !isChangeColor && (
                 <FormControl
+                  required
+                  variant="filled"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      width: "25%",
+                    }}
+                  >
+                    Printer:
+                  </FormLabel>
+                  <Autocomplete
+                    sx={{ width: "26.7%" }}
+                    options={
+                      lookupDataSlice?.rows
+                        ?.filter((item: any) => item?.Type === "3")
+                        ?.map((item: any) => item.Description) || []
+                    }
+                    getOptionLabel={(option) => option || ""}
+                    value={values.printer || null} // string value
+                    onChange={(event, newValue) => {
+                      handleInputChange({
+                        target: { name: "printer", value: newValue },
+                      });
+                    }}
+                    //    options={
+                    //    lookupDataSlice?.rows?.filter((item: any) => item?.Type === "3") || []
+                    //   }
+                    //  getOptionLabel={(option: any) => option?.Description || ""}
+                    //  value={
+                    //  lookupDataSlice?.rows?.find((item: any) => item?.Description === values.printer) || null
+                    // }
+                    //  onChange={(event, newValue) => {
+                    //  handleInputChange({
+                    //   target: { name: "printer", value: newValue?.Description || "" },
+                    //  });
+                    //   }}
+                    disabled={
+                      (canEdit &&
+                        editState &&
+                        (selectedTab == 2 || selectedTab == 1)) ||
+                      isCreateNewVersion ||
+                      !canEdit
+                    }
+                    // freeSolo
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        name="printer"
+                        label="Printer"
+                        required
+                        fullWidth
+                        disabled={
+                          (canEdit &&
+                            editState &&
+                            (selectedTab == 2 || selectedTab == 1)) ||
+                          isCreateNewVersion ||
+                          !canEdit
+                        }
+                        size="small"
+                        error={errors?.printer}
+                        // helperText={errors.printer && 'Printer is required'}
+                        helperText={errors?.printer}
+                        // onChange={handleInputChange}
+                      />
+                    )}
+                  />
+                </FormControl>
+              )
+            )}
+
+            {(isCreateNewVersion ||
+              (editState && (selectedTab == 2 || selectedTab == 1))) &&
+              !isChangeColor && (
+                <FormControl
+                  required
+                  variant="filled"
+                  disabled={!canEdit}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      //color: "#212B36",
+                      width: "25%",
+                    }}
+                  >
+                    Job Number:
+                  </FormLabel>
+                  <Controls.Input
+                    required
+                    disabled={!canEdit || isChangeColor || isImplementationDate}
+                    name="jobNumber"
+                    label="Job Number"
+                    type="text"
+                    id="jobNumber"
+                    size={"small"}
+                    value={values.jobNumber}
+                    error={errors?.jobNumber}
+                    onChange={handleInputChange}
+                    // sx={{ width: "75%" }}
+                  ></Controls.Input>
+                </FormControl>
+              )}
+            {(tabValue == 6 && lookupvalue == "4" && newType == 6) ||
+            (tabValue == 6 &&
+              lookupvalue == "4" &&
+              newType == 6 &&
+              editState) ? (
+              <FormControl
                 required
                 variant="filled"
                 sx={{
@@ -1792,15 +1958,24 @@ console.log('values : Labelmodal',values,data)
                   Proof Number:
                 </FormLabel>
                 <Autocomplete
-                sx={{width:'26.7%'}}
-                  // options={lookupData.rowData?.map((item: any) => item.description)}
-                  // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
+                  sx={{ width: "30%" }}
                   options={
-                    lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '4')?.map((item: any) => item.Description)
+                    lookupData?.rowData
+                      ? lookupData?.rowData
+                          ?.map((item: any) => item.description)
+                          ?.reverse()
+                      : lookupDataSlice?.rows &&
+                        lookupDataSlice?.rows
+                          ?.filter((item: any) => item?.Type === "4")
+                          ?.map((item: any) => item.Description)
+                          ?.reverse()
                   }
                   getOptionLabel={(option: any) => option}
-                  value={values.proofNumber || selectedProof}
-                  onChange={handleProofChange}
+                  value={values?.description ?? selectedOption}
+                  onChange={(event, newValue) => {
+                    setSelectedOption(newValue);
+                    handleInputChange(event);
+                  }}
                   freeSolo
                   renderInput={(params) => (
                     <TextField
@@ -1810,73 +1985,82 @@ console.log('values : Labelmodal',values,data)
                       required
                       fullWidth
                       size="small"
-                      error={errors.proofNumber}
-                      helperText={errors.proofNumber && 'proofNumber is required'}
+                      error={errors?.proofNumber}
+                      helperText={
+                        errors?.proofNumber && "proofNumber is required"
+                      }
                       onChange={handleInputChange}
                     />
                   )}
                 />
               </FormControl>
+            ) : (
+              (isCreateNewVersion ||
+                (editState && (selectedTab == 2 || selectedTab == 1))) &&
+              !isChangeColor && (
+                <FormControl
+                  required
+                  variant="filled"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      width: "25%",
+                    }}
+                  >
+                    Proof Number:
+                  </FormLabel>
+                  <Autocomplete
+                    sx={{ width: "26.7%" }}
+                    options={
+                      lookupDataSlice?.rows
+                        ?.filter((item: any) => item?.Type === "4")
+                        ?.map((item: any) => item.Description) || []
+                    }
+                    getOptionLabel={(option) => option || ""}
+                    value={values.proofNumber || null}
+                    // value={values.proofNumber || selectedProof}
+                    // onChange={handleProofChange}
+                    disabled={isChangeColor || isImplementationDate}
+                    onChange={(event, newValue) => {
+                      handleInputChange({
+                        target: { name: "proofNumber", value: newValue },
+                      });
+                    }}
+                    // freeSolo
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        name="proofNumber"
+                        label="Proof Number"
+                        required
+                        fullWidth
+                        disabled={isChangeColor || isImplementationDate}
+                        size="small"
+                        error={errors?.proofNumber}
+                        helperText={
+                          errors?.proofNumber && "proofNumber is required"
+                        }
+                        // onChange={handleInputChange}
+                      />
+                    )}
+                  />
+                </FormControl>
+              )
             )}
 
-            {
-            // tabValue == 6 && lookupvalue == '2' && newType === 6  ? 
-            ((tabValue == 6 && lookupvalue == '2' && newType == 6) || (tabValue == 6 && lookupvalue == '2' && newType == 6 && editState)) ?
-            <FormControl
-            required
-            variant="filled"
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              mt: 2,
-              mb: 2,
-            }}
-          >
-            <FormLabel
-              sx={{
-                width: "25%",
-              }}
-            >
-              Revision Number:
-            </FormLabel>
-            <Autocomplete
-            sx={{width:'30%'}}
-              // options={lookupData.rowData?.map((item: any) => item.description)}
-              // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-              options={
-                lookupData?.rowData 
-                  ? lookupData?.rowData?.map((item: any) => item.description) 
-                  : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '2')?.map((item: any) => item.Description)
-              }
-              getOptionLabel={(option: any) => option}
-              value={values.description ?? selectedOption}
-              onChange={(event, newValue) => {
-                setSelectedOption(newValue);
-                handleInputChange(event); // You may need to adapt how you handle input change here
-              }}
-              freeSolo
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  name="versionNumber"
-                  label="Revision Number"
-                  required
-                  fullWidth
-                  size="small"
-                  error={errors.versionNumber}
-                  helperText={errors.versionNumber && 'Revision Number is required'}
-                  onChange={handleInputChange}
-                />
-              )}
-            />
-          </FormControl>
-             :
-            // ((isCreateNewVersion || editState) && values.versionNumber
-            ((isCreateNewVersion || editState)
-              //  || (lookupvalue == '2' && newType == 6) || (lookupvalue == '2' && newType == 6 && editState)
-              ) && (
-                <FormControl
+            {(tabValue == 6 && lookupvalue == "2" && newType == 6) ||
+            (tabValue == 6 &&
+              lookupvalue == "2" &&
+              newType == 6 &&
+              editState) ? (
+              <FormControl
                 required
                 variant="filled"
                 sx={{
@@ -1895,28 +2079,24 @@ console.log('values : Labelmodal',values,data)
                   Revision Number:
                 </FormLabel>
                 <Autocomplete
-                sx={{width:'26.7%'}}
-                  // options={lookupData.rowData?.map((item: any) => item.description)}
-                  // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-                  // options={
-                  //   lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '2')?.map((item: any) => item.Description)
-                  // }
-                  // getOptionLabel={(option: any) => option}
-                  // value={values.versionNumber || selectedRevision}
-                  // onChange={handleRevisionChange}
+                  sx={{ width: "30%" }}
                   options={
-                 lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '2') || []
-                 }
-                 getOptionLabel={(option: any) => option?.Description || ""}
-                value={
-                lookupDataSlice?.rows?.find((item: any) => item?.Description === values.versionNumber) || null
-                }
-                onChange={(event, newValue) => {
-                handleInputChange({
-                target: { name: "versionNumber", value: newValue?.Description || "" },
-                });
-                }}
-
+                    lookupData?.rowData
+                      ? lookupData?.rowData
+                          ?.map((item: any) => item.description)
+                          ?.reverse()
+                      : lookupDataSlice?.rows &&
+                        lookupDataSlice?.rows
+                          ?.filter((item: any) => item?.Type === "2")
+                          ?.map((item: any) => item.Description)
+                          ?.reverse()
+                  }
+                  getOptionLabel={(option: any) => option}
+                  value={values?.description ?? selectedOption}
+                  onChange={(event, newValue) => {
+                    setSelectedOption(newValue);
+                    handleInputChange(event);
+                  }}
                   freeSolo
                   renderInput={(params) => (
                     <TextField
@@ -1926,73 +2106,98 @@ console.log('values : Labelmodal',values,data)
                       required
                       fullWidth
                       size="small"
-                      error={errors.versionNumber}
-                      helperText={errors.versionNumber && 'Revision Number is required'}
+                      error={errors?.versionNumber}
+                      helperText={
+                        errors?.versionNumber && "Revision Number is required"
+                      }
                       onChange={handleInputChange}
                     />
                   )}
                 />
               </FormControl>
+            ) : (
+              (isCreateNewVersion ||
+                (editState && (selectedTab == 2 || selectedTab == 1))) &&
+              !isChangeColor && (
+                <FormControl
+                  required
+                  variant="filled"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      width: "25%",
+                    }}
+                  >
+                    Revision Number:
+                  </FormLabel>
+                  <Autocomplete
+                    sx={{ width: "26.7%" }}
+                    options={
+                      lookupDataSlice?.rows
+                        ?.filter((item: any) => item?.Type === "2")
+                        ?.map((item: any) => item.Description) || []
+                    }
+                    getOptionLabel={(option) => option || ""}
+                    value={values.versionNumber || null}
+                    //                   options={
+                    //                  versionNumberOptions
+                    //                  }
+                    //                 //   options={
+                    //                 //  lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '2') || []
+                    //                 //  }
+                    //                  getOptionLabel={(option: any) => option?.Description || ""}
+                    //                 value={
+                    // selectedversionNumber}
+                    // value={
+                    // lookupDataSlice?.rows?.find((item: any) => item?.Description === values.versionNumber) || null
+                    // }
+                    // onChange={(event, newValue) => {
+                    // handleInputChange({
+                    // target: { name: "versionNumber", value: newValue?.Description || "" },
+                    // });
+                    // }}
+                    onChange={(event, newValue) => {
+                      handleInputChange({
+                        target: { name: "versionNumber", value: newValue },
+                      });
+                    }}
+                    disabled={isChangeColor || isImplementationDate}
+                    // freeSolo
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        name="versionNumber"
+                        label="Revision Number"
+                        required
+                        disabled={isChangeColor || isImplementationDate}
+                        fullWidth
+                        size="small"
+                        error={errors?.versionNumber}
+                        helperText={
+                          errors?.versionNumber && "Revision Number is required"
+                        }
+                        // onChange={handleInputChange}
+                      />
+                    )}
+                  />
+                </FormControl>
+              )
             )}
 
-            {
-              ((tabValue == 6 && lookupvalue == '6' && newType == 6) || (tabValue == 6 && lookupvalue == '6' && newType == 6 && editState)) ?
+            {(tabValue == 6 && lookupvalue == "6" && newType == 6) ||
+            (tabValue == 6 &&
+              lookupvalue == "6" &&
+              newType == 6 &&
+              editState) ? (
               <FormControl
-              required
-              variant="filled"
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                mt: 2,
-                mb: 2,
-              }}
-            >
-              <FormLabel
-                sx={{
-                  width: "25%",
-                }}
-              >
-                Fold Size:
-              </FormLabel>
-              <Autocomplete
-              sx={{width:'30%'}}
-                // options={lookupData.rowData?.map((item: any) => item.description)}
-                // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-                options={
-                  lookupData?.rowData 
-                    ? lookupData?.rowData?.map((item: any) => item.description) 
-                    : lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '6')?.map((item: any) => item.Description)
-                }
-                getOptionLabel={(option: any) => option}
-                value={values.description ?? selectedOption}
-                onChange={(event, newValue) => {
-                  setSelectedOption(newValue);
-                  handleInputChange(event); // You may need to adapt how you handle input change here
-                }}
-                freeSolo
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    name="foldSize"
-                    label="Fold Size"
-                    required
-                    fullWidth
-                    size="small"
-                    error={errors.foldSize}
-                    helperText={errors.foldSize && 'Fold Size is required'}
-                    onChange={handleInputChange}
-                  />
-                )}
-              />
-            </FormControl>
-            :  
-            // ((isCreateNewVersion || editState) && values.foldSize
-            ((isCreateNewVersion || editState)
-              //  || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)
-              ) && (
-                <FormControl
-                // required
+                required
                 variant="filled"
                 sx={{
                   display: "flex",
@@ -2010,103 +2215,118 @@ console.log('values : Labelmodal',values,data)
                   Fold Size:
                 </FormLabel>
                 <Autocomplete
-                sx={{width:'26.7%'}}
-                  // options={lookupData.rowData?.map((item: any) => item.description)}
-                  // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-                 
-                  // options={
-                  //   lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '6')?.map((item: any) => item.Description)
-                  // }
-                  // getOptionLabel={(option: any) => option}
-                  // value={values.foldSize || selectedFold}
-                  // onChange={handleFoldChange}
-                    options={
-                 lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '6') || []
-                 }
-                 getOptionLabel={(option: any) => option?.Description || ""}
-                value={
-                lookupDataSlice?.rows?.find((item: any) => item?.Description === values.foldSize) || null
-                }
-                onChange={(event, newValue) => {
-                handleInputChange({
-                target: { name: "foldSize", value: newValue?.Description || "" },
-                });
-                }}
+                  sx={{ width: "30%" }}
+                  options={
+                    lookupData?.rowData
+                      ? lookupData?.rowData
+                          ?.map((item: any) => item.description)
+                          ?.reverse()
+                      : lookupDataSlice?.rows &&
+                        lookupDataSlice?.rows
+                          ?.filter((item: any) => item?.Type === "6")
+                          ?.map((item: any) => item.Description)
+                          ?.reverse()
+                  }
+                  getOptionLabel={(option: any) => option}
+                  value={values?.description ?? selectedOption}
+                  onChange={(event, newValue) => {
+                    setSelectedOption(newValue);
+                    handleInputChange(event); // You may need to adapt how you handle input change here
+                  }}
                   freeSolo
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       name="foldSize"
                       label="Fold Size"
-                      // required
+                      required
                       fullWidth
                       size="small"
-                      error={errors.foldSize}
-                      helperText={errors.foldSize && 'Fold Size is required'}
+                      error={errors?.foldSize}
+                      helperText={errors?.foldSize && "Fold Size is required"}
                       onChange={handleInputChange}
                     />
                   )}
                 />
               </FormControl>
-            )}
-            {
-              ((tabValue == 6 && lookupvalue == '5' && newType == 6) || (tabValue == 6 && lookupvalue == '5' && newType == 6 && editState)) ?
-              <FormControl
-              required
-              variant="filled"
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                mt: 2,
-                mb: 2,
-              }}
-            >
-              <FormLabel
-                sx={{
-                  width: "25%",
-                }}
-              >
-                Flat Size:
-              </FormLabel>
-              <Autocomplete
-              sx={{width:'30%'}}
-                // options={lookupData.rowData?.map((item: any) => item.description)}
-                // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-                options={
-                  lookupData?.rowData 
-                    ? lookupData?.rowData?.map((item: any) => item.description) 
-                    : lookupDataSlice?.rows?.filter((item: any) => item?.Type === '5')?.map((item: any) => item.Description)
-                }
-                getOptionLabel={(option: any) => option}
-                value={values.description ?? selectedOption}
-                onChange={(event, newValue) => {
-                  setSelectedOption(newValue);
-                  handleInputChange(event); // You may need to adapt how you handle input change here
-                }}
-                freeSolo
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    name="flatSize"
-                    label="Flat Size"
-                    required
-                    fullWidth
-                    size="small"
-                    error={errors.flatSize}
-                    helperText={errors.flatSize && 'Flat Size is required'}
-                    onChange={handleInputChange}
-                  />
-                )}
-              />
-            </FormControl>
-            :  
-            // ((isCreateNewVersion || editState) && values.flatSize
-            ((isCreateNewVersion || editState)
-              //  || (lookupvalue == '5' && newType === 6) || (lookupvalue == '5' && newType === 6 && editState)
-              ) && (
+            ) : (
+              // ((isCreateNewVersion || editState) && values.foldSize
+              (isCreateNewVersion ||
+                (editState && (selectedTab == 2 || selectedTab == 1))) &&
+              !isChangeColor && (
+                //  || (lookupvalue == '6' && newType === 6) || (lookupvalue == '6' && newType === 6 && editState)
                 <FormControl
-                // required
+                  // required
+                  variant="filled"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      width: "25%",
+                    }}
+                  >
+                    Fold Size:
+                  </FormLabel>
+                  <Autocomplete
+                    sx={{ width: "26.7%" }}
+                    //                 //     options={
+                    //                 //  lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '6') || []
+                    //                 //  }
+                    //                  getOptionLabel={(option: any) => option?.Description || ""}
+
+                    // value={
+                    // lookupDataSlice?.rows?.find((item: any) => item?.Description === values.foldSize) || null
+                    // }
+                    options={
+                      lookupDataSlice?.rows
+                        ?.filter((item: any) => item?.Type === "6")
+                        ?.map((item: any) => item.Description) || []
+                    }
+                    getOptionLabel={(option) => option || ""}
+                    value={values.foldSize || null} // string value
+                    onChange={(event, newValue) => {
+                      handleInputChange({
+                        target: { name: "foldSize", value: newValue },
+                      });
+                    }}
+                    // onChange={(event, newValue) => {
+                    // handleInputChange({
+                    // target: { name: "foldSize", value: newValue?.Description || "" },
+                    // });
+                    // }}
+                    disabled={isChangeColor || isImplementationDate}
+                    // freeSolo
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        name="foldSize"
+                        label="Fold Size"
+                        // required
+                        fullWidth
+                        size="small"
+                        disabled={isChangeColor || isImplementationDate}
+                        error={errors?.foldSize}
+                        helperText={errors?.foldSize && "Fold Size is required"}
+                        // onChange={handleInputChange}
+                      />
+                    )}
+                  />
+                </FormControl>
+              )
+            )}
+            {(tabValue == 6 && lookupvalue == "5" && newType == 6) ||
+            (tabValue == 6 &&
+              lookupvalue == "5" &&
+              newType == 6 &&
+              editState) ? (
+              <FormControl
+                required
                 variant="filled"
                 sx={{
                   display: "flex",
@@ -2124,48 +2344,252 @@ console.log('values : Labelmodal',values,data)
                   Flat Size:
                 </FormLabel>
                 <Autocomplete
-                sx={{width:'26.7%'}}
-                  // options={lookupData.rowData?.map((item: any) => item.description)}
-                  // options={lookupData?.rowData ? lookupData?.rowData?.map((item: any) => item?.description) : lookupDataSlice?.rows?.map((item: any) => item?.Description)}
-                  
-                  // options={
-                  //   lookupDataSlice?.rows?.filter((item: any) => item?.Type === '5')?.map((item: any) => item.Description)
-                  // }
-                  // getOptionLabel={(option: any) => option}
-                  // value={values.flatSize || selectedFlat}
-                  // onChange={handleFlatChange}
-                 options={
-                 lookupDataSlice?.rows && lookupDataSlice?.rows?.filter((item: any) => item?.Type === '5') || []
-                 }
-                getOptionLabel={(option: any) => option?.Description || ""}
-                value={
-                lookupDataSlice?.rows?.find((item: any) => item?.Description === values.flatSize) || null
-                }
-                onChange={(event, newValue) => {
-                handleInputChange({
-                target: { name: "flatSize", value: newValue?.Description || "" },
-                });
-                }}
+                  sx={{ width: "30%" }}
+                  options={
+                    lookupData?.rowData
+                      ? lookupData?.rowData
+                          ?.map((item: any) => item.description)
+                          ?.reverse()
+                      : lookupDataSlice?.rows
+                          ?.filter((item: any) => item?.Type === "5")
+                          ?.map((item: any) => item.Description)
+                          ?.reverse()
+                  }
+                  getOptionLabel={(option: any) => option}
+                  value={values?.description ?? selectedOption}
+                  onChange={(event, newValue) => {
+                    setSelectedOption(newValue);
+                    handleInputChange(event);
+                  }}
                   freeSolo
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       name="flatSize"
                       label="Flat Size"
-                      // required
+                      required
                       fullWidth
                       size="small"
-                      error={errors.flatSize}
-                      helperText={errors.flatSize && 'Flat Size is required'}
+                      error={errors?.flatSize}
+                      helperText={errors?.flatSize && "Flat Size is required"}
                       onChange={handleInputChange}
                     />
                   )}
                 />
               </FormControl>
+            ) : (
+              (isCreateNewVersion ||
+                (editState && (selectedTab == 2 || selectedTab == 1))) &&
+              !isChangeColor && (
+                <FormControl
+                  // required
+                  variant="filled"
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      width: "25%",
+                    }}
+                  >
+                    Flat Size:
+                  </FormLabel>
+                  <Autocomplete
+                    sx={{ width: "26.7%" }}
+                    options={
+                      lookupDataSlice?.rows
+                        ?.filter((item: any) => item?.Type === "5")
+                        ?.map((item: any) => item.Description) || []
+                    }
+                    getOptionLabel={(option) => option || ""}
+                    value={values.flatSize || null} // string value
+                    onChange={(event, newValue) => {
+                      handleInputChange({
+                        target: { name: "flatSize", value: newValue },
+                      });
+                    }}
+                    disabled={isChangeColor || isImplementationDate}
+                    // freeSolo
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        name="flatSize"
+                        label="Flat Size"
+                        // required
+                        fullWidth
+                        size="small"
+                        disabled={isChangeColor || isImplementationDate}
+                        error={errors?.flatSize}
+                        helperText={errors?.flatSize && "Flat Size is required"}
+                        // onChange={handleInputChange}
+                      />
+                    )}
+                  />
+                </FormControl>
+              )
             )}
-            
+
             {/* {(isCreateNewVersion || editState) && values.ccf && ( */}
-            {(isCreateNewVersion || editState) && (
+            {(isCreateNewVersion ||
+              (editState && (selectedTab == 2 || selectedTab == 1))) &&
+              !isChangeColor && (
+                <FormControl
+                  variant="filled"
+                  disabled={!canEdit}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      //color: "#212B36",
+                      width: "25%",
+                    }}
+                  >
+                    CCF:
+                  </FormLabel>
+                  <Controls.Input
+                    disabled={!canEdit || isChangeColor || isImplementationDate}
+                    name="ccf"
+                    label="CCF"
+                    type="text"
+                    id="ccf"
+                    size={"small"}
+                    value={values.ccf}
+                    error={errors?.ccf}
+                    onChange={handleInputChange}
+                    // sx={{ width: "75%" }}
+                  ></Controls.Input>
+                </FormControl>
+              )}
+            {(isCreateNewVersion ||
+              (editState && (selectedTab == 2 || selectedTab == 1))) &&
+              !isChangeColor && (
+                <FormControl
+                  required
+                  variant="filled"
+                  disabled={!canEdit}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      //color: "#212B36",
+                      width: "25%",
+                    }}
+                  >
+                    Implementation Date:
+                  </FormLabel>
+                  <Controls.Input
+                    disabled={isChangeColor}
+                    name="implementationDate"
+                    label="Implementation Date"
+                    type="text"
+                    required
+                    id="implementationDate"
+                    size={"small"}
+                    value={values.implementationDate}
+                    error={errors.implementationDate}
+                    onChange={handleInputChange}
+                    // sx={{ width: "75%" }}
+                  ></Controls.Input>
+                  {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <Box sx={{ display: "block", gap: 1, mt: 2 }}>
+                                  <DatePicker
+                                    label="Implementation Date"
+                                    inputFormat="MM-DD-YYYY"
+                                    value={
+                                      values.implementationDate
+                                        ? dayjs(values.implementationDate, "MM-DD-YYYY")
+                                        : values.implementationDate
+                                        ? dayjs(values.implementationDate, "MM-DD-YYYY") 
+                                        :
+                                        null
+                                    }
+                                    onChange={(newValue: Dayjs | null) =>
+                                      handleDateChange(
+                                        "implementationDate",
+                                        newValue ? newValue.format("MM-DD-YYYY") : ""
+                                      )
+                                    }
+                                    disabled={isChangeColor}
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        fullWidth
+                                        required
+                                        disabled={isChangeColor}
+                                        error={!!errors?.implementationDate}
+                                        // error={Boolean(errors.ImplementationDate)}
+                                        helperText={errors?.implementationDate || ""}
+                                        placeholder="MM-DD-YYYY"
+                                        sx={{
+                                          "& .MuiInputBase-root": { height: 40 },
+                                          "& .MuiInputLabel-root": { top: -4, fontSize: 14 },
+                                          "& .MuiInputLabel-shrink": { top: 1 },
+                                          mb: 2,
+                                          width: "85%"
+                                        }}
+                                      />
+                                    )}
+                                  />
+                                </Box>
+                              </LocalizationProvider> */}
+                </FormControl>
+              )}
+            {(isCreateNewVersion ||
+              (editState && (selectedTab == 2 || selectedTab == 1))) &&
+              !isChangeColor && (
+                <FormControl
+                  required
+                  variant="filled"
+                  disabled={!canEdit}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      //color: "#212B36",
+                      width: "25%",
+                    }}
+                  >
+                    Color:
+                  </FormLabel>
+                  <Controls.Input
+                    disabled={!canEdit || isImplementationDate}
+                    name="color"
+                    label="Color"
+                    type="text"
+                    id="color"
+                    required
+                    size={"small"}
+                    value={values.color}
+                    error={errors?.color}
+                    onChange={handleInputChange}
+                    // sx={{ width: "75%" }}
+                  ></Controls.Input>
+                </FormControl>
+              )}
+            {isChangeColor && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -2177,97 +2601,56 @@ console.log('values : Labelmodal',values,data)
                   mb: 2,
                 }}
               >
-                <FormLabel
+                <FormLabel sx={{ width: "25%" }}>Color Code:</FormLabel>
+
+                <Box
                   sx={{
-                    //color: "#212B36",
-                    width: "25%",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    width: "26.5%",
                   }}
                 >
-                  CCF:
-                </FormLabel>
-                <Controls.Input
-                  disabled={!canEdit}
-                  name="ccf"
-                  label="CCF"
-                  type="text"
-                  id="ccf"
-                  size={"small"}
-                  value={values.ccf}
-                  error={errors.ccf}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    {[
+                      { name: "Red", value: "#FF0000" },
+                      { name: "Blue", value: "#0000FF" },
+                      { name: "Black", value: "#000000" },
+                      { name: "Green", value: "#008000" },
+                      { name: "Pink", value: "#FFC0CB" },
+                    ].map((color) => (
+                      <Box
+                        key={color.value}
+                        onClick={() =>
+                          canEdit &&
+                          handleInputChange({
+                            target: { name: "colorcode", value: color.value },
+                          })
+                        }
+                        sx={{
+                          width: 35,
+                          height: 35,
+                          borderRadius: "50%",
+                          backgroundColor: color.value,
+                          border:
+                            values.colorcode === color.value
+                              ? "3px solid #000"
+                              : "1px solid #ccc",
+                          cursor: canEdit ? "pointer" : "not-allowed",
+                          transition: "0.2s",
+                          "&:hover": canEdit ? { transform: "scale(1.1)" } : {},
+                        }}
+                        title={color.name}
+                      />
+                    ))}
+                  </Box>
+                </Box>
               </FormControl>
             )}
-      {/* {(isCreateNewVersion || editState)  && (
-              <FormControl
-                variant="filled"
-                disabled={!canEdit}
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  mt: 2,
-                  mb: 2,
-                }}
-              >
-                <FormLabel
-                  sx={{
-                    //color: "#212B36",
-                    width: "25%",
-                  }}
-                >
-                  Implementation Date:
-                </FormLabel>
-                <Controls.Input
-                  disabled={!canEdit}
-                  name="ImplementationDate"
-                  label="Implementation Date"
-                  type="text"
-                  id="ImplementationDate"
-                  size={"small"}
-                  value={values.ImplementationDate}
-                  error={errors.ImplementationDate}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
-              </FormControl>
-            )}
-            {(isCreateNewVersion || editState)  && (
-              <FormControl
-                variant="filled"
-                disabled={!canEdit}
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  mt: 2,
-                  mb: 2,
-                }}
-              >
-                <FormLabel
-                  sx={{
-                    //color: "#212B36",
-                    width: "25%",
-                  }}
-                >
-                  Color:
-                </FormLabel>
-                <Controls.Input
-                  disabled={!canEdit}
-                  name="color"
-                  label="Color"
-                  type="text"
-                  id="color"
-                  size={"small"}
-                  value={values.color}
-                  error={errors.color}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
-              </FormControl>
-            )} */}
-            {((isCreateNewVersion && newType === 5) || (canEdit && newType === 5)) && (
+            {(isCreateNewVersion ||
+              (editState &&
+                (selectedTab == 2 || selectedTab == 1) &&
+                !isChangeColor)) && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit || values?.fileId !== "-1"}
@@ -2287,11 +2670,17 @@ console.log('values : Labelmodal',values,data)
                 >
                   Current Version File:
                 </FormLabel>
-                <PdfIconButton isDisabled={values?.fileId === "-1"} dFileId={values?.fileId} />
+                <PdfIconButton
+                  isDisabled={values?.fileId === "-1"}
+                  dFileId={values?.fileId}
+                />
               </FormControl>
             )}
 
-            {((isCreateNewVersion && newType === 5) || (canEdit && newType === 5)) && (
+            {(isCreateNewVersion ||
+              (editState &&
+                (selectedTab == 2 || selectedTab == 1) &&
+                !isChangeColor)) && (
               <FormControl
                 variant="filled"
                 disabled={!canEdit}
@@ -2311,164 +2700,136 @@ console.log('values : Labelmodal',values,data)
                 >
                   File Data:
                 </FormLabel>
-                {/* <input type="file" name="file" /> */}
                 <Controls.InputUpload
-                  disabled={!canEdit}
+                  disabled={
+                    !canEdit ||
+                    isChangeColor ||
+                    (editState &&
+                      (selectedTab == 2 || selectedTab == 1) &&
+                      isImplementationDate)
+                  }
                   label="Upload Files"
                   name="fileData"
                   id="fileData"
                   size={"small"}
                   value={values.fileData}
-                  error={errors.fileData}
+                  error={errors?.fileData}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.InputUpload>
               </FormControl>
-            )
-          }
-          {/* <PdfIconButton dFileId={values.fileId} /> */}
-          <Dialog maxWidth={"lg"} open={isPdfOpen} onClose={handleClosePdf}>
-            <DialogTitle
-              sx={{
-                px: 2,
-                py: 1,
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                backgroundColor: CustomTheme.CustomColor.Primary.dark,
-                color: CustomTheme.CustomColor.Common.white,
-              }}
-            >
-              Label Version
-            </DialogTitle>
-            <IconButton
-          aria-label="close"
-          onClick={handleClosePdf}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <Close />
-        </IconButton>
-            <DialogContent><PDFViewer fileId={values?.fileId} /></DialogContent>
-            
-          </Dialog>
-          
-
-            {/* {isCreateNewVersion && (
-              <FormControl
-                variant="filled"
-                disabled={!canEdit}
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  mt: 2,
-                  mb: 2,
-                }}
-              >
-                <FormLabel
-                  sx={{
-                    //color: "#212B36",
-                    width: "25%",
-                  }}
-                >
-                  File Name:
-                </FormLabel>
-                <Controls.Input
-                  required
-                  disabled={!canEdit}
-                  name="fileName"
-                  label="File Name"
-                  type="text"
-                  id="fileName"
-                  size={"small"}
-                  value={values.fileName}
-                  error={errors.fileName}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.Input>
-              </FormControl>
-            )} */}
-
-            {newType === 5 && !isCreateNewVersion && (
-              <FormControl
-                variant="filled"
-                disabled={!canEdit}
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  mt: 2,
-                  mb: 2,
-                }}
-              >
-                <FormLabel
-                  sx={{
-                    //color: "#212B36",
-                    width: "25%",
-                  }}
-                >
-                  Label Description:
-                </FormLabel>
-                <Controls.InputTextArea
-                  disabled={!canEdit}
-                  name="labelDescription"
-                  label="Label Description"
-                  type="text"
-                  id="labelDescription"
-                  size={"small"}
-                  value={values.labelDescription}
-                  error={errors.labelDescription}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.InputTextArea>
-              </FormControl>
             )}
-
-            {(newType === 1 ||
-              // newType === 2 ||
-              (lookupvalue == '7' && newType === 6 && editState) ||
-              (lookupvalue == '7' && newType === 6 ) ||
-              //  newType === 4 ||
-              newType === 5 ||
-              isCreateNewVersion) && values.remarks && (
-              <FormControl
-                variant="filled"
-                disabled={!canEdit}
+            <Dialog maxWidth={"lg"} open={isPdfOpen} onClose={handleClosePdf}>
+              <DialogTitle
                 sx={{
+                  px: 2,
+                  py: 1,
                   display: "flex",
                   flexDirection: "row",
                   alignItems: "center",
-                  mt: 2,
-                  mb: 2,
+                  backgroundColor: CustomTheme.CustomColor.Primary.dark,
+                  color: CustomTheme.CustomColor.Common.white,
                 }}
               >
-                <FormLabel
+                Label Version
+              </DialogTitle>
+              <IconButton
+                aria-label="close"
+                onClick={handleClosePdf}
+                sx={{
+                  position: "absolute",
+                  right: 8,
+                  top: 8,
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <Close />
+              </IconButton>
+              <DialogContent>
+                <PDFViewer fileId={values?.fileId} />
+              </DialogContent>
+            </Dialog>
+            {newType === 5 &&
+              !isCreateNewVersion &&
+              selectedTab != 2 &&
+              !isChangeColor &&
+              !isImplementationDate && (
+                <FormControl
+                  variant="filled"
+                  disabled={!canEdit}
                   sx={{
-                    //color: "#212B36",
-                    width: "25%",
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
                   }}
                 >
-                  Remarks:
-                </FormLabel>
-                <Controls.InputTextArea
+                  <FormLabel
+                    sx={{
+                      //color: "#212B36",
+                      width: "25%",
+                    }}
+                  >
+                    Label Description:
+                  </FormLabel>
+                  <Controls.InputTextArea
+                    disabled={!canEdit || isChangeColor || isImplementationDate}
+                    name="labelDescription"
+                    label="Label Description"
+                    type="text"
+                    id="labelDescription"
+                    size={"small"}
+                    value={values.labelDescription}
+                    error={errors?.labelDescription}
+                    onChange={handleInputChange}
+                    // sx={{ width: "75%" }}
+                  ></Controls.InputTextArea>
+                </FormControl>
+              )}
+
+            {!isChangeColor &&
+              (newType === 1 ||
+                // newType === 2 ||
+                (lookupvalue == "7" && newType === 6 && editState) ||
+                (lookupvalue == "7" && newType === 6) ||
+                //  newType === 4 ||
+                (newType === 5 && selectedTab) ||
+                // isCreateNewVersion) && values.remarks && (
+                (isCreateNewVersion && selectedTab)) && (
+                <FormControl
+                  variant="filled"
                   disabled={!canEdit}
-                  name="remarks"
-                  label="Remarks"
-                  type="text"
-                  id="remarks"
-                  size={"small"}
-                  value={values.remarks}
-                  error={errors.remarks}
-                  onChange={handleInputChange}
-                  // sx={{ width: "75%" }}
-                ></Controls.InputTextArea>
-              </FormControl>
-            )}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    mt: 2,
+                    mb: 2,
+                  }}
+                >
+                  <FormLabel
+                    sx={{
+                      //color: "#212B36",
+                      width: "25%",
+                    }}
+                  >
+                    Remarks:
+                  </FormLabel>
+                  <Controls.InputTextArea
+                    disabled={!canEdit || isChangeColor || isImplementationDate}
+                    name="remarks"
+                    label="Remarks"
+                    type="text"
+                    id="remarks"
+                    size={"small"}
+                    value={values.remarks}
+                    error={errors?.remarks}
+                    onChange={handleInputChange}
+                    // sx={{ width: "75%" }}
+                  ></Controls.InputTextArea>
+                </FormControl>
+              )}
             {(newType === 2 || newType === 4) && (
               <FormControl
                 required
@@ -2497,7 +2858,7 @@ console.log('values : Labelmodal',values,data)
                   id="description"
                   size={"small"}
                   value={values.description}
-                  error={errors.description}
+                  error={errors?.description}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.InputTextArea>
@@ -2526,7 +2887,15 @@ console.log('values : Labelmodal',values,data)
                 </FormLabel>
                 <Controls.Checkbox
                   name="isActive"
-                  isChecked={true}
+                  // isChecked={true}
+                  isChecked={
+                    editState
+                      ? rowState?.isActive === "True"
+                        ? true
+                        : false
+                      : true
+                  }
+                  // disabled={!editState}
                 ></Controls.Checkbox>
               </FormControl>
             )}
@@ -2554,7 +2923,7 @@ console.log('values : Labelmodal',values,data)
               form="boxForm"
               startIcon={<Save></Save>}
             >
-              Save
+              {isCreateNewVersion ? "Move to Draft" : "Save"}
             </Controls.Button>
           )}
           {editState &&
@@ -2623,7 +2992,10 @@ function confirmationPopup(
   },
   onOkClick: (event: React.FormEvent<HTMLFormElement>) => void,
   formValues: IKeyMapping,
-  handleTextChange: (e: any) => void
+  handleTextChange: (e: any) => void,
+  showPassword: boolean,
+  handleClickShowPassword: () => void,
+  handleMouseDownPassword: (e: React.MouseEvent<HTMLButtonElement>) => void
 ) {
   return (
     <Popup {...submitReviewConfirmationProps}>
@@ -2634,12 +3006,57 @@ function confirmationPopup(
         sx={{ mx: 2 }}
         id="confirmationBox"
       >
-        <FormControl required>
+        {/* <FormControl required>
           {" "}
           <Password
             formValues={formValues}
             handleTextChange={handleTextChange}
           ></Password>
+        </FormControl> */}
+        <FormControl
+          variant="outlined"
+          fullWidth
+          size="small"
+          required
+          error={!!formValues.password.error}
+        >
+          <Grid container sx={{ alignItems: "center" }}>
+            <Grid item xs={3}>
+              <FormLabel>Confirm Password:</FormLabel>
+            </Grid>
+            <Grid item xs={9}>
+              <OutlinedInput
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formValues.password?.value || ""}
+                onChange={handleTextChange}
+                required
+                placeholder="Enter your password"
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+                sx={{
+                  mt: 1,
+                  "& input::placeholder": {
+                    opacity: 0.7,
+                  },
+                }}
+              />
+              {formValues.password.error && (
+                <FormHelperText>{formValues.password.error}</FormHelperText>
+              )}
+            </Grid>
+          </Grid>
         </FormControl>
         <FormControl
           variant="filled"
@@ -2676,8 +3093,8 @@ function confirmationPopup(
 }
 
 function propsAreEqual(prevProps: any, nextProps: any) {
-  console.log("prevprops", prevProps);
-  console.log("nextprops", nextProps);
+  // console.log("prevprops", prevProps);
+  // console.log("nextprops", nextProps);
   return (
     prevProps.isOpen === nextProps.isOpen &&
     prevProps.editState === nextProps.editState &&

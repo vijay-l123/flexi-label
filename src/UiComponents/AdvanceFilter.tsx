@@ -41,10 +41,15 @@ const AdvancedFilter = (props: LColumns) => {
   const { updateLabelsData } = useLabelsContext();
   const { filter, setFilter, setPage, setPaginationChange } = useFilterContext();
 
-  const isDateField = (field?: string) => {
-    if (!field) return false;
-    return field.toLowerCase().includes("date");
-  };
+  // const isDateField = (field?: string) => {
+  //   if (!field) return false;
+  //   return field.toLowerCase().includes("date");
+  // };
+const isDateField = (field?: string) => {
+  if (!field) return false;
+  const lowerField = field.toLowerCase();
+  return lowerField.includes("date") && !lowerField.includes("implementationdate");
+};
 
   // Local validation function for local filter state
   const validateLocal = () => {
@@ -199,7 +204,7 @@ const AdvancedFilter = (props: LColumns) => {
         filterOperator: localFilter.operator || "",
         filterValue: filterValue,
       };
-      console.log("Filter payload being sent:", payload);
+      // console.log("Filter payload being sent:", payload);
 
       // Reset to first page and trigger data refresh
       setPage(0);
@@ -218,9 +223,11 @@ const AdvancedFilter = (props: LColumns) => {
     }
   };
 
-  console.log("Current filter state:", filter);
-  console.log("Local filter state:", localFilter);
-  console.log("Validation errors:", localErrors);
+  // console.log("Current filter state:", filter);
+  // console.log("Local filter state:", localFilter);
+  // console.log("Validation errors:", localErrors);
+  // console.log("props?.selectedTab1:", props);
+  // console.log("props?.tabValue:", tabValue);
 
   interface Column {
     Name: string;
@@ -244,10 +251,13 @@ const AdvancedFilter = (props: LColumns) => {
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
         { Name: "Approved Date", field: "ApprovedDate" },
+        { Name: "Implementation Date", field: "ImplementationDate" },
+        { Name: "color", field: "Color" },
+        { Name: "Date Of Absolution", field: "DateOfAbsolution" },
         { Name: "Customer Code", field: "CustomerCode" },
         { Name: "Tablet Count", field: "TabletCount" },
         { Name: "Current Version", field: "CurrentVersion" },
-        { Name: "Previous Version", field: "PreviousVersion" },
+        // { Name: "Previous Version", field: "PreviousVersion" },
       ];
     }
 
@@ -259,14 +269,18 @@ const AdvancedFilter = (props: LColumns) => {
         { Name: "Label Type", field: "LabelType" },
         // { Name: "PM-Code", field: "PMCode" },
         // { Name: "NDC Number", field: "NDC Number" },
-        { Name: "PM-Code", field: "PmCode" },
-        { Name: "NDC Number", field: "Ndcnumber" },
+        { Name: "PM-Code", field: "PMCode" },
+        { Name: "NDC Number", field: "NDCNumber" },
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
-        { Name: "Approved Date", field: "ApprovedDate" },
+        // { Name: "Approved Date", field: "ApprovedDate" },
+           { Name: "Create Date", field: "CreatedDate" },
         { Name: "Customer Code", field: "CustomerCode" },
+        { Name: "Implementation Date", field: "ImplementationDate" },
+        { Name: "color", field: "Color" },
+        { Name: "Date Of Absolution", field: "DateOfAbsolution" },
         // { Name: "ccf", field: "CCF" },
-        { Name: "ccf", field: "ccf" },
+        { Name: "ccf", field: "CCF" },
         { Name: "Tablet Count", field: "TabletCount" },
         { Name: "Current Version", field: "CurrentVersion" },
       ];
@@ -280,30 +294,76 @@ const AdvancedFilter = (props: LColumns) => {
         { Name: "Label Type", field: "LabelType" },
         // { Name: "PM-Code", field: "PMCode" },
         // { Name: "NDC Number", field: "NDC Number" },
-        { Name: "PM-Code", field: "PmCode" },
-        { Name: "NDC Number", field: "Ndcnumber" },
+        // { Name: "PM-Code", field: "PmCode" },
+        { Name: "PM-Code", field: "PMCode" },
+        // { Name: "NDC Number", field: "Ndcnumber" },
+        { Name: "NDC Number", field: "NDCNumber" },
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
-        { Name: "Create Date", field: "CreateDate" },
+        { Name: "Create Date", field: "CreatedDate" },
         { Name: "Customer Code", field: "CustomerCode" },
+        { Name: "Implementation Date", field: "ImplementationDate" },
+        { Name: "color", field: "Color" },
+        { Name: "Date Of Absolution", field: "DateOfAbsolution" },
         // { Name: "ccf", field: "CCF" },
-        { Name: "ccf", field: "ccf" },
+        { Name: "ccf", field: "CCF" },
         { Name: "Tablet Count", field: "TabletCount" },
         { Name: "Current Version", field: "CurrentVersion" },
-        { Name: "Hod Initiated", field: "HodInitiated" },
+        // { Name: "Hod Initiated", field: "HodInitiated" },
         { Name: "Hod Initiated Date", field: "HodInitiatedDate" },
-        { Name: "QA Approved", field: "QAApproved" },
+        // { Name: "QA Approved", field: "QAApproved" },
         { Name: "QA Approved Date", field: "QAApprovedDate" },
-        {
-          Name: "Packing Department Approved",
-          field: "packingDepartmentApproved",
-        },
+        // {
+        //   Name: "Packing Department Approved",
+        //   field: "PackingDepartmentApproved",
+        // },
         {
           Name: "Packing Department Approved Date",
           field: "PackingDepartmentApprovedDate",
         },
         { Name: "Final Hod Approved Date", field: "FinalHodApprovedDate" },
-        { Name: "Final Hod Approved", field: "FinalHodApproved" },
+        // { Name: "Final Hod Approved", field: "FinalHodApproved" },
+        { Name: "Hod Approved By", field: "HodApprovedBy" },
+        { Name: "QA Approved By", field: "QAApprovedBy" },
+        { Name: "PD Approved By", field: "PDApprovedBy" },
+        { Name: "Final Hod Approved By", field: "FinalHodApprovedBy" },
+      ];
+    }
+    if (props?.selectedTab === 4) {
+      return [
+        { Name: "ANDA Number", field: "AndaNumber" },
+        { Name: "Product Name", field: "ProductName" },
+        { Name: "Customer Name", field: "CustomerName" },
+        { Name: "Label Type", field: "LabelType" },
+        // { Name: "PM-Code", field: "PMCode" },
+        // { Name: "NDC Number", field: "NDC Number" },
+        { Name: "PM-Code", field: "PMCode" },
+        { Name: "NDC Number", field: "NDCNumber" },
+        { Name: "Job Number", field: "JobNumber" },
+        { Name: "Proof Number", field: "ProofNumber" },
+        { Name: "Create Date", field: "CreatedDate" },
+        { Name: "Customer Code", field: "CustomerCode" },
+        { Name: "Implementation Date", field: "ImplementationDate" },
+        { Name: "color", field: "Color" },
+        { Name: "Date Of Absolution", field: "DateOfAbsolution" },
+        // { Name: "ccf", field: "CCF" },
+        { Name: "ccf", field: "ccf" },
+        { Name: "Tablet Count", field: "TabletCount" },
+        { Name: "Current Version", field: "CurrentVersion" },
+        // { Name: "Hod Initiated", field: "HodInitiated" },
+        { Name: "Hod Initiated Date", field: "HodInitiatedDate" },
+        // { Name: "QA Approved", field: "QAApproved" },
+        { Name: "QA Approved Date", field: "QAApprovedDate" },
+        // {
+        //   Name: "Packing Department Approved",
+        //   field: "PackingDepartmentApproved",
+        // },
+        {
+          Name: "Packing Department Approved Date",
+          field: "PackingDepartmentApprovedDate",
+        },
+        { Name: "Final Hod Approved Date", field: "FinalHodApprovedDate" },
+        // { Name: "Final Hod Approved", field: "FinalHodApproved" },
         { Name: "Hod Approved By", field: "HodApprovedBy" },
         { Name: "QA Approved By", field: "QAApprovedBy" },
         { Name: "PD Approved By", field: "PDApprovedBy" },
@@ -313,9 +373,15 @@ const AdvancedFilter = (props: LColumns) => {
 
     switch (tabValue) {
       case 0:
+           return [
+          { Name: "ANDA Number", field: "AndaNumber" },
+          { Name: "Create Date", field: "CreateDate" },
+          { Name: "Modified Date", field: "ModifiedDate" },
+        ];
       case 1:
         return [
           { Name: "ANDA Number", field: "AndaNumber" },
+          { Name: "Product Name", field: "ProductName" },
           { Name: "Create Date", field: "CreatedDate" },
           { Name: "Modified Date", field: "ModifiedDate" },
         ];
@@ -323,7 +389,7 @@ const AdvancedFilter = (props: LColumns) => {
         return [
           { Name: "Create Date", field: "CreateDate" },
           { Name: "Modified Date", field: "ModifiedDate" },
-          { Name: "PM Code", field: "PMCode" },
+          { Name: "PM Code", field: "PmCode" },
         ];
       case 3:
         return [
@@ -345,8 +411,9 @@ const AdvancedFilter = (props: LColumns) => {
           { Name: "Label Type", field: "LabelType" },
           // { Name: "PM-Code", field: "PMCode" },
           // { Name: "NDC Number", field: "NDC Number" },
-          { Name: "PM-Code", field: "PmCode" },
-        { Name: "NDC Number", field: "Ndcnumber" },
+          // { Name: "PM-Code", field: "PmCode" },
+          { Name: "PM-Code", field: "PM-Code" },
+        { Name: "NDC Number", field: "NDCNumber" },
           { Name: "TabletCount", field: "TabletCount" },
           { Name: "Create By", field: "CreateBy" },
           { Name: "Create Date", field: "CreateDate" },

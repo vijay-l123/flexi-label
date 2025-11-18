@@ -88,6 +88,48 @@ function updateUser(params: any) {
 
   return response;
 }
+function activeUser(params: any) {
+  const {
+    userId,
+  } = params;
+  const postProps = {
+    UserId: userId,
+    // createdDate: new Date(),
+    // modifiedDate: new Date(),
+    // createdBy: 0,
+    // modifiedBy: 0,
+  };
+
+  const response = axios({
+    method: "POST",
+    url: "User/ActiveUser",
+    baseURL: baseUrl,
+    headers: {
+      UserId: userId,
+    },
+  });
+
+  return response;
+}
+function inactiveUser(params: any) {
+  const {
+    userId,
+  } = params;
+  const postProps = {
+    UserId: userId,
+  };
+
+  const response = axios({
+    method: "POST",
+    url: "User/InactiveUser",
+    baseURL: baseUrl,
+    headers: {
+      UserId: userId,
+    },
+  });
+
+  return response;
+}
 
 function resetMyPassword(params: any) {
   const { oldPassword, newPassword, userId } = params;
@@ -166,6 +208,8 @@ const User = {
   resetMyPassword,
   resetUserPassword,
   getUserListEx,
+inactiveUser,
+activeUser
 };
 
 export default User;
