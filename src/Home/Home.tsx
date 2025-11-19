@@ -110,24 +110,6 @@ function Home() {
     setSelectedNavItem(+existingNav);
   }, [localStorage.getItem("selectedNavItem")]);
   return (
-    // <div>
-    //   <div className="App">
-    //     <Routes>
-    //       {/* <Route path="/" element={<Dashboard />}></Route> */}
-    //       <Route path="dashboard" element={<DashboardPage />}></Route>
-    //       <Route path="user" element={<UserPage />}></Route>
-    //       <Route path="profile" element={<ProfilePage />}></Route>
-    //       <Route path="master" element={<MasterPage />}></Route>
-    //     </Routes>
-    //   </div>
-    //   <div>
-    //     <Sidebar
-    //       data={menuData}
-    //       selectedNavItem={selectedNavItem}
-    //       handleNavItemChanged={handleNavItemChanged}
-    //     />
-    //   </div>
-    // </div>
 
     <Box
       sx={{

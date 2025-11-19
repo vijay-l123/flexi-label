@@ -53,8 +53,6 @@ export default function ActionCellRenderer(inputParams: params) {
 
   const { authData } = useAuthContext();
   // debugger
-  // console.log("TRoleType", authData.roleId,TRoleType.Initiator,inputParams.rowParams.row.status);
-  // console.log("Cndition", authData.roleId != 1 && TRoleType.Initiator != '1' && inputParams.rowParams.row.status === "Draft");
 const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.status === "Draft";
 
   return (
@@ -85,18 +83,6 @@ const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.
             <Settings color={shouldHideActionButton ? "disabled" : "secondary"}  ></Settings>{" "}
             <Typography>Action</Typography>
           </Controls.IconButton>
-
-          {/* <Button
-        id="demo-customized-button"
-        aria-controls={isMenuOpen ? "demo-customized-menu" : undefined}
-        aria-haspopup="true"
-        aria-expanded={isMenuOpen ? "true" : undefined}
-        variant="contained"
-        disableElevation
-        onClick={handleClick}
-      >
-        Options
-      </Button> */}
           <Menu
             id="demo-customized-menu"
             MenuListProps={{
@@ -195,66 +181,6 @@ const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.
                 <Typography fontSize="small">Review</Typography>
               </MenuItem>
             )}
-            {/* {showButton({
-              rowState: inputParams.rowParams.row,
-              currentButton: "Move to Live",
-              authData,
-            }) && (
-              <MenuItem onClick={inputParams.changeToLiveClick} disableRipple>
-                <Controls.SvgIcon
-                  fontSize="small"
-                  sx={{ mx: 1, color: CustomTheme.CustomColor.Alert.info }}
-                >
-                  <Wysiwyg />
-                </Controls.SvgIcon>
-                <Typography fontSize="small">Move to Live</Typography>
-              </MenuItem>
-            )} */}
-             {/* {showButton({
-              rowState: inputParams.rowParams.row,
-              currentButton: "Review",
-              authData,
-            }) && (
-              <MenuItem onClick={inputParams.reviewClick} disableRipple>
-                <Controls.SvgIcon
-                  fontSize="small"
-                  sx={{ mx: 1, color: CustomTheme.CustomColor.Alert.info }}
-                >
-                  <Wysiwyg />
-                </Controls.SvgIcon>
-                <Typography fontSize="small">Delete</Typography>
-              </MenuItem>
-            )} */}
-            {/* {showButton({
-              rowState: inputParams.rowParams.row,
-              currentButton: "Approve",
-              authData,
-            }) && (
-              <MenuItem onClick={inputParams.approveClick} disableRipple>
-                <Controls.SvgIcon
-                  fontSize="small"
-                  sx={{ mx: 1, color: CustomTheme.CustomColor.Green.darker }}
-                >
-                  <TaskAlt />
-                </Controls.SvgIcon>
-                <Typography fontSize="small">Approve</Typography>
-              </MenuItem>
-            )}
-            {showButton({
-              rowState: inputParams.rowParams.row,
-              currentButton: "Resend",
-              authData,
-            }) && (
-              <MenuItem onClick={inputParams.resendClick} disableRipple>
-                <Controls.SvgIcon
-                  fontSize="small"
-                  sx={{ mx: 1, color: CustomTheme.CustomColor.DeepOrange.main }}
-                >
-                  <ReplyAll />
-                </Controls.SvgIcon>
-                <Typography fontSize="small">Resend</Typography>
-              </MenuItem>
-            )} */}
             {inputParams.isApproved && (
               <MenuItem onClick={inputParams.changeToLiveClick} disableRipple>
                 <Controls.SvgIcon

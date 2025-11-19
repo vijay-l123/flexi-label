@@ -20,10 +20,6 @@ function addLabelType(params: any) {
     typeId: 0,
     type: type,
     Descrption: description,
-    // createdDate: new Date(),
-    // modifiedDate: new Date(),
-    // createdBy: 0,
-    // modifiedBy: 0,
   };
 
   const response = axios({
@@ -45,11 +41,6 @@ function updateLabelType(params: any) {
     typeId: typeId,
     type: type,
      Descrption: description,
-    // description: description,
-    // createdDate: new Date(),
-    // modifiedDate: new Date(),
-    // createdBy: 0,
-    // modifiedBy: 0,
   };
 
   const response = axios({
@@ -63,15 +54,6 @@ function updateLabelType(params: any) {
 
   return response;
 }
-
-// function getLabelTypeListEx() {
-//   const response = axios({
-//     method: "GET",
-//     url: "LabelType/GetLabelTypeListEx",
-//     baseURL: baseUrl,
-//   });
-//   return response;
-// }
 function getLabelTypeListEx(params?: {
   filterCol?: string;
   filterOperator?: string;

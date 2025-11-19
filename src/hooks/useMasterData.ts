@@ -36,7 +36,6 @@ export function useMasterData(tabValue: number, lookupType: string) {
 
   const setGridState = React.useCallback(
     (param: any) => {
-      // console.log("param.rowData",param);
       
       setGridData((prevState: any) => ({
         ...prevState,
@@ -51,7 +50,6 @@ export function useMasterData(tabValue: number, lookupType: string) {
     [dispatch, tabValue]
   );
 
-  // Initial load and pagination changes
   React.useMemo(() => {
     const paginationParams = {
       filter: filter.filterValue !== undefined ? {
@@ -64,7 +62,7 @@ export function useMasterData(tabValue: number, lookupType: string) {
         filterValue: "",
       },
       pageSize,
-      page: page + 1, // API expects 1-based page numbers
+      page: page + 1, 
     };
 
     if (tabValue === 0) {
@@ -90,7 +88,6 @@ export function useMasterData(tabValue: number, lookupType: string) {
     }
   }, [tabValue, lookupType, setGridState, pageSize, page, filter]);
 
-  // Handle manual refresh actions
   React.useMemo(() => {
     if (masterAction) {
       const paginationParams = {
@@ -104,7 +101,7 @@ export function useMasterData(tabValue: number, lookupType: string) {
           filterValue: "",
         },
         pageSize,
-        page: page + 1, // API expects 1-based page numbers
+        page: page + 1, 
       };
 
       if (tabValue === 0) {
@@ -144,11 +141,9 @@ function fetchAnda(setGridState: any, paginationParams: any) {
         PageNumber: paginationParams.page,
       });
 
-      // Handle new API response structure
       const apiData = response.data;
       const pagedInfo = apiData.pagedInfo;
       
-      // Transform the new data structure
       const transformedData = {
         columns: apiData.data.columns,
         rows: apiData.data.rows
@@ -178,11 +173,9 @@ function fetchProducts(setGridState: any, paginationParams: any) {
         PageNumber: paginationParams.page,
       });
 
-      // Handle new API response structure
       const apiData = response.data;
       const pagedInfo = apiData.pagedInfo;
       
-      // Transform the new data structure
       const transformedData = {
         columns: apiData.data.columns,
         rows: apiData.data.rows
@@ -212,11 +205,9 @@ function fetchPmCodes(setGridState: any, paginationParams: any) {
         PageNumber: paginationParams.page,
       });
 
-      // Handle new API response structure
       const apiData = response.data;
       const pagedInfo = apiData.pagedInfo;
       
-      // Transform the new data structure
       const transformedData = {
         columns: apiData.data.columns,
         rows: apiData.data.rows
@@ -246,11 +237,9 @@ function fetchLabelTypes(setGridState: any, paginationParams: any) {
         PageNumber: paginationParams.page,
       });
 
-      // Handle new API response structure
       const apiData = response.data;
       const pagedInfo = apiData.pagedInfo;
       
-      // Transform the new data structure
       const transformedData = {
         columns: apiData.data.columns,
         rows: apiData.data.rows
@@ -357,12 +346,11 @@ function fetchLookups(setGridState: any, type: string, paginationParams: any) {
 
       const { colDefs, rowData } = fetchColRow(transformedData);
 
-      // Map rowData to replace Type values with corresponding labels from LookupDropdownData
       const formattedRowData = rowData.map((row: any) => {
         const lookupItem = LookupDropdownData.find(item => item.value == row.type);
         return {
           ...row,
-          type: lookupItem ? lookupItem.label : row.type, // Replace Type number with label
+          type: lookupItem ? lookupItem.label : row.type, 
         };
       });
 

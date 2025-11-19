@@ -47,11 +47,6 @@ export function AuthProvider({ children }: IProps): JSX.Element {
 
   React.useEffect(() => {
     if (authData && authData.user) {
-      //  navigate("/dashboard");
-      // const page = window.location.href;
-      // if(page.toLocaleLowerCase().includes('dashboard'))
-      // if(page.toLocaleLowerCase().includes('dashboard'))
-      // if(page.toLocaleLowerCase().includes('dashboard'))
     } else {
       navigate("elabel/login");
       removeAuthData();
@@ -93,11 +88,8 @@ export function AuthProvider({ children }: IProps): JSX.Element {
         setAlertMessage("Logged In Successfully!");
       },
       (error) => {
-        // debugger
-        // console.log(error);
         setAlertSeverity("error");
         setSbOpen(true);
-        // setAlertMessage("401: Unauthorized!");
         setAlertMessage( error?.message
     ? `${error.message}`: "401 Unauthorized!");
         removeAuthData();

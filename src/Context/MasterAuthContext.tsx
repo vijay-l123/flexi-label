@@ -42,11 +42,6 @@ export function MasterAuthProvider({ children }: IMasterProps): JSX.Element {
       setPage(0);
      setColumnVisibilityModel({});
   };
-
-  // const handleLookupChange = (e:any) : void => {
-  //   console.log("111",e.target.value);
-  //   setLookupvalue(e.target.value);
-  //   }
   const { getLookupList } = Services.Lookup
   useEffect(() => {
     // setLookupvalue('1')

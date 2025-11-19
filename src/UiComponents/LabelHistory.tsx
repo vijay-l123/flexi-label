@@ -151,9 +151,6 @@ function LabelHistory(props: any) {
           field: item.field,
           headerName: item.name,
           fiterable: !item.name?.trim().includes("id"),
-          //hide: !item.display,
-          // hideable: item.display,
-          // editable: !item.display,
           headerClassName: "super-app-theme--header",
           flexGrow: 1,
           flexShrink: 1,
@@ -161,7 +158,6 @@ function LabelHistory(props: any) {
         };
 
         if (item.field === "lableFile") {
-          // console.log("item.field",);
           
           const updatedCols = {
             headerName: "Versions",
@@ -198,14 +194,12 @@ function LabelHistory(props: any) {
           };
           cols = { ...cols, ...updatedCols };
         }
-            // if (item.field === "previousVersionFileId") {
             if (item.field === "PreviousVersionFileId") {
                 const updatedCols = {
                   headerName: "Previous Version File",
                   align: "center",
                   display: true,
                   renderCell: (params: any) => {
-                    // const dFileId = params.row.previousVersionFileId;
                     const dFileId = params.row.PreviousVersionFileId;
         
                     return (
@@ -297,18 +291,6 @@ function LabelHistory(props: any) {
         columnVisibilityModel={{
           ...columnVisibilityState,
         }}
-
-        // initialState={{
-        //   columns: {
-        //     columnVisibilityModel: {
-        //       ...colVisibilityState,
-        //     },
-        //     // Hide columns status and traderName, the other columns will remain visible
-        //     // andaId: false,
-        //     // previousVersionFileId: false,
-        //     // currentVersionId: false,
-        //   },
-        // }}
       />
     </React.Fragment>
   );

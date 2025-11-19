@@ -137,10 +137,6 @@ function resetMyPassword(params: any) {
     oldPassword: oldPassword,
     newPassword: newPassword,
     userId: userId,
-    // createdDate: new Date(),
-    // modifiedDate: new Date(),
-    // createdBy: 0,
-    // modifiedBy: 0,
   };
 
   const response = axios({
@@ -160,10 +156,6 @@ function resetUserPassword(params: any) {
   const postProps = {
     password: password,
     userId: userId,
-    // createdDate: new Date(),
-    // modifiedDate: new Date(),
-    // createdBy: 0,
-    // modifiedBy: 0,
   };
 
   const response = axios({

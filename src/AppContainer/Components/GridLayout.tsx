@@ -257,59 +257,9 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
         field: item.field,
         headerName: item.name,
         fiterable: !item.name?.trim().includes("id"),
-        //hide: !item.display,
-        // hideable: item.display,
-        // editable: !item.display,
         headerClassName: "super-app-theme--header",
-        // width: calculateColumnWidth(item.field, item.name, rowData),
         width: 200,
-        // flexGrow: 1,
-        // flexShrink: 1,
-        // width: "150",
-        
       };
-// if (item.name?.trim().toLowerCase() === "implementation date") {
-//     const updatedCols = {
-//       renderCell: (params: any) => {
-//         const dateStr = params.value; 
-//         if (!dateStr) return "";
-
-//         const parsedDate = new Date(dateStr);
-
-//         // Handle invalid date (Safari/macOS case)
-//         if (isNaN(parsedDate.getTime())) {
-//           const parts = dateStr.split(" ")[0].split("/");
-//           if (parts.length === 3) {
-//             const [month, day, year] = parts.map((p:any) => parseInt(p));
-//             if (year && month && day) {
-//               const fixedDate = new Date(year, month - 1, day);
-//               return `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}-${year}`;
-//             }
-//           }
-//           return "";
-//         }
-
-//         // Always format as MM-DD-YYYY
-//         const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
-//         const day = String(parsedDate.getDate()).padStart(2, "0");
-//         const year = parsedDate.getFullYear();
-
-//         return `${month}-${day}-${year}`;
-//       },
-//     };
-//     cols = { ...cols, ...updatedCols };
-//   }
-      // if (
-      //   !item.name?.trim().toLowerCase().includes("date") &&
-      //   item.name?.trim().toLowerCase().includes("approved")
-      // ) {
-      //   const updatedCols = {
-      //     align: "center",
-      //     renderCell: (params: any) => <ApprovedCellRenderer {...params} />,
-      //   };
-      //   cols = { ...cols, ...updatedCols };
-      // }
-
 const name = item.name?.trim().toLowerCase() || "";
 const includeKeywords = ["approved", "hod initiated"];
 const excludeKeywords = ["date", "by"];
@@ -489,20 +439,6 @@ if (
           changeImplemantationDateClick={() => changeImplemantationDateClickEvent(params)}
         />
       ),
-
-      // getActions: (params: any) => [
-      //   <GridActionsCellItem
-      //     showInMenu
-      //     icon={<BorderColorOutlinedIcon />}
-      //     label="Edit"
-      //     onClick={() => {
-      //       console.log("popupdata", params);
-      //       modalState(true);
-      //       rowState(params.row);
-      //       editState(true);
-      //     }}
-      //   />,
-      // ],
     },
     ...dynamicColDef,
   ];
@@ -527,11 +463,6 @@ function checkErrorValidation(params: formParams) {
     return {
       error: value.length === 0 ? "Please enter notes" : "",
     };
-
-  // if (name === "remarks")
-  //   return {
-  //     error: value.length === 0 ? "You must enter a password" : "",
-  //   };
 }
 
 function GridLayout(props: any) {
@@ -556,15 +487,6 @@ function GridLayout(props: any) {
 
   const { rowData, columnData, updateSelectedTab, updateLabelsData } =
     useLabelsContext();
-  // const { data } = useDemoData({
-  //   dataSet: "Commodity",
-  //   rowLength: 100,
-  //   editable: true,
-  // });
-  // console.log("selectedTab:", selectedTab, "columnData:", columnData);
-  // console.log("paginationData:", paginationData);
-  // console.log("rowData length:", rowData?.length);
-  // console.log("rowData:", rowData);
 
   type IColumnState = {
     [key: string]: boolean;
@@ -673,11 +595,8 @@ function GridLayout(props: any) {
     }
   }, [columnData]);
 
-  //const rowData = React.useRef([]);
 const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
-  // Reset row selection when tab changes
   React.useEffect(() => {
-    // console.log("Tab changed to:", selectedTab, "- Clearing row selection");
     setRowSelectionModel({});
   }, [selectedTab]);
 
@@ -788,47 +707,6 @@ const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
       };
 
       addNotes();
-
-      // const addNotes = async () => {
-      //   try {
-      //     const apiParams = {
-      //       labelVersionId: Number(labelVersionId.current),
-      //       remarks: data.get("remarks") as string,
-      //     };
-      //     let response = null;
-      //     if (buttonState === TButtonClick.SubmitForReview)
-      //       response = await Services.LabelVersion.submitForReview(
-      //         apiParams
-      //       ).then((success) => {
-      //         updateLabelsData(true);
-      //         modalState(false);
-      //         const popupStateParams = {
-      //           show: false,
-      //         };
-      //         reviewPopupState(popupStateParams);
-      //       });
-      //     if (
-      //       buttonState === TButtonClick.Resend ||
-      //       buttonState === TButtonClick.Approve
-      //     )
-      //       response = await Services.LabelVersion.processReview({
-      //         ...apiParams,
-      //         action: Number(buttonState),
-      //       }).then((success) => {
-      //         updateLabelsData(true);
-      //         modalState(false);
-      //         const popupStateParams = {
-      //           show: false,
-      //         };
-      //         reviewPopupState(popupStateParams);
-      //       });
-      //     console.log(response);
-      //   } catch (error) {
-      //     console.log(error);
-      //   }
-      // };
-      // updateLabelVersion();
-      // closePasswordConfirmationPopup(false);
     }
   };
 
@@ -838,10 +716,6 @@ const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
     const data = new FormData(event.currentTarget);
   const password = data.get("password") as string;
   const remarks = data.get("remarks") as string;
-    // console.log({
-    //   password: data.get("password"),
-    //   remarks: data.get("remarks"),
-    // });
 
     const formData = [
       {
@@ -1050,16 +924,6 @@ if (hasError) return;
     maxWidth: "md",
   };
 
-  // const getRowClass = (params: any) => {
-  //   if (params.row?.hasReview && params.row?.hasReview === "True") {
-  //     return "hasReview";
-  //   }
-  //   if (params.row?.hasReview && params.row?.hasReview === "False") {
-  //     return "hasNoReview";
-  //   }
-
-  //   return params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
-  // };
   const getRowClass = (params: any) => {
   if (params.row?.colorCode) {
     const cleanCode = params.row.colorCode.replace("#", "");
@@ -1088,22 +952,6 @@ rowData?.forEach((row: any) => {
     };
   }
 });
-
-
-
-// const CustomToolbar = () => {
-//   return (
-//     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
-//       <GridToolbar />
-
-//       <Box sx={{ ml: 2 }}>
-//         <AdvancedFilter selectedTab={selectedTab} />
-//       </Box>
-//     </Box>
-//   );
-// };
-
-
 const CustomToolbar = () => {
   return (
     <GridToolbarContainer
@@ -1114,14 +962,12 @@ const CustomToolbar = () => {
         p: 1,
       }}
     >
-      {/* Keep only the buttons you want */}
       <Box sx={{ display: "flex", gap: 1 }}>
         <GridToolbarColumnsButton />
         <GridToolbarDensitySelector />
         <GridToolbarExport />
       </Box>
 
-      {/* Your custom filter */}
       <Box sx={{ ml: 2 }}>
         <AdvancedFilter selectedTab={selectedTab} />
       </Box>
@@ -1129,16 +975,11 @@ const CustomToolbar = () => {
   );
 };
 
-
-  // Calculate rowCount properly from pagination data
   const rowCount = React.useMemo(() => {
     if (paginationData && typeof paginationData.totalRecords === 'number') {
-      // console.log("Using paginationData.totalRecords:", paginationData.totalRecords);
       return paginationData.totalRecords;
     }
-    // Fallback to current page data length
     const fallback = rowData?.length || 0;
-    // console.log("Using fallback rowCount:", fallback);
     return fallback;
   }, [paginationData, rowData]);
   const [showPassword, setShowPassword] = React.useState(false);
@@ -1325,28 +1166,12 @@ const CustomToolbar = () => {
             color: CustomTheme.CustomColor.Primary.dark,
           },
       ...dynamicRowColors,
-    //          "& .MuiDataGrid-cell": {
-    //   whiteSpace: "normal",  
-    //   wordWrap: "break-word",  
-    //   overflowY: "auto",    
-    //   overflowX: "hidden",
-    //   display: "block",
-    //   lineHeight: "1.4em",
-    //   maxHeight: "70px", 
-    //   p: 1,
-    //   alignItems: "flex-start",
-    // },
-    // "& .MuiDataGrid-row": {
-    //   maxHeight: "none !important",
-    // },
         }}
         getRowId={(row) => row.index}
         columns={columnData && getColumnDefinitions(colDefParams,rowData)}
         rows={rowData && rowData}
         //loading={rowData.length === 0}
         rowHeight={38}
-
-        // disableSelectionOnClick
         getRowClassName={getRowClass}
         disableColumnSelector={true}
         rowCount={rowCount}
@@ -1354,13 +1179,10 @@ const CustomToolbar = () => {
               paginationMode="server"
               paginationModel={{ page, pageSize }}
                  onPaginationModelChange={(model) => {
-            // console.log("Pagination model change:", model);
             setPaginationChange(true);
             if (model.pageSize !== pageSize) {
-              // console.log("Page size changed from", pageSize, "to", model.pageSize);
             setPage(0); 
             } else {
-              // console.log("Page changed to:", model.page);
             setPage(model.page);
             }
             setPageSize(model.pageSize);
@@ -1369,32 +1191,15 @@ const CustomToolbar = () => {
             slots={{
         toolbar: CustomToolbar,
       }}
-        // slotProps={{
-        //   toolbar: {
-        //     showQuickFilter:true,
-        //   }
-        // }}
         columnVisibilityModel={{
           ...columnVisibilityState,
         }}
         rowSelectionModel={rowSelectionModel}
         onRowSelectionModelChange={(newSelection) => {
-          // console.log("Row selection changed:", newSelection, "for tab:", selectedTab);
           setRowSelectionModel(newSelection);
         }}
         checkboxSelection={false}
         disableRowSelectionOnClick={true}
-        // initialState={{
-        //   columns: {
-        //     columnVisibilityModel: {
-        //       ...colVisibilityState,
-        //     },
-        //     // Hide columns status and traderName, the other columns will remain visible
-        //     // andaId: false,
-        //     // previousVersionFileId: false,
-        //     // currentVersionId: false,
-        //   },
-        // }}
       />
       </div>
     </Box>

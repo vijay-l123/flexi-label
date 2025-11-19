@@ -4,59 +4,10 @@ import config from "./config";
 
 const baseUrl = config.baseUrl;
 
-// function uploadDocument(params: any) {
-//   const { fileData } = params;
-
-//   console.log("ffff", fileData);
-
-//   const postProps = {
-//     uploadFile: fileData,
-//   };
-
-//   // const url = "http://35.235.126.33:9999/FlexiElableApi/Document/Upload";
-//   // const formData = new FormData();
-//   // formData.append("file", fileData);
-//   // const config = {
-//   //   headers: {
-//   //     "content-type": "multipart/form-data",
-//   //   },
-//   // };
-//   //const response = axios.post(url, { uploadFile: formData }, config);
-
-//   // const formData = new FormData();
-//   // formData.append("uploadFile", fileData);
-
-//   // const res = fetch(
-//   //   "http://35.235.126.33:9999/FlexiElableApi/Document/Upload",
-//   //   {
-//   //     method: "POST",
-//   //     body: formData,
-//   //   }
-//   // ).then((res) => res.json());
-
-//   // return res;
-
-//   const response = axios({
-//     headers: {
-//       "content-type": "multipart/form-data",
-//     },
-//     method: "POST",
-//     url: "/Document/Upload",
-//     baseURL: baseUrl,
-
-//     data: {
-//       ...postProps,
-//     },
-//   });
-
-//   return response;
-// }
-
 function uploadDocument(params: any) {
-  const { fileData } = params; // fileData should be an array of files
+  const { fileData } = params; 
   const formData = new FormData();
 
-  // Loop through the files and append each one to the formData
   fileData.forEach((file: File) => {
     formData.append("uploadFiles", file);
   });
@@ -68,43 +19,16 @@ function uploadDocument(params: any) {
     method: "POST",
     url: "/Document/Upload",
     baseURL: baseUrl,
-    data: formData, // Use the FormData object
+    data: formData,
   });
 
   return response;
 }
 
-// function updateDocument(params: any) {
-//   const { fileId, fileData } = params;
-
-//   console.log("ffff", fileData);
-
-//   const postProps = {
-//     FileId: fileId,
-//     uploadFile: fileData,
-//   };
-
-//   const response = axios({
-//     headers: {
-//       "content-type": "multipart/form-data",
-//     },
-//     method: "POST",
-//     url: "/Document/Updatefile",
-//     baseURL: baseUrl,
-
-//     data: {
-//       ...postProps,
-//     },
-//   });
-
-//   return response;
-// }
-
 function updateDocument(params: any) {
-  const { fileId, fileData } = params; // fileData should be an array of files
+  const { fileId, fileData } = params; 
   const formData = new FormData();
 
-  // Loop through the files and append each one to the formData
   fileData.forEach((file: File) => {
     formData.append("uploadFile", file);
   });
@@ -118,7 +42,7 @@ function updateDocument(params: any) {
     method: "POST",
     url: "/Document/Updatefile",
     baseURL: baseUrl,
-    data: formData, // Use the FormData object
+    data: formData,
   });
 
   return response;

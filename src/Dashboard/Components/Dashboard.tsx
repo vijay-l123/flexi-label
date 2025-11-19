@@ -17,21 +17,6 @@ import useLabelsContext from "../../Context/LabelsContext";
 import { GridColumnVisibilityModel } from "@mui/x-data-grid";
 
 const { TRoleType } = common;
-
-// const FireNav = styled(List)<{ component?: React.ElementType }>({
-//   "& .MuiListItemButton-root": {
-//     paddingLeft: 24,
-//     paddingRight: 24,
-//   },
-//   "& .MuiListItemIcon-root": {
-//     minWidth: 0,
-//     marginRight: 16,
-//   },
-//   "& .MuiSvgIcon-root": {
-//     fontSize: 20,
-//   },
-// });
-
 function Dashboard() {
   const [tabValue, setTabValue] = React.useState(1);
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -45,14 +30,12 @@ function Dashboard() {
   const { authData } = useAuthContext();
   const { setLabelversionAPiCall } = useLabelsContext();
     const {setErrors,setFilter,setPage,setPageSize} = useFilterContext();
-// const [columnVisibilityModel, setColumnVisibilityModel] = React.useState<GridColumnVisibilityModel>({});
 
 setLabelversionAPiCall(false);
   const dispatch = useDispatch();
 
   const { tabs } = useTabs(authData.roleId);
 
-  // console.log("tabs", tabs);
   const handleTabChange = (event: any, value: any) => {
     setTabValue(value);
     selectedTab.current = value;
@@ -60,9 +43,7 @@ setLabelversionAPiCall(false);
   setErrors({});
      setPageSize(25)
       setPage(0);
-      // setColumnVisibilityModel({});
   };
-// console.log("tabValue",tabValue);
 
   const setModalState = (val: boolean) => setModalOpen(val);
 
@@ -74,14 +55,13 @@ setLabelversionAPiCall(false);
     },
     editState: isEdit,
     rowState: isEdit && rowData,
-    newTypeState: 5, //isEdit ? 5 : newType,//To make it new label information by default
+    newTypeState: 5,
     defaultToLabel: true,
     selectedTab: selectedTab.current,
     setNewTypeState: (val: number) => setNewType(val),
     isCreateNewVersion: isCreateNewVersion,
     isChangeColor: isChangeColor,
     isImplementationDate: isImplementationDate,
-        // ...(isChangeColor ? {} : { newTypeState: 5 }),
   };
 
   const editmodalHandler = (val: any) => {
@@ -103,8 +83,6 @@ setLabelversionAPiCall(false);
     rowState: (val: any) => setRowData({ ...val }),
     editState: (val: any) => setEdit(val),
     selectedTab: selectedTab.current,
-    // columnVisibilityModel:columnVisibilityModel, 
-    // setColumnVisibilityModel:setColumnVisibilityModel,
     createNewVersionState: (val: any) => editmodalHandler(val),
     changeColorState: (val: any) => editColormodalHandler(val),
     changeImplementationDateState: (val: any) => editimplementaiondatemodalHandler(val),
@@ -123,18 +101,6 @@ setLabelversionAPiCall(false);
   return (
     <React.Fragment>
       {modalOpen && <LabelModalPopup {...modalProps}></LabelModalPopup>}
-      {/* {authData.roleId === TRoleType.Initiator && (
-        <Box component="div" sx={{ display: "flex" }}>
-          <Box sx={{ flexGrow: 1 }} />
-          <Controls.Button
-            variant="contained"
-            onClick={() => setModalState(true)}
-            startIcon={<AddIcon />}
-          >
-            Create New
-          </Controls.Button>
-        </Box>
-      )} */}
       <Tabs
         value={tabValue}
         onChange={handleTabChange}

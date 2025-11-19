@@ -26,10 +26,6 @@ function getLableVersionList(
   };
 
   const url = `LabelVersion/GetLableListEx2`;
-
-  // console.log("API Request URL:", url);
-  // console.log("API Request Body:", postProps);
-
   const response = axios({
     method: "POST",
     url: url,
@@ -115,15 +111,6 @@ function updateLabelVersion(params: any) {
   } = params;
 
   const postProps = {
-    // id: id,
-    // labelInfoId: labelInfoId,
-    // versionNo: versionNo,
-    // fileId: fileId,
-    // remarks: remarks,
-    // status: 0,
-    // foldSize,
-    // flatSize,
-    // ccf
     id: id,
     labelInfoId: labelInfoId,
     versionNo: versionNo,
@@ -158,15 +145,6 @@ function updateImplementaionDate(params: any) {
   const {
     id,
     implementationDate,
-    versionNo,
-    fileData,
-    fileName,
-    isFileInfoChanged,
-    fileId,
-    remarks,
-    foldSize,
-    flatSize,
-    ccf
   } = params;
 
   const postProps = {
@@ -189,29 +167,11 @@ function updateLabelVersionColorCode(params: any) {
   const {
     id,
     colorcode,
-    labelInfoId,
-    versionNo,
-    fileData,
-    fileName,
-    isFileInfoChanged,
-    fileId,
-    remarks,
-    foldSize,
-    flatSize,
-    ccf
   } = params;
 
   const postProps = {
     id: id,
-    // labelInfoId: labelInfoId,
    colorcode: colorcode,
-    // versionNo: versionNo,
-    // fileId: fileId,
-    // remarks: remarks,
-    // status: 0,
-    // foldSize,
-    // flatSize,
-    // ccf
   };
 
   const response = axios({

@@ -41,10 +41,8 @@ function Master(): JSX.Element {
 
   //
   const { masterTabData, LookupDropdownData } = common;
-  // console.log("masterTabData", masterTabData, tabValue, LookupDropdownData);
 
   const editClickEvent = (params: any): void => {
-    // console.log("popupdata", params.row);
     dispatch(setPopulatedValues(params.row));
     setModalState(true);
     setRowData(params.row);
@@ -82,20 +80,6 @@ function Master(): JSX.Element {
             createVersionClick={() => createVersionClickEvent(params)}
           />
         ),
-
-        // getActions: (params: any) => [
-        //   <GridActionsCellItem
-        //     showInMenu
-        //     icon={<BorderColorOutlinedIcon />}
-        //     label="Edit"
-        //     onClick={() => {
-        //       console.log("popupdata", params);
-        //       modalState(true);
-        //       rowState(params.row);
-        //       editState(true);
-        //     }}
-        //   />,
-        // ],
       },
       // ...gridData.colDefs,
       ...gridData.colDefs.map((col: any) => ({
@@ -125,15 +109,12 @@ function Master(): JSX.Element {
     },
     editState: isEdit,
     rowState: isEdit && rowData,
-    newTypeState: tabValue, //isEdit ? tabValue : newType,- will show the tab based in create  new dropdown
+    newTypeState: tabValue, 
     defaultToLabel: false,
     setNewTypeState: (val: number) => setNewType(val),
     isCreateNewVersion: isNewVersionClicked.current,
   };
 
-  // const columnVisibilityState = {
-  //   description: tabValue !== 4, // Hide description column when tab value is 6 (types tab)
-  // };
   return (
     <React.Fragment>
       <LabelModalPopup {...modalProps}></LabelModalPopup>
@@ -181,19 +162,10 @@ function Master(): JSX.Element {
               id="Select Lookup"
               name="Select Lookup"
               value={lookupvalue}
-              // defaultValue={lookupvalue[0]}
-              // onChange={(e) => setLookupvalue(e.target.value)}
               onChange={(e) => {
               setLookupvalue(e.target.value);
               setFilter({});
               }}
-
-              // disabled={true}
-              // sx={{
-              //   backgroundColor: CustomTheme.CustomColor.Common.white,
-              // }}
-
-              // error={formValues.roles.error}
             >
               {LookupDropdownData.map((item, index) => (
                 <MenuItem key={item.value} value={item.value}>
@@ -201,26 +173,15 @@ function Master(): JSX.Element {
                 </MenuItem>
               ))}
             </Select>
-            {/* <FormHelperText sx={{ color: "#D32F2F" }}>
-          {formValues.roles.error && formValues.roles.errorMessage}
-        </FormHelperText> */}
           </FormControl>
         )}
       </Box>
-      {/* <div style={{ width: '170vh', overflowX: 'auto' }}> */}
-      {/* <DisplayGrid {...gridProps} /> */}
       <Box width={"100%"} position={"relative"} sx={{ mt: 2, px: 2 }}>
       <DisplayGrid {...gridProps} />
       </Box>
-      {/* </div> */}
     </React.Fragment>
   );
 }
-
-// const paperLayoutGridProps = {
-//   paperHeight: "85vh",
-//   boxHeight: "70vh",
-// };
 const paperLayoutGridProps = {
   paperHeight: "70vh",
   boxHeight: "70vh",

@@ -2,15 +2,6 @@ import axios from "axios";
 import config from "./config";
 
 const baseUrl = config.baseUrl;
-
-// function getLookupList(type: string) {
-//   const response = axios({
-//     method: "GET",
-//     url: `/LookUpData/GetLookupListByType?type=${type}`,
-//     baseURL: baseUrl,
-//   });
-//   return response;
-// }
 function getLookupList(type: string, params?: {
   filterCol?: string;
   filterOperator?: string;
@@ -35,7 +26,6 @@ function getLookupList(type: string, params?: {
   return response;
 }
 function getversionLookupList() {
-  // const { filterCol, filterOperator, filterValue, ItemsPerPage, PageNumber } = params || {};
   const response = axios({
     method: "GET",
     url: `/LookUpData/GetAllLookupList`,

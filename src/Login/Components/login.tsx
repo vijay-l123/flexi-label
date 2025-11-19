@@ -15,7 +15,13 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
 import { useNavigate } from "react-router-dom";
-import { FormHelperText, FormLabel, IconButton, InputAdornment, OutlinedInput } from "@mui/material";
+import {
+  FormHelperText,
+  FormLabel,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+} from "@mui/material";
 import Controls from "../../Controls/Controls";
 import useAuthContext from "../../Authentication/AuthProvider";
 import common from "../../utils/common";
@@ -43,12 +49,6 @@ function Copyright(props: any) {
 }
 
 function isValidEmail(val: string) {
-  // let regEmail =
-  //   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  // if (!regEmail.test(val)) {
-  //   return true;
-  // }
-  // return false;
   return val.length === 0;
 }
 
@@ -103,20 +103,11 @@ function SignInSide() {
       return {
         error: isValidPassword(value) ? "You must enter a password" : "",
       };
-    // if (name === "roles")
-    //   return { error: isValidRoles(value) ? "You must select roles" : "" };
   }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-
-    // console.log({
-    //   email: data.get("email"),
-    //   password: data.get("password"),
-    //   roles: data.get("roles"),
-    // });
-
     const formData = [
       {
         target: {
@@ -170,20 +161,6 @@ function SignInSide() {
       };
 
       login(inputParams);
-
-      // const response = await AuthService.authenticate(inputParams);
-      // console.log(response);
-      // const {
-      //   authToken: token,
-      //   logIn: user,
-      //   name: userName,
-      //   token_ID: tokenId,
-      //   user_Id: userId,
-      //   validTo,
-      // } = response.data;
-      // setAuth({ token, user, userName, tokenId, userId, validTo });
-      // props.setNav(true);
-      // navigate("/dashboard");
     }
   };
 
@@ -203,30 +180,17 @@ function SignInSide() {
     temp = updatedValues;
 
     setFormValues(temp);
-    // console.log("handletext", temp);
   };
   const [showPassword, setShowPassword] = React.useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     event.preventDefault();
   };
   return (
-    // <Grid
-    //   container
-    //   component="main"
-    //   sx={{
-    //     height: "100vh",
-    //   }}
-    // >
-    //   <CssBaseline />
-    //   <Grid item xs={6}>
-    //     <div className="loginImg">
-    //       <LoginSvg />
-    //     </div>
-    //   </Grid>
-    //   <Grid item xs={6}>
     <Grid
       container
       component="main"
@@ -241,20 +205,20 @@ function SignInSide() {
         </div>
       </Grid> */}
       <Grid
-  item
-  xs={false}
-  sm={false}
-  md={false}
-  lg={6}
-  sx={{
-    display: { xs: "none", sm: "none", md: "none",lg: "block" }, 
-  }}
->
-  <div className="loginImg">
-    <LoginSvg />
-  </div>
-</Grid>
-    <Grid item xs={12} sm={12} md={12} lg={6}>
+        item
+        xs={false}
+        sm={false}
+        md={false}
+        lg={6}
+        sx={{
+          display: { xs: "none", sm: "none", md: "none", lg: "block" },
+        }}
+      >
+        <div className="loginImg">
+          <LoginSvg />
+        </div>
+      </Grid>
+      <Grid item xs={12} sm={12} md={12} lg={6}>
         <div className="loginScreen">
           <div className="loginContent">
             <div className="loginLogo">
@@ -284,100 +248,43 @@ function SignInSide() {
                 onChange={handleTextChange}
                 error={formValues.email.error}
               ></Controls.Input>
-              {/* <Controls.Input
-                required
-                fullWidth
-                margin="normal"
-                name="password"
-                label="Enter Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={formValues.password.value}
-                onChange={handleTextChange}
-                error={formValues.password.error}
-              /> */}
-                    <FormControl variant="outlined" fullWidth required  error={!!formValues.password.error} >
-  {/* <Grid container >
-    <Grid item xs={12}> */}
-      <OutlinedInput
-        id="password"
-        name="password"
-        type={showPassword ? "text" : "password"}
-        value={formValues.password?.value || ""}
-        onChange={handleTextChange}
-        
-        required
-        placeholder="Enter your password"
-        endAdornment={
-          <InputAdornment position="end">
-            <IconButton
-              aria-label="toggle password visibility"
-              onClick={handleClickShowPassword}
-              onMouseDown={handleMouseDownPassword}
-              edge="end"
-            >
-              {showPassword ? <VisibilityOff /> : <Visibility />}
-            </IconButton>
-          </InputAdornment>
-        }
-        sx={{
-          mt: 1,
-          '& input::placeholder': {
-            opacity: 0.7,
-          },
-        }}
-      />
-            {formValues.password.error && (
-        <FormHelperText>{formValues.password.error}</FormHelperText>
-      )}
-    {/* </Grid>
-  </Grid> */}
-</FormControl>
-              {/* <Box>
               <FormControl
-                required
+                variant="outlined"
                 fullWidth
-                variant="filled"
-                sx={{
-                  mt: 1,
-                  mb: 1,
-                }}
+                required
+                error={!!formValues.password.error}
               >
-                <InputLabel id="select-roles-input">Roles</InputLabel>
-                <Select
-                  required
-                  fullWidth
-                  labelId="select-roles-label"
-                  id="select-roles"
-                  value={formValues.roles.value}
-                  label="Roles"
-                  name="roles"
+                <OutlinedInput
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formValues.password?.value || ""}
                   onChange={handleTextChange}
-                  error={
-                    formValues.roles.error && formValues.roles.error.length > 0
-                      ? true
-                      : false
+                  required
+                  placeholder="Enter your password"
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
                   }
-                >
-                  {roles.map((role, index) => (
-                    <MenuItem key={role.value} value={role.value}>
-                      {role.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <FormHelperText sx={{ color: "#D32F2F" }}>
-                  {formValues.roles.error && formValues.roles.error.length > 0
-                    ? formValues.roles.error
-                    : ""}
-                </FormHelperText>
+                  sx={{
+                    mt: 1,
+                    "& input::placeholder": {
+                      opacity: 0.7,
+                    },
+                  }}
+                />
+                {formValues.password.error && (
+                  <FormHelperText>{formValues.password.error}</FormHelperText>
+                )}
               </FormControl>
-            </Box> */}
-              {/* <FormControlLabel
-              control={<Controls.Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
-
               <Controls.Button
                 type="submit"
                 fullWidth
@@ -387,18 +294,6 @@ function SignInSide() {
               >
                 Login
               </Controls.Button>
-              {/* <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid> */}
             </Box>
           </div>
           <div className="loginBottom">
@@ -407,22 +302,6 @@ function SignInSide() {
           </div>
         </div>
       </Grid>
-      {/* <Box
-        sx={{
-          width: "100vw",
-          height: "100vh",
-          backgroundImage: `url(${bgIcon})`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <img
-          src={logo}
-          style={{ marginLeft: "20px", marginTop: "10px", maxWidth: "100px" }}
-          alt="FlexiELabel"
-        ></img>
-      </Box> */}
     </Grid>
   );
 }

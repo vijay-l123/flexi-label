@@ -160,20 +160,6 @@ export default function AppBarMenuNav() {
           <Controls.IconButton size="large" color="secondary" onClick={logout}>
             <PowerSettingsNew></PowerSettingsNew>
           </Controls.IconButton>
-
-          {/* <IconButton
-            size="large"
-            edge="end"
-            aria-label="account of current user"
-            aria-controls={menuId}
-            aria-haspopup="true"
-            onClick={handleProfileMenuOpen}
-            color="inherit"
-            // onMouseOver={handleProfileMenuOpen}
-            // onMouseLeave={handleMenuClose}
-          >
-            <AccountCircle />
-          </IconButton> */}
         </Toolbar>
       </AppBar>
       {renderMenu}

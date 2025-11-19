@@ -30,9 +30,7 @@ interface LColumns {
 const AdvancedFilter = (props: LColumns) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [resetClick, setResetClick] = useState<any>(null);
-  
-  // Local state for filter values (not applied until Apply button is clicked)
-  const [localFilter, setLocalFilter] = useState<any>({});
+    const [localFilter, setLocalFilter] = useState<any>({});
   const [localErrors, setLocalErrors] = useState<{ [key: string]: any }>({});
   
   const open = Boolean(anchorEl);
@@ -40,18 +38,11 @@ const AdvancedFilter = (props: LColumns) => {
   const { updateUsersData } = useUserAuthContext();
   const { updateLabelsData } = useLabelsContext();
   const { filter, setFilter, setPage, setPaginationChange } = useFilterContext();
-
-  // const isDateField = (field?: string) => {
-  //   if (!field) return false;
-  //   return field.toLowerCase().includes("date");
-  // };
 const isDateField = (field?: string) => {
   if (!field) return false;
   const lowerField = field.toLowerCase();
   return lowerField.includes("date") && !lowerField.includes("implementationdate");
 };
-
-  // Local validation function for local filter state
   const validateLocal = () => {
     const newErrors: { [key: string]: string } = {};
 
@@ -91,7 +82,6 @@ const isDateField = (field?: string) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Local change handler that only updates local state
   const handleLocalChange = (key: string, value: any) => {
     setLocalFilter((prev: any) => {
       let updated: any = { ...prev, [key]: value };
@@ -121,7 +111,6 @@ const isDateField = (field?: string) => {
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-    // Initialize local filter with current applied filter when opening
     setLocalFilter({ ...filter });
     setLocalErrors({});
   };
@@ -130,7 +119,6 @@ const isDateField = (field?: string) => {
     setResetClick(false);
     setAnchorEl(null);
     setLocalErrors({});
-    // Reset local filter to current applied filter when closing without applying
     setLocalFilter({ ...filter });
   };
 
@@ -152,12 +140,9 @@ const isDateField = (field?: string) => {
     setPage(0); // Reset to first page
     setPaginationChange(true);
     
-    // Trigger appropriate data refresh based on context
     if (props?.selectedTab !== undefined) {
-      // Labels context
       updateLabelsData(true);
     } else {
-      // Users context
       updateUsersData(true);
     }
     
@@ -187,14 +172,13 @@ const isDateField = (field?: string) => {
         value: localFilter.value
       });
       
-      // Apply the local filter to the actual filter context with proper filterValue
       const appliedFilter = {
         column: localFilter.column,
         operator: localFilter.operator,
         value: localFilter.value,
         startDate: localFilter.startDate,
         endDate: localFilter.endDate,
-        filterValue: filterValue, // This is the key field that was missing
+        filterValue: filterValue, 
       };
       
       setFilter(appliedFilter);
@@ -204,31 +188,19 @@ const isDateField = (field?: string) => {
         filterOperator: localFilter.operator || "",
         filterValue: filterValue,
       };
-      // console.log("Filter payload being sent:", payload);
 
-      // Reset to first page and trigger data refresh
       setPage(0);
       setPaginationChange(true);
       
-      // Trigger appropriate data refresh based on context
       if (props?.selectedTab !== undefined) {
-        // Labels context
         updateLabelsData(true);
       } else {
-        // Users context
         updateUsersData(true);
       }
       
       setAnchorEl(null);
     }
   };
-
-  // console.log("Current filter state:", filter);
-  // console.log("Local filter state:", localFilter);
-  // console.log("Validation errors:", localErrors);
-  // console.log("props?.selectedTab1:", props);
-  // console.log("props?.tabValue:", tabValue);
-
   interface Column {
     Name: string;
     field: string;
@@ -244,8 +216,6 @@ const isDateField = (field?: string) => {
         { Name: "Product Name", field: "ProductName" },
         { Name: "Customer Name", field: "CustomerName" },
         { Name: "Label Type", field: "LabelType" },
-        // { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "NDC Number" },
         { Name: "PM-Code", field: "PmCode" },
         { Name: "NDC Number", field: "Ndcnumber" },
         { Name: "Job Number", field: "JobNumber" },
@@ -257,7 +227,6 @@ const isDateField = (field?: string) => {
         { Name: "Customer Code", field: "CustomerCode" },
         { Name: "Tablet Count", field: "TabletCount" },
         { Name: "Current Version", field: "CurrentVersion" },
-        // { Name: "Previous Version", field: "PreviousVersion" },
       ];
     }
 
@@ -267,19 +236,15 @@ const isDateField = (field?: string) => {
         { Name: "Product Name", field: "ProductName" },
         { Name: "Customer Name", field: "CustomerName" },
         { Name: "Label Type", field: "LabelType" },
-        // { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "NDC Number" },
         { Name: "PM-Code", field: "PMCode" },
         { Name: "NDC Number", field: "NDCNumber" },
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
-        // { Name: "Approved Date", field: "ApprovedDate" },
            { Name: "Create Date", field: "CreatedDate" },
         { Name: "Customer Code", field: "CustomerCode" },
         { Name: "Implementation Date", field: "ImplementationDate" },
         { Name: "color", field: "Color" },
         { Name: "Date Of Absolution", field: "DateOfAbsolution" },
-        // { Name: "ccf", field: "CCF" },
         { Name: "ccf", field: "CCF" },
         { Name: "Tablet Count", field: "TabletCount" },
         { Name: "Current Version", field: "CurrentVersion" },
@@ -292,11 +257,7 @@ const isDateField = (field?: string) => {
         { Name: "Product Name", field: "ProductName" },
         { Name: "Customer Name", field: "CustomerName" },
         { Name: "Label Type", field: "LabelType" },
-        // { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "NDC Number" },
-        // { Name: "PM-Code", field: "PmCode" },
         { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "Ndcnumber" },
         { Name: "NDC Number", field: "NDCNumber" },
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
@@ -305,24 +266,16 @@ const isDateField = (field?: string) => {
         { Name: "Implementation Date", field: "ImplementationDate" },
         { Name: "color", field: "Color" },
         { Name: "Date Of Absolution", field: "DateOfAbsolution" },
-        // { Name: "ccf", field: "CCF" },
         { Name: "ccf", field: "CCF" },
         { Name: "Tablet Count", field: "TabletCount" },
         { Name: "Current Version", field: "CurrentVersion" },
-        // { Name: "Hod Initiated", field: "HodInitiated" },
         { Name: "Hod Initiated Date", field: "HodInitiatedDate" },
-        // { Name: "QA Approved", field: "QAApproved" },
         { Name: "QA Approved Date", field: "QAApprovedDate" },
-        // {
-        //   Name: "Packing Department Approved",
-        //   field: "PackingDepartmentApproved",
-        // },
         {
           Name: "Packing Department Approved Date",
           field: "PackingDepartmentApprovedDate",
         },
         { Name: "Final Hod Approved Date", field: "FinalHodApprovedDate" },
-        // { Name: "Final Hod Approved", field: "FinalHodApproved" },
         { Name: "Hod Approved By", field: "HodApprovedBy" },
         { Name: "QA Approved By", field: "QAApprovedBy" },
         { Name: "PD Approved By", field: "PDApprovedBy" },
@@ -335,8 +288,6 @@ const isDateField = (field?: string) => {
         { Name: "Product Name", field: "ProductName" },
         { Name: "Customer Name", field: "CustomerName" },
         { Name: "Label Type", field: "LabelType" },
-        // { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "NDC Number" },
         { Name: "PM-Code", field: "PMCode" },
         { Name: "NDC Number", field: "NDCNumber" },
         { Name: "Job Number", field: "JobNumber" },
@@ -346,24 +297,16 @@ const isDateField = (field?: string) => {
         { Name: "Implementation Date", field: "ImplementationDate" },
         { Name: "color", field: "Color" },
         { Name: "Date Of Absolution", field: "DateOfAbsolution" },
-        // { Name: "ccf", field: "CCF" },
         { Name: "ccf", field: "ccf" },
         { Name: "Tablet Count", field: "TabletCount" },
         { Name: "Current Version", field: "CurrentVersion" },
-        // { Name: "Hod Initiated", field: "HodInitiated" },
         { Name: "Hod Initiated Date", field: "HodInitiatedDate" },
-        // { Name: "QA Approved", field: "QAApproved" },
         { Name: "QA Approved Date", field: "QAApprovedDate" },
-        // {
-        //   Name: "Packing Department Approved",
-        //   field: "PackingDepartmentApproved",
-        // },
         {
           Name: "Packing Department Approved Date",
           field: "PackingDepartmentApprovedDate",
         },
         { Name: "Final Hod Approved Date", field: "FinalHodApprovedDate" },
-        // { Name: "Final Hod Approved", field: "FinalHodApproved" },
         { Name: "Hod Approved By", field: "HodApprovedBy" },
         { Name: "QA Approved By", field: "QAApprovedBy" },
         { Name: "PD Approved By", field: "PDApprovedBy" },

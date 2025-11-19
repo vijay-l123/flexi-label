@@ -108,28 +108,12 @@ export function LabelsContextProvider({ children }: ILabelsProps): JSX.Element {
     };
     const fetchLookup = async () => {
       try {
-        let response = await Services.Lookup.getversionLookupList();
-        // console.log("response11",response.data.data);
-        
+        let response = await Services.Lookup.getversionLookupList();        
         setLookUp(response.data.data);
       } catch (error) {
         console.log(error);
       }
     };
-
-    // switch (newType) {
-    //   case 1:
-    //     fetchAndaList();
-    //     break;
-    //   // case 5:
-    //   //   fetchAndaList();
-    //   //   fetchProductList();
-    //   //   fetchPmCodes();
-    //   //   fetchLabelTypes();
-    //   //   fetchCustomers();
-    //   //   break;
-    //   case 5:
-    //   case 6:
         fetchAndaList();
         fetchProductList();
         fetchPmCodes();
@@ -140,7 +124,6 @@ export function LabelsContextProvider({ children }: ILabelsProps): JSX.Element {
     //     break;
     // }
 
-    // resetValidationState();
   }, []);
   const memoedValue = React.useMemo(
     () => ({

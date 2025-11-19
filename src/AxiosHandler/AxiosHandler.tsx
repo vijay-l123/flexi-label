@@ -58,8 +58,6 @@ export const AxiosHandlerContextProvider = ({
     });
 
     axios.interceptors.response.use();
-
-    // Create an Axios interceptor for handling errors
     const interceptor = axios.interceptors.response.use(
       (res) => {
         setBackDropOpen(false);
@@ -92,8 +90,6 @@ export const AxiosHandlerContextProvider = ({
         );
       }
     );
-
-    // Clean up the interceptor when the component is unmounted
     return () => {
       axios.interceptors.response.eject(interceptor);
     };
