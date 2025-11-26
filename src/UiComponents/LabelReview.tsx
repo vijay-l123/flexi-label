@@ -132,18 +132,23 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">{row.implementationDate}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="color">
-              <StyledTableCell align="left">Color</StyledTableCell>
-              <StyledTableCell align="left">{row.color}</StyledTableCell>
+              <StyledTableCell align="left">No Of Colors</StyledTableCell>
+              <StyledTableCell align="left">{row.noOfColors}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="approvedDate">
               <StyledTableCell align="left">Approved Date</StyledTableCell>
               <StyledTableCell align="left">{row.approvedDate}</StyledTableCell>
             </StyledTableRow>
-            <StyledTableRow key="currentVersion">
+            <StyledTableRow key="revisionNumber">
+              <StyledTableCell align="left">Revision Number</StyledTableCell>
+              <StyledTableCell align="left">
+                {row.revisionNumber}
+              </StyledTableCell>
+            {/* <StyledTableRow key="currentVersion">
               <StyledTableCell align="left">Current Version</StyledTableCell>
               <StyledTableCell align="left">
                 {row.currentVersion}
-              </StyledTableCell>
+              </StyledTableCell> */}
             </StyledTableRow>
             <StyledTableRow key="currentVersionFile">
               <StyledTableCell align="left">

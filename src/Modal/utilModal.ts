@@ -52,7 +52,7 @@ export function checkAlreadyApproved(params: any) {
   } 
   else if (
     authData.roleId === TRoleType.Initiator &&
-    (rowState.status === TLabelStatus.Draft ||
+    (rowState.status === TLabelStatus.Draft || rowState.status === TLabelStatus.MoveToLive ||
       rowState.status === TLabelStatus.Resend)
   ) {
     return false;

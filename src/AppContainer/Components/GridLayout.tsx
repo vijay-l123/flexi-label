@@ -476,7 +476,7 @@ if (
             selectedTab === 1 && authData.roleId === TRoleType.Initiator
           }
           isApproved={
-            selectedTab === 4 && authData.roleId === TRoleType.FinalHOD
+            selectedTab === 4 && authData.roleId === TRoleType.FinalHOD ||selectedTab === 4 && authData.roleId === TRoleType.Initiator
           }
           isImplementationDateChange={
             (selectedTab === 1 && authData.roleId === TRoleType.Initiator) || (selectedTab === 1 && authData.roleId === TRoleType.FinalHOD)

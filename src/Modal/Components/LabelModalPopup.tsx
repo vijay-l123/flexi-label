@@ -344,17 +344,9 @@ function LabelModalPopup(props: IModalProps) {
     if ("selectedAnda" in fieldValues) {
       temp.selectedAnda = fieldValues.selectedAnda ? false : "Select Anda.";
     }
-    // if ("remarks" in fieldValues) {
-    //   temp.remarks = fieldValues.remarks ? false : "Remarks is required.";
-    // }
     if ("pmCode" in fieldValues) {
       temp.pmCode = fieldValues.pmCode ? false : "PM Code is required.";
     }
-    // if ("description" in fieldValues) {
-    //   temp.description = fieldValues.description
-    //     ? false
-    //     : "Description is required.";
-    // }
     if ("description" in fieldValues) {
       temp.description = fieldValues.description
         ? false
@@ -370,9 +362,6 @@ function LabelModalPopup(props: IModalProps) {
     if ("address" in fieldValues) {
       temp.address = fieldValues.address ? false : "Address is required.";
     }
-    // if ("code" in fieldValues) {
-    //   temp.code = fieldValues.code ? false : "Code is required.";
-    // }
     if ("labelType" in fieldValues) {
       temp.labelType = fieldValues.labelType
         ? false
@@ -435,14 +424,6 @@ function LabelModalPopup(props: IModalProps) {
       temp.color = fieldValues.color ? false : "color is required.";
     }
 
-    // if ("fileData" in fieldValues) {
-    //   console.log("filedata", fieldValues.fileData);
-    //   temp.fileData = fieldValues.fileData?.name
-    //     ? false
-    //     : "File Data is required.";
-    // }
-
-    // ======
     if ("fileName" in fieldValues) {
       temp.fileName = fieldValues.fileName ? false : "File Name is required.";
     }
@@ -450,9 +431,6 @@ function LabelModalPopup(props: IModalProps) {
       ...prevState,
       ...temp,
     }));
-
-    //if (fieldValues == values) return Object.values(temp).every((x) => x == false);
-
     return Object.values(temp).every((x) => x === false);
   };
 
@@ -533,6 +511,7 @@ function LabelModalPopup(props: IModalProps) {
 
     resetValidationState();
   }, [newTypeState]);
+// console.log("rowState",rowState);
 
   React.useMemo(() => {
     if (editState) {
@@ -562,12 +541,14 @@ function LabelModalPopup(props: IModalProps) {
         description: rowState.description,
         printer: rowState.printer,
         ndcNumber: rowState.ndcNumber,
-        color: rowState.color,
+        // color: rowState.color,
+        color: rowState.noOfColors,
         colorcode: rowState.colorCode,
         implementationDate: parsedDate,
         jobNumber: rowState.jobNumber,
         tabletCount: rowState.tabletCount,
-        versionNumber: rowState.currentVersion,
+        // versionNumber: rowState.currentVersion,
+        versionNumber: rowState.revisionNumber,
         foldSize: rowState.foldSize,
         flatSize: rowState.flatSize,
         ccf: rowState.ccf,
@@ -2572,12 +2553,12 @@ function LabelModalPopup(props: IModalProps) {
                       width: "25%",
                     }}
                   >
-                    Color:
+                    No Of Colors:
                   </FormLabel>
                   <Controls.Input
                     disabled={!canEdit || isImplementationDate}
                     name="color"
-                    label="Color"
+                    label="No Of Colors"
                     type="text"
                     id="color"
                     required

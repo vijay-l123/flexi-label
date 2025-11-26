@@ -89,17 +89,6 @@ const StripedDisplayGrid = styled(MuiGrid)(({ theme }) => ({
   },
 }));
 
-// const CustomToolbar = () => {
-//   return (
-//     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
-//       <GridToolbar />
-//       <Box sx={{ ml: 2 }}>
-//         <AdvancedFilter />
-//       </Box>
-//     </Box>
-//   );
-// };
-
 const CustomToolbar = () => {
   return (
     <GridToolbarContainer
@@ -110,7 +99,6 @@ const CustomToolbar = () => {
         p: 1,
       }}
     >
-      {/* Keep only the buttons you want */}
       <Box sx={{ display: "flex", gap: 1 }}>
         <GridToolbarColumnsButton />
         <GridToolbarDensitySelector />
@@ -209,18 +197,6 @@ const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
   }, [pageSize, setPage, setPageSize, setPaginationChange]);
 
   return (
-    // <Box
-    //   sx={{
-    //     width: {
-    //       xs: '45vh',
-    //       sm: '80vh',
-    //       md: '100vh',
-    //       lg: '170vh',
-    //     },
-    //     height: "55vh",
-    //     overflowX: "auto"
-    //   }}
-    // >
     <Box
       sx={{
         width: {
