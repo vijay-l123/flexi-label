@@ -24,6 +24,7 @@
     "date-fns": "^2.29.2",
     "dayjs": "^1.11.18",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "exceljs": "^4.4.0",
     "labelgenerator": "file:",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",

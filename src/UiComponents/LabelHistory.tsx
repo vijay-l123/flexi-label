@@ -280,12 +280,6 @@ function LabelHistory(props: any) {
           params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd"
         }
         disableColumnSelector={true}
-        // components={{
-        //   Toolbar: GridToolbar,
-        // }}
-        // componentsProps={{
-        //   toolbar: { showQuickFilter: true },
-        // }}
         slots={{
           toolbar: GridToolbar,
         }}
@@ -297,18 +291,6 @@ function LabelHistory(props: any) {
         columnVisibilityModel={{
           ...columnVisibilityState,
         }}
-
-        // initialState={{
-        //   columns: {
-        //     columnVisibilityModel: {
-        //       ...colVisibilityState,
-        //     },
-        //     // Hide columns status and traderName, the other columns will remain visible
-        //     // andaId: false,
-        //     // previousVersionFileId: false,
-        //     // currentVersionId: false,
-        //   },
-        // }}
       />
     </React.Fragment>
   );

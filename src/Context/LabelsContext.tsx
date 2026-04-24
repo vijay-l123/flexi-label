@@ -10,6 +10,7 @@ interface ILabelsProps {
 
 interface ILabelsContextProps {
   rowData: any[];
+  columnVisibility:any;
   columnData: any[];
   LabelversionAPiCall: any;
   updateSelectedTab: (val: any) => void;
@@ -27,6 +28,8 @@ interface ILabelsContextProps {
   setProductList: (val: any) => void;
   setAndaList: (val: any) => void;
   setLookUp: (val: any) => void;
+  selectedTabName:any,
+  setSelectedTabName:any
 }
 interface IAndaTypes {
   andaid: number;
@@ -43,20 +46,18 @@ export function LabelsContextProvider({ children }: ILabelsProps): JSX.Element {
   const {
     columnData,
     rowData,
-
+    setSelectedTabName,
+    selectedTabName,
+    columnVisibility,
     updateSelectedTab,
     updateLabelsData,
   } = useLabelsData(LabelversionAPiCall);
-  // console.log("LabelversionAPiCall :LabelsContext",LabelversionAPiCall);
   const [andaList, setAndaList] = React.useState<IAndaTypes[]>([]);
   const [productList, setProductList] = React.useState<any[]>([]);
   const [pmCodes, setPmCodes] = React.useState<any[]>([]);
   const [labelTypes, setLabelTypes] = React.useState<any[]>([]);
   const [customers, setCustomers] = React.useState<any[]>([]);
   const [lookpup, setLookUp] = React.useState<any[]>([]);
-    // console.log('lookpupcontext',lookpup);
-    // console.log('andaList',andaList);
-
     const dispatch = useDispatch()
 
       React.useMemo(() => {
@@ -116,20 +117,6 @@ export function LabelsContextProvider({ children }: ILabelsProps): JSX.Element {
         console.log(error);
       }
     };
-
-    // switch (newType) {
-    //   case 1:
-    //     fetchAndaList();
-    //     break;
-    //   // case 5:
-    //   //   fetchAndaList();
-    //   //   fetchProductList();
-    //   //   fetchPmCodes();
-    //   //   fetchLabelTypes();
-    //   //   fetchCustomers();
-    //   //   break;
-    //   case 5:
-    //   case 6:
         fetchAndaList();
         fetchProductList();
         fetchPmCodes();
@@ -149,7 +136,7 @@ export function LabelsContextProvider({ children }: ILabelsProps): JSX.Element {
       updateSelectedTab,
       updateLabelsData,
       LabelversionAPiCall,setLabelversionAPiCall,
-      customers,labelTypes,pmCodes,productList,andaList,
+      customers,labelTypes,pmCodes,productList,andaList,columnVisibility,selectedTabName,setSelectedTabName,
       setAndaList,setLabelTypes,setCustomers,setPmCodes,setProductList,lookpup,setLookUp
     }),
     [rowData, columnData]

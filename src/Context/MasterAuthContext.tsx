@@ -28,7 +28,6 @@ export function MasterAuthProvider({ children }: IMasterProps): JSX.Element {
   const [lookupvalue, setLookupvalue] = React.useState('1');
   const [addLookupFlag, setAddLookupFlag] = React.useState(false);
   const [editLookupFlag, setEditLookupFlag] = React.useState(false);
-  // console.log("MasterAuthContext : lookupvalue",lookupvalue);
   const {isCreate , isEdit} = useSelector((state: any) => state.lookupDataFlags)
   const {setErrors,setFilter,setPage,setPageSize} = useFilterContext();
     const [columnVisibilityModel, setColumnVisibilityModel] = React.useState({});
@@ -43,10 +42,6 @@ export function MasterAuthProvider({ children }: IMasterProps): JSX.Element {
      setColumnVisibilityModel({});
   };
 
-  // const handleLookupChange = (e:any) : void => {
-  //   console.log("111",e.target.value);
-  //   setLookupvalue(e.target.value);
-  //   }
   const { getLookupList } = Services.Lookup
   useEffect(() => {
     // setLookupvalue('1')

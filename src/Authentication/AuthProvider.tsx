@@ -47,11 +47,7 @@ export function AuthProvider({ children }: IProps): JSX.Element {
 
   React.useEffect(() => {
     if (authData && authData.user) {
-      //  navigate("/dashboard");
-      // const page = window.location.href;
-      // if(page.toLocaleLowerCase().includes('dashboard'))
-      // if(page.toLocaleLowerCase().includes('dashboard'))
-      // if(page.toLocaleLowerCase().includes('dashboard'))
+
     } else {
       navigate("elabel/login");
       removeAuthData();

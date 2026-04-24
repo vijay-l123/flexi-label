@@ -137,7 +137,8 @@ const initialFValues = {
   printer: "",
   ndcNumber: "",
   jobNumber: "",
-  tabletCount: "N/A",
+  count: "N/A",
+  // tabletCount: "N/A",
   proofNumber: "",
   versionNumber: "",
   fileData: "",
@@ -327,7 +328,6 @@ function LabelModalPopup(props: IModalProps) {
   const newType: any = newTypeState;
 
   const handleTypeChange = (event: any) => setNewTypeState(event.target.value);
-
   const validate = (fieldValues = values): any => {
     // debugger
     let temp: any = { ...errors };
@@ -405,11 +405,30 @@ function LabelModalPopup(props: IModalProps) {
         ? false
         : "Revision Number is required.";
     }
+    if ("code" in fieldValues) {
+      temp.code = fieldValues.code
+        ? false
+        : "Customer Code is required.";
+    }
     if ("proofNumber" in fieldValues) {
       temp.proofNumber = fieldValues.proofNumber
         ? false
         : "Proof Number is required.";
     }
+    // debugger
+    if ((lookupvalue === "5" || lookupvalue === "6") && newType === 6 && tabValue === 6) {
+      if ("foldSize" in fieldValues) {
+      temp.foldSize = fieldValues.foldSize
+        ? false
+        : "Fold Size is required.";
+    }
+    if ("flatSize" in fieldValues) {
+      temp.flatSize = fieldValues.flatSize
+        ? false
+        : "Flat Size is required.";
+    }
+    }
+    
     if ("implementationDate" in fieldValues) {
       const rawValue = String(fieldValues.implementationDate || "").trim();
 
@@ -421,7 +440,8 @@ function LabelModalPopup(props: IModalProps) {
     }
 
     if ("color" in fieldValues) {
-      temp.color = fieldValues.color ? false : "color is required.";
+      // debugger
+      temp.color = fieldValues.color ? false : "Colors is required.";
     }
 
     if ("fileName" in fieldValues) {
@@ -447,7 +467,6 @@ function LabelModalPopup(props: IModalProps) {
   const handleClosePdf = () => {
     dispatch(setPdfPopupOpen(false));
   };
-
   React.useMemo(() => {
     const fetchAndaList = async () => {
       try {
@@ -511,16 +530,12 @@ function LabelModalPopup(props: IModalProps) {
 
     resetValidationState();
   }, [newTypeState]);
-// console.log("rowState",rowState);
 
   React.useMemo(() => {
     if (editState) {
       const parsedDate = rowState.implementationDate
         ? rowState.implementationDate
         : "";
-      //   const parsedDate = rowState.implementationDate
-      // ? dayjs(rowState.implementationDate).format("MM-DD-YYYY")
-      // : "";
       setValues((prevState: any) => ({
         ...prevState,
         labelVersionId: +rowState.id, // +rowState.currentVersionId,
@@ -542,11 +557,13 @@ function LabelModalPopup(props: IModalProps) {
         printer: rowState.printer,
         ndcNumber: rowState.ndcNumber,
         // color: rowState.color,
-        color: rowState.noOfColors,
+        color: rowState.colors,
         colorcode: rowState.colorCode,
         implementationDate: parsedDate,
         jobNumber: rowState.jobNumber,
-        tabletCount: rowState.tabletCount,
+        // tabletCount: rowState.tabletCount,
+        count: rowState.count,
+        // tabletCount: rowState.count,
         // versionNumber: rowState.currentVersion,
         versionNumber: rowState.revisionNumber,
         foldSize: rowState.foldSize,
@@ -589,6 +606,7 @@ function LabelModalPopup(props: IModalProps) {
         implementationDate: !editState
           ? values.implementationDate
           : values?.implementationDate,
+        // color: values.colorcode,
         color: values.color,
       });
     }
@@ -1351,9 +1369,9 @@ function LabelModalPopup(props: IModalProps) {
                     options={productList || []}
                     getOptionLabel={(option) => option.productname || ""}
                     value={
-                      productList.find(
+                     productList ? productList?.find(
                         (product) => product.productId == values.selectedProduct
-                      ) || null
+                      ) || null :[]
                     }
                     onChange={(event, newValue) => {
                       // debugger
@@ -1436,9 +1454,9 @@ function LabelModalPopup(props: IModalProps) {
                     options={pmCodes || []}
                     getOptionLabel={(option) => option.pmcode || ""}
                     value={
-                      pmCodes.find(
+                    pmCodes ? pmCodes.find(
                         (code) => code.pmcodeId == values.selectedPmCode
-                      ) || null
+                      ) || null : []
                     }
                     onChange={(event, newValue) => {
                       handleInputChange({
@@ -1519,10 +1537,10 @@ function LabelModalPopup(props: IModalProps) {
                     options={labelTypes || []}
                     getOptionLabel={(option) => option.type || ""}
                     value={
-                      labelTypes.find(
+                     labelTypes ? labelTypes.find(
                         (labelType) =>
                           labelType.typeId == values.selectedLabelType
-                      ) || null
+                      ) || null :[]
                     }
                     onChange={(event, newValue) => {
                       handleInputChange({
@@ -1603,10 +1621,10 @@ function LabelModalPopup(props: IModalProps) {
                     options={customers || []}
                     getOptionLabel={(option) => option.name || ""}
                     value={
-                      customers.find(
+                    customers ? customers.find(
                         (customer) =>
                           customer.customerId == values.selectedCustomer
-                      ) || null
+                      ) || null :[]
                     }
                     onChange={(event, newValue) => {
                       handleInputChange({
@@ -1715,7 +1733,8 @@ function LabelModalPopup(props: IModalProps) {
                     width: "25%",
                   }}
                 >
-                  Tablet Count:
+                  {/* Tablet Count: */}
+                  Count:
                 </FormLabel>
                 <Controls.Input
                   // required
@@ -1726,13 +1745,18 @@ function LabelModalPopup(props: IModalProps) {
                     isCreateNewVersion ||
                     !canEdit
                   }
-                  name="tabletCount"
-                  label="Tablet Count"
+                  // name="tabletCount"
+                  name="count"
+                  label="Count"
+                  // label="Tablet Count"
                   type="text"
-                  id="tabletCount"
+                  id="count"
+                  // id="tabletCount"
                   size={"small"}
-                  value={values.tabletCount}
-                  error={errors?.tabletCount}
+                  value={values.count}
+                  error={errors?.count}
+                  // value={values.tabletCount}
+                  // error={errors?.tabletCount}
                   onChange={handleInputChange}
                   // sx={{ width: "75%" }}
                 ></Controls.Input>
@@ -1968,7 +1992,7 @@ function LabelModalPopup(props: IModalProps) {
                       size="small"
                       error={errors?.proofNumber}
                       helperText={
-                        errors?.proofNumber && "proofNumber is required"
+                        errors?.proofNumber && "proof Number is required"
                       }
                       onChange={handleInputChange}
                     />
@@ -2026,7 +2050,7 @@ function LabelModalPopup(props: IModalProps) {
                         size="small"
                         error={errors?.proofNumber}
                         helperText={
-                          errors?.proofNumber && "proofNumber is required"
+                          errors?.proofNumber && "proof Number is required"
                         }
                         // onChange={handleInputChange}
                       />
@@ -2553,12 +2577,14 @@ function LabelModalPopup(props: IModalProps) {
                       width: "25%",
                     }}
                   >
-                    No Of Colors:
+                    {/* No Of Colors: */}
+                    Colors:
                   </FormLabel>
                   <Controls.Input
                     disabled={!canEdit || isImplementationDate}
                     name="color"
-                    label="No Of Colors"
+                    label="Colors"
+                    // label="No Of Colors"
                     type="text"
                     id="color"
                     required

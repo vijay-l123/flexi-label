@@ -2,17 +2,21 @@ import { camelCase } from "lodash";
 
 import { IMenuNavItems } from "./types";
 
-function isValidEmail(val: string) {
-  // let regEmail =
-  //   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  // if (!regEmail.test(val)) {
-  //   return true;
-  // }
-  // return false;
+// function isValidEmail(val: string) {
+//   // let regEmail =
+//   //   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+//   // if (!regEmail.test(val)) {
+//   //   return true;
+//   // }
+//   // return false;
 
-  return val.length === 0;
-}
-
+//   return val.length === 0;
+// }
+export const isValidEmail = (email: string) => {
+  const regex =
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/;
+  return regex.test(email);
+};
 function isValidPassword(val: string) {
   return val.length === 0;
 }

@@ -41,19 +41,19 @@ const StripedDisplayGrid = styled(MuiGrid)(({ theme }) => ({
     "&.Mui-selected": {
       backgroundColor: alpha(
         theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity
+        ODD_OPACITY + theme.palette.action.selectedOpacity,
       ),
       "&:hover, &.Mui-hovered": {
         backgroundColor: alpha(
           theme.palette.primary.main,
           ODD_OPACITY +
             theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity
+            theme.palette.action.hoverOpacity,
         ),
         "@media (hover: none)": {
           backgroundColor: alpha(
             theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity
+            ODD_OPACITY + theme.palette.action.selectedOpacity,
           ),
         },
       },
@@ -69,19 +69,19 @@ const StripedDisplayGrid = styled(MuiGrid)(({ theme }) => ({
     "&.Mui-selected": {
       backgroundColor: alpha(
         theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity
+        ODD_OPACITY + theme.palette.action.selectedOpacity,
       ),
       "&:hover, &.Mui-hovered": {
         backgroundColor: alpha(
           theme.palette.primary.main,
           ODD_OPACITY +
             theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity
+            theme.palette.action.hoverOpacity,
         ),
         "@media (hover: none)": {
           backgroundColor: alpha(
             theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity
+            ODD_OPACITY + theme.palette.action.selectedOpacity,
           ),
         },
       },
@@ -115,95 +115,83 @@ const CustomToolbar = () => {
 
 function DisplayGrid(props: IDataGridProps) {
   const { colDefs, rowData, columnVisibilityState = {}, pagedInfo } = props;
-  const { setPageSize, setPage, pageSize, setPaginationChange, page } = useFilterContext();
+  const { setPageSize, setPage, pageSize, setPaginationChange, page } =
+    useFilterContext();
   const { tabValue } = useMasterAuthContext();
-//   const [columnVisibilityModel, setColumnVisibilityModel] = React.useState(
-//   columnVisibilityState || {}
-// );
- const masterContext = useMasterAuthContext?.();
+  const masterContext = useMasterAuthContext?.();
   const {
     columnVisibilityModel: contextVisibilityModel,
     setColumnVisibilityModel: contextSetColumnVisibilityModel,
   } = masterContext || {};
 
-  const [localColumnVisibility, setLocalColumnVisibility] = React.useState<GridColumnVisibilityModel>(
-    columnVisibilityState || {}
-  );
+  const [localColumnVisibility, setLocalColumnVisibility] =
+    React.useState<GridColumnVisibilityModel>(columnVisibilityState || {});
 
   const columnVisibilityModel =
-    contextVisibilityModel !== undefined ? contextVisibilityModel : localColumnVisibility;
+    contextVisibilityModel !== undefined
+      ? contextVisibilityModel
+      : localColumnVisibility;
 
   const setColumnVisibilityModel =
     contextSetColumnVisibilityModel !== undefined
       ? contextSetColumnVisibilityModel
       : setLocalColumnVisibility;
-      
-const updatedColDefs = React.useMemo(() => {
-  return colDefs?.map((col: any) => {
-    if (col.field === "isActive") {
-      return {
-        ...col,
-        renderCell: (params: any) => (
-          <span style={{ color: params.value === "True"  ? "green" : "red", fontWeight: 500 }}>
-            {params.value === "True" ? "Active" : "In Active"}
-          </span>
-        ),
-      };
-    }
-    return col;
-  });
-}, [colDefs]);
 
-  // console.log("DisplayGrid - colDefs:", colDefs);
-  // console.log("DisplayGrid - rowData:", rowData);
-  // console.log("DisplayGrid - pagedInfo:", pagedInfo);
-  // console.log("DisplayGrid - pageSize:", pageSize);
-  // console.log("DisplayGrid - page:", page);
-  // console.log("columnVisibilityModel - DisplayGrid:", columnVisibilityModel);
-const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
-  // Reset row selection when tab changes
+  const updatedColDefs = React.useMemo(() => {
+    return colDefs?.map((col: any) => {
+      if (col.field === "isActive") {
+        return {
+          ...col,
+          renderCell: (params: any) => (
+            <span
+              style={{
+                color: params.value === "True" ? "green" : "red",
+                fontWeight: 500,
+              }}
+            >
+              {params.value === "True" ? "Active" : "In Active"}
+            </span>
+          ),
+        };
+      }
+      return col;
+    });
+  }, [colDefs]);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
 
   React.useEffect(() => {
-    // console.log("Tab changed to:", tabValue, "- Clearing row selection");
     setRowSelectionModel({});
   }, [tabValue]);
-  // Calculate total row count from pagedInfo - this is the TOTAL records across all pages
-  
   const rowCount = React.useMemo(() => {
-    if (pagedInfo && typeof pagedInfo.totalRecords === 'number') {
-      // console.log("Using pagedInfo.totalRecords:", pagedInfo.totalRecords);
+    if (pagedInfo && typeof pagedInfo.totalRecords === "number") {
       return pagedInfo.totalRecords;
     }
-    // Fallback to current page data length
     const fallback = rowData?.length || 0;
-    // console.log("Using fallback rowCount:", fallback);
     return fallback;
   }, [pagedInfo, rowData]);
 
-  // Handle pagination changes
-  const handlePaginationChange = React.useCallback((model: any) => {
-    // console.log("Pagination change:", model);
-    setPaginationChange(true);
-    
-    // If page size changed, reset to first page
-    if (model.pageSize !== pageSize) {
-      // console.log("Page size changed from", pageSize, "to", model.pageSize);
-      setPage(0); 
-    } else {
-      // console.log("Page changed to:", model.page);
-      setPage(model.page);
-    }
-    setPageSize(model.pageSize);
-  }, [pageSize, setPage, setPageSize, setPaginationChange]);
+  const handlePaginationChange = React.useCallback(
+    (model: any) => {
+      setPaginationChange(true);
+
+      if (model.pageSize !== pageSize) {
+        setPage(0);
+      } else {
+        setPage(model.page);
+      }
+      setPageSize(model.pageSize);
+    },
+    [pageSize, setPage, setPageSize, setPaginationChange],
+  );
 
   return (
     <Box
       sx={{
         width: {
-        xs: 'calc(100vw - 320px)', 
-        sm: 'calc(100vw - 320px)',
-        md: 'calc(100vw - 320px)',
-        lg: 'calc(100vw - 320px)',
+          xs: "calc(100vw - 320px)",
+          sm: "calc(100vw - 320px)",
+          md: "calc(100vw - 320px)",
+          lg: "calc(100vw - 320px)",
         },
         height: "50vh",
         overflowX: "auto",
@@ -216,7 +204,7 @@ const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
           borderColor: CustomTheme.CustomColor.Primary.light,
           "& .MuiDataGrid-columnSeparator": {
             color: CustomTheme.CustomColor.Common.white,
-            visibility: "visible"
+            visibility: "visible",
           },
           "& .MuiDataGrid-cell:hover": {
             color: CustomTheme.CustomColor.Primary.light,
@@ -247,26 +235,19 @@ const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
           toolbar: CustomToolbar,
         }}
         slotProps={{
-    columnsPanel: {
-      sx: {
-        maxHeight: 200,
-        overflowY: "auto",
-      },
-    },
-  }}
-        // slotProps={{
-        //   toolbar: {
-        //     showQuickFilter: true,
-        //   }
-        // }}
-        // columnVisibilityModel={{
-        //   ...columnVisibilityState,
-        // }}
+          columnsPanel: {
+            sx: {
+              maxHeight: 200,
+              overflowY: "auto",
+            },
+          },
+        }}
         columnVisibilityModel={columnVisibilityModel}
-        onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
+        onColumnVisibilityModelChange={(newModel) =>
+          setColumnVisibilityModel(newModel)
+        }
         rowSelectionModel={rowSelectionModel}
         onRowSelectionModelChange={(newSelection) => {
-          // console.log("Row selection changed:", newSelection, "for tab:", tabValue);
           setRowSelectionModel(newSelection);
         }}
         checkboxSelection={false}

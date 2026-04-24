@@ -22,48 +22,11 @@ export interface ICreateLabelParams {
   isImplementationDate:any;
   
 }
-// const formatToISOString = (dateStr: string) => {
-//   if (!dateStr) return null;
-//   try {
-//     // Expect input in MM-DD-YYYY
-//     const [month, day, year] = dateStr.split("-");
-//     const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
-//     return date.toISOString(); // Always in UTC
-//   } catch (error) {
-//     console.error("Invalid date format:", dateStr);
-//     return null;
-//   }
-// };
-
-// const formatToISOString = (dateStr: string) => {
-//   if (!dateStr) return null;
-
-//   try {
-//     // Expected format: "MM/DD/YYYY hh:mm:ss A"
-//     // Example: "10/22/2025 6:30:00 PM"
-
-//     const [datePart, timePart, meridian] = dateStr.split(" "); // ["10/22/2025", "6:30:00", "PM"]
-//     const [month, day, year] = datePart.split("/").map(Number);
-//     let [hour, minute, second] = timePart.split(":").map(Number);
-
-//     // Convert 12-hour to 24-hour format
-//     if (meridian === "PM" && hour < 12) hour += 12;
-//     if (meridian === "AM" && hour === 12) hour = 0;
-
-//     // Construct UTC date
-//     const date = new Date(Date.UTC(year, month - 1, day, hour, minute, second || 0));
-//     return date.toISOString(); // "2025-10-22T18:30:00.000Z"
-//   } catch (error) {
-//     console.error("Invalid date format:", dateStr, error);
-//     return null;
-//   }
-// };
 const formatToISOString = (dateStr: string) => {
   if (!dateStr) return null;
 
   try {
-    // Handle multiple formats gracefully
-    // Examples: "10/22/2025", "10/22/2025 6:30:00 PM", "2025-10-22"
+
     const datePart = dateStr.split(" ")[0]; // take only date part
     const parts = datePart.includes("/") ? datePart.split("/") : datePart.split("-");
 
@@ -107,8 +70,6 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
     isImplementationDate
   } = labelParams;
   let apiParams: any;
-  // console.log("newType", newType);
-  // console.log("rowState", rowState.color);
   const {getAndaListEx} =Services.Anda
   //ANDA
   if (newType === 0) {
@@ -291,31 +252,20 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
   if (newType === 5 && !isCreateNewVersion && selectedTab != 2) {
     apiParams = {
       andaId: values.selectedAnda,
-      // andaId: data.get("selectedAnda") ?? values.selectedAnda,
       andaNumber:  "",
-      // andaNumber: values.andaNumber ?? "",
       productId:  values.selectedProduct,
-      // productId: data.get("selectedProduct") ?? values.selectedProduct,
       productName: "",
-      // productName: values?.productName ?? "",
       pmCodeId: values.selectedPmCode,
-      // pmCodeId: data.get("selectedPmCode") ?? values.selectedPmCode,
       pmCode: "",
-      // pmCode: values?.pmCode ?? "",
       labelTypeId:  values.selectedLabelType,
-      // labelTypeId: data.get("selectedLabelType") ?? values.selectedLabelType,
       printer:data.get("printer") ?? values.printer,
       labelType:  "",
-      // labelType: values?.labelType ?? "",
       customerId: values.selectedCustomer,
-      // customerId: data.get("selectedCustomer") ?? values.selectedCustomer,
       colorcode: values.colorcode,
-      // implementationDate: formatToISOString(values.implementationDate),
       implementationDate: values.implementationDate,
       customerName: "",
-      // customerName: values?.customerName ?? "",
       ndcNumber: data.get("ndcNumber") ?? values.ndcNumber,
-      tabletCount: data.get("tabletCount") ?? values.tabletCount,
+      tabletCount: data.get("tabletCount") ?? values.count,
       labelDescription: data.get("labelDescription") ?? values.labelDescription,
       remarks: data.get("remarks") ?? values.remarks,
     };
@@ -330,23 +280,6 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         console.log(error);
       }
     };
-    // const updateLabelColor = async () => {
-    //   // debugger
-    //   try {
-    //     const updatedParams = {
-    //       ...apiParams,
-    //       id: rowState.id,
-    //       colorCode: rowState?.colorCode
-    //     };
-    //     let response = await Services.Label.updateLabelColor(updatedParams).then((success) => {
-    //       // updateMasterData(true);
-    //       triggerUpdateMasterData()
-    //     });
-    //     console.log(response);
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
     const updateLabel = async () => {
       // debugger
       try {
@@ -383,22 +316,13 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
         console.log(error);
       }
     };
-    // if (editState && !isChangeColor) updateLabel();
-    // if (!editState && !isChangeColor) {
-    //   addLabel();
-    // } 
     if (editState && !isChangeColor && !isImplementationDate) {updateLabel();}
     if (!editState && !isChangeColor && !isImplementationDate) {
       addLabel();
     } 
     if (editState && !isChangeColor && isImplementationDate) {
       updateImplementaionDate();
-    } 
-    // if (editState) updateLabel();
-    // else addLabel();
-    // if(isChangeColor) updateLabelColor();
-    // else if (editState) updateLabel();
-    
+    }     
   }
 
   if (newType === 5 && isCreateNewVersion) {
@@ -415,15 +339,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
       jobNumber: data.get("jobNumber"),
       tabletCount: data.get("tabletCount"),
       proofNum: data.get("proofNum") || data.get("proofNumber") || "",
-    //   implementationDate: values.implementationDate
-    // ? formatToISOString(values.implementationDate)
-    // : null,
       implementationDate: values.implementationDate
     ? values.implementationDate
     : null,
       color: values.color,
-      // colorcode: values.colorcode,
-      /////////
       versionNo: data.get("versionNumber")||"",
       foldSize: data.get("foldSize"),
       flatSize: data.get("flatSize"),
@@ -435,49 +354,10 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
       fileId: data.get("fileId") || "-1",
       remarks: data.get("remarks"),
     };
-// console.log("23232",apiParams);
-
-    // const addLabelVersion = async () => {
-    //   try {
-    //     if (apiParams.fileName === "") {
-    //       let version = await Services.LabelVersion.addLabelVersion(
-    //         apiParams
-    //       ).then((success) => {
-    //         updateLabelsData(true);
-    //       });
-    //       console.log("labelinformation", version);
-    //     } else {
-    //       let upload: any = await Services.Document.uploadDocument(
-    //         apiParams
-    //       ).then((uploadResponse) => {
-    //         async function labelVersionAddition() {
-    //           const updatedParams = {
-    //             ...apiParams,
-    //             fileId: uploadResponse.data,
-    //             fileData: null,
-    //           };
-    //           let version = await Services.LabelVersion.addLabelVersion(
-    //             updatedParams
-    //           ).then((success) => {
-    //             updateLabelsData(true);
-    //           });
-    //           console.log("labelinformation", version);
-    //         }
-    //         labelVersionAddition();
-    //       });
-    //       console.log("labelinformation", upload);
-    //     }
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
      const addLabelVersion = async () => {
-    try {
-      // if file present  upload
-      
+    try {      
       if (hasFile[0]) {
          const uploadResponse = await Services.Document.uploadDocument(apiParams);
-        //  debugger
       const updatedParams = {
         ...apiParams,
         fileId: uploadResponse.data,
@@ -486,12 +366,9 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
 
       const version = await Services.LabelVersion.addLabelVersion(updatedParams);
       updateLabelsData(true);
-      // console.log("Label version created (with file)", version);
       }else{
-         // no file upload
         const version = await Services.LabelVersion.addLabelVersion(apiParams);
         updateLabelsData(true);
-        // console.log("Label version created (no file)", version);
         return;
       }
     } catch (error) {
@@ -520,16 +397,13 @@ export function createLabelData(labelParams: ICreateLabelParams, dispatch: any) 
                   ).then((success) => {
                     updateLabelsData(true);
                   });
-                  // console.log("labelinformation", version);
                 }
                 labelVersionAddition();
               });
-              // console.log("labelinformation", upload);
             }
             uploadDocument();
           }
         );
-        // console.log("labelinformation", label);
       } catch (error) {
         console.log(error);
       }
@@ -539,11 +413,6 @@ if (selectedTab == 2) {
 }else{
    addLabelVersion();
 }
-   
-
-    
-    // if (editState) updateLabelVersion();
-    // else addLabelVersion();
   }
   if (newType === 5 && !isCreateNewVersion && selectedTab == 2) {
     // debugger
@@ -559,17 +428,13 @@ if (selectedTab == 2) {
       printer: values.printer,
       ndcNumber: data.get("ndcNumber"),
       jobNumber: data.get("jobNumber"),
+      // tabletCount: data.get("tabletCount"),
       tabletCount: data.get("tabletCount"),
       proofNum: data.get("proofNum") || data.get("proofNumber") || "",
-    //   implementationDate: values.implementationDate
-    // ? formatToISOString(values.implementationDate)
-    // : rowState?.implementationDate ? formatToISOString(rowState?.implementationDate) :null,
       implementationDate: values.implementationDate
     ? values.implementationDate
     : rowState?.implementationDate ? rowState?.implementationDate :null,
       color: values.color,
-      // colorcode: values.colorcode,
-      /////////
       versionNo: data.get("versionNumber")||"",
       foldSize: data.get("foldSize"),
       flatSize: data.get("flatSize"),
@@ -581,84 +446,10 @@ if (selectedTab == 2) {
       fileId: data.get("fileId") || values?.fileId  ? values?.fileId  :"-1",
       remarks: data.get("remarks"),
     };
-// console.log("23232",apiParams);
-
-    // const addLabelVersion = async () => {
-    //   try {
-    //     if (apiParams.fileName === "") {
-    //       let version = await Services.LabelVersion.addLabelVersion(
-    //         apiParams
-    //       ).then((success) => {
-    //         updateLabelsData(true);
-    //       });
-    //       console.log("labelinformation", version);
-    //     } else {
-    //       let upload: any = await Services.Document.uploadDocument(
-    //         apiParams
-    //       ).then((uploadResponse) => {
-    //         async function labelVersionAddition() {
-    //           const updatedParams = {
-    //             ...apiParams,
-    //             fileId: uploadResponse.data,
-    //             fileData: null,
-    //           };
-    //           let version = await Services.LabelVersion.addLabelVersion(
-    //             updatedParams
-    //           ).then((success) => {
-    //             updateLabelsData(true);
-    //           });
-    //           console.log("labelinformation", version);
-    //         }
-    //         labelVersionAddition();
-    //       });
-    //       console.log("labelinformation", upload);
-    //     }
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // };
- 
     const updateLabelVersion = async () => {
-      // try {
-      //   let label = await Services.Label.updateLabel(apiParams).then(
-      //     (labelResponse) => {
-      //       async function uploadDocument() {
-      //         let upload: any = await Services.Document.updateDocument(
-      //           apiParams
-      //         ).then((uploadResponse) => {
-      //           async function labelVersionAddition() {
-      //             const updatedParams = {
-      //               ...apiParams,
-      //               id: rowState.id,
-      //               labelInfoId: rowState.lableInfoId,
-      //               fileId: values.fileId,
-      //               fileData: null,
-      //             };
-      //             let version = await Services.LabelVersion.updateLabelVersion(
-      //               updatedParams
-      //             ).then((success) => {
-      //               updateLabelsData(true);
-      //             });
-      //             console.log("labelinformation", version);
-      //           }
-      //           labelVersionAddition();
-      //         });
-      //         console.log("labelinformation", upload);
-      //       }
-      //       uploadDocument();
-      //     }
-      //   );
-      //   console.log("labelinformation", label);
-      // } catch (error) {
-      //   console.log(error);
-      // }
           try {
-      // if file present  upload
-      
       if (hasFile[0]) {
          const uploadResponse = await Services.Document.uploadDocument(apiParams);
-        //  console.log("uploadResponse",uploadResponse);
-        //  debugger
       const updatedParams = {
         ...apiParams,
         fileId: uploadResponse.data[0],
@@ -667,12 +458,9 @@ if (selectedTab == 2) {
 
       const version = await Services.LabelVersion.updateLabelVersion(updatedParams);
       updateLabelsData(true);
-      // console.log("Label version created (with file)", version);
       }else{
-         // no file upload
         const version = await Services.LabelVersion.updateLabelVersion(apiParams);
         updateLabelsData(true);
-        // console.log("Label version created (no file)", version);
         return;
       }
     } catch (error) {
@@ -694,11 +482,9 @@ if (selectedTab == 2) {
       printer: data.get("printer"),
       ndcNumber: data.get("ndcNumber"),
       jobNumber: data.get("jobNumber"),
+      // count: data.get("count"),
       tabletCount: data.get("tabletCount"),
       proofNum: data.get("proofNum") || data.get("proofNumber") || "",
-    //   implementationDate: values.implementationDate
-    // ? new Date(values.implementationDate).toISOString()
-    // : null,
       implementationDate: values.implementationDate
     ? values.implementationDate
     : null,
@@ -722,28 +508,21 @@ if (selectedTab == 2) {
       try {
         const updatedParams = {
           ...apiParams,
-          // id: rowState.id,
           id: rowState.currentVersionId,
           colorCode: rowState?.colorCode
         };
         let response = await Services.LabelVersion.updateLabelVersionColorCode(updatedParams).then((success) => {
-          // updateMasterData(true);
           triggerUpdateMasterData()
           setLabelversionAPiCall(true);
         });
-        // console.log(response);
       } catch (error) {
         console.log(error);
       }
     };
 
     updateLabelVersionColorCode();
-    
-    // if (editState) updateLabelVersion();
-    // else addLabelVersion();
   }
 
-  //label version
   if (newType === 6 && isCreateNewVersion) {
     apiParams = {
       versionNo: data.get("versionNumber") || "",
@@ -767,11 +546,9 @@ if (selectedTab == 2) {
               fileData: null,
             };
             let response1 = await Services.LabelVersion.addLabelVersion(updatedParams);
-            // console.log(response1);
           }
           labelVersionAddition();
         });
-        // console.log(response);
       } catch (error) {
         console.log(error);
       }
@@ -783,8 +560,6 @@ if (selectedTab == 2) {
 
   if (newType === 6) {
     apiParams = {
-      // type: data.get("lookupType"),
-      // description: data.get("description"),
       type: (values.code && '1') || (values.versionNumber && '2') || (values.printer && '3') || (values.proofNumber && '4') || (values.flatSize && '5') || (values.foldSize && '6') || (values.remarks && '7'),
       description: values.code || values.printer || values.versionNumber || values.proofNumber || values.flatSize || values.foldSize || values.remarks,
     };

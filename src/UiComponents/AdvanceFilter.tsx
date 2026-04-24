@@ -22,7 +22,8 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 interface LColumns {
   selectedTab?: any;
 }
@@ -80,9 +81,16 @@ const isDateField = (field?: string) => {
           newErrors.startDate = "Start date cannot be after end date";
           newErrors.endDate = "End date cannot be before start date";
         }
-      } else if (localFilter?.operator === "equals") {
-        if (!localFilter.value) newErrors.value = "Value is required";
-      }
+      } 
+      else if (localFilter?.operator === "equals") {
+  if (!localFilter.value) {
+    newErrors.value = "Date is required";
+  } else if (
+    !dayjs(localFilter.value, "MM-DD-YYYY", true).isValid()
+  ) {
+    newErrors.value = "Invalid date format";
+  }
+}
     } else {
       if (!localFilter.value) newErrors.value = "Value is required";
     }
@@ -180,14 +188,6 @@ const isDateField = (field?: string) => {
         filterValue = localFilter.value?.trim() || "";
       }
       
-      console.log("Applying filter with values:", {
-        column: localFilter.column,
-        operator: localFilter.operator,
-        filterValue: filterValue,
-        value: localFilter.value
-      });
-      
-      // Apply the local filter to the actual filter context with proper filterValue
       const appliedFilter = {
         column: localFilter.column,
         operator: localFilter.operator,
@@ -222,13 +222,19 @@ const isDateField = (field?: string) => {
       setAnchorEl(null);
     }
   };
+const handleKeyDown = (e:any) => {
+  if (e.key !== "Enter") return;
 
-  // console.log("Current filter state:", filter);
-  // console.log("Local filter state:", localFilter);
-  // console.log("Validation errors:", localErrors);
-  // console.log("props?.selectedTab1:", props);
-  // console.log("props?.tabValue:", tabValue);
+  const tag = e.target.tagName.toLowerCase();
 
+  // allow Enter inside dropdown list selection
+  if (tag === "li") return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  handleApply();
+};
   interface Column {
     Name: string;
     field: string;
@@ -244,22 +250,19 @@ const isDateField = (field?: string) => {
         { Name: "Product Name", field: "ProductName" },
         { Name: "Customer Name", field: "CustomerName" },
         { Name: "Label Type", field: "LabelType" },
-        // { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "NDC Number" },
         { Name: "PM Code", field: "PmCode" },
+        { Name: "Printer", field: "Printer" },
         { Name: "NDC Number", field: "Ndcnumber" },
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
+        { Name: "Flat Size", field: "flatSize" },
+        { Name: "Fold Size", field: "foldSize" },
         { Name: "Approved Date", field: "ApprovedDate" },
         { Name: "Implementation Date", field: "ImplementationDate" },
-        // { Name: "color", field: "Color" },
-        { Name: "No Of Colors", field: "Color" },
-        // { Name: "Date Of Absolution", field: "DateOfAbsolution" },
+        { Name: "Colors", field: "Color" },
         { Name: "Customer Code", field: "CustomerCode" },
-        { Name: "Tablet Count", field: "TabletCount" },
-        // { Name: "Current Version", field: "CurrentVersion" },
+        { Name: "Count", field: "TabletCount" },
         { Name: "Revision Number", field: "CurrentVersion" },
-        // { Name: "Previous Version", field: "PreviousVersion" },
       ];
     }
 
@@ -269,23 +272,19 @@ const isDateField = (field?: string) => {
         { Name: "Product Name", field: "ProductName" },
         { Name: "Customer Name", field: "CustomerName" },
         { Name: "Label Type", field: "LabelType" },
-        // { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "NDC Number" },
-        { Name: "PM Code", field: "PMCode" },
-        { Name: "NDC Number", field: "NDCNumber" },
+        { Name: "PM Code", field: "PmCode" },
+        { Name: "Printer", field: "Printer" },
+        { Name: "NDC Number", field: "Ndcnumber" },
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
-        // { Name: "Approved Date", field: "ApprovedDate" },
+          { Name: "Flat Size", field: "flatSize" },
+        { Name: "Fold Size", field: "foldSize" },
            { Name: "Create Date", field: "CreatedDate" },
         { Name: "Customer Code", field: "CustomerCode" },
         { Name: "Implementation Date", field: "ImplementationDate" },
-        // { Name: "color", field: "Color" },
-        { Name: "No Of Colors", field: "Color" },
-        // { Name: "Date Of Absolution", field: "DateOfAbsolution" },
-        // { Name: "ccf", field: "CCF" },
+        { Name: "Colors", field: "Color" },
         { Name: "ccf", field: "CCF" },
-        { Name: "Tablet Count", field: "TabletCount" },
-        // { Name: "Current Version", field: "CurrentVersion" },
+        { Name: "Count", field: "TabletCount" },
         { Name: "Revision Number", field: "CurrentVersion" },
       ];
     }
@@ -296,28 +295,21 @@ const isDateField = (field?: string) => {
         { Name: "Product Name", field: "ProductName" },
         { Name: "Customer Name", field: "CustomerName" },
         { Name: "Label Type", field: "LabelType" },
-        // { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "NDC Number" },
-        // { Name: "PM-Code", field: "PmCode" },
-        { Name: "PM Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "Ndcnumber" },
-        { Name: "NDC Number", field: "NDCNumber" },
+        { Name: "PM Code", field: "PmCode" },
+        { Name: "Printer", field: "Printer" },
+        { Name: "NDC Number", field: "Ndcnumber" },
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
+          { Name: "Flat Size", field: "flatSize" },
+        { Name: "Fold Size", field: "foldSize" },
         { Name: "Create Date", field: "CreatedDate" },
         { Name: "Customer Code", field: "CustomerCode" },
         { Name: "Implementation Date", field: "ImplementationDate" },
-        // { Name: "color", field: "Color" },
-        { Name: "No Of Colors", field: "Color" },
-        // { Name: "Date Of Absolution", field: "DateOfAbsolution" },
-        // { Name: "ccf", field: "CCF" },
+        { Name: "Colors", field: "Color" },
         { Name: "ccf", field: "CCF" },
-        { Name: "Tablet Count", field: "TabletCount" },
-        // { Name: "Current Version", field: "CurrentVersion" },
+        { Name: "Count", field: "TabletCount" },
         { Name: "Revision Number", field: "CurrentVersion" },
-        // { Name: "Hod Initiated", field: "HodInitiated" },
         { Name: "Hod Initiated Date", field: "HodInitiatedDate" },
-        // { Name: "QA Approved", field: "QAApproved" },
         { Name: "QA Approved Date", field: "QAApprovedDate" },
         // {
         //   Name: "Packing Department Approved",
@@ -328,7 +320,6 @@ const isDateField = (field?: string) => {
           field: "PackingDepartmentApprovedDate",
         },
         { Name: "Final Hod Approved Date", field: "FinalHodApprovedDate" },
-        // { Name: "Final Hod Approved", field: "FinalHodApproved" },
         { Name: "Hod Approved By", field: "HodApprovedBy" },
         { Name: "QA Approved By", field: "QAApprovedBy" },
         { Name: "PD Approved By", field: "PDApprovedBy" },
@@ -341,25 +332,21 @@ const isDateField = (field?: string) => {
         { Name: "Product Name", field: "ProductName" },
         { Name: "Customer Name", field: "CustomerName" },
         { Name: "Label Type", field: "LabelType" },
-        // { Name: "PM-Code", field: "PMCode" },
-        // { Name: "NDC Number", field: "NDC Number" },
-        { Name: "PM Code", field: "PMCode" },
-        { Name: "NDC Number", field: "NDCNumber" },
+        { Name: "PM Code", field: "PmCode" },
+        { Name: "Printer", field: "Printer" },
+        { Name: "NDC Number", field: "Ndcnumber" },
         { Name: "Job Number", field: "JobNumber" },
         { Name: "Proof Number", field: "ProofNumber" },
+          { Name: "Flat Size", field: "flatSize" },
+        { Name: "Fold Size", field: "foldSize" },
         { Name: "Create Date", field: "CreatedDate" },
         { Name: "Customer Code", field: "CustomerCode" },
         { Name: "Implementation Date", field: "ImplementationDate" },
-        { Name: "No Of Colors", field: "Color" },
-        // { Name: "Date Of Absolution", field: "DateOfAbsolution" },
-        // { Name: "ccf", field: "CCF" },
+        { Name: "Colors", field: "Color" },
         { Name: "ccf", field: "ccf" },
-        { Name: "Tablet Count", field: "TabletCount" },
-        // { Name: "Current Version", field: "CurrentVersion" },
+        { Name: "Count", field: "TabletCount" },
         { Name: "Revision Number", field: "CurrentVersion" },
-        // { Name: "Hod Initiated", field: "HodInitiated" },
         { Name: "Hod Initiated Date", field: "HodInitiatedDate" },
-        // { Name: "QA Approved", field: "QAApproved" },
         { Name: "QA Approved Date", field: "QAApprovedDate" },
         // {
         //   Name: "Packing Department Approved",
@@ -408,6 +395,7 @@ const isDateField = (field?: string) => {
         return [
           { Name: "Type", field: "Type" },
           { Name: "Create Date", field: "CreatedDate" },
+          { Name: "Modified Date", field: "ModifiedDate" },
           { Name: "Description", field: "Description" },
         ];
       case 5:
@@ -416,17 +404,13 @@ const isDateField = (field?: string) => {
           { Name: "Product Name", field: "ProductName" },
           { Name: "Customer", field: "Customer" },
           { Name: "Label Type", field: "LabelType" },
-          // { Name: "PM-Code", field: "PMCode" },
-          // { Name: "NDC Number", field: "NDC Number" },
-          // { Name: "PM-Code", field: "PmCode" },
           { Name: "PM Code", field: "PM-Code" },
         { Name: "NDC Number", field: "NDCNumber" },
-          { Name: "TabletCount", field: "TabletCount" },
+          { Name: "Count", field: "TabletCount" },
           { Name: "Create By", field: "CreateBy" },
           { Name: "Create Date", field: "CreateDate" },
           { Name: "Modified By", field: "ModifiedBy" },
           { Name: "Modified Date", field: "ModifiedDate" },
-          // { Name: "MasterCopyApprovedDate", field: "masterCopyApprovedDate" },
         ];
       case 6:
         return [
@@ -465,7 +449,7 @@ const isDateField = (field?: string) => {
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Box sx={{ p: 2, width: 250 }}>
+        <Box sx={{ p: 2, width: 250 }} onKeyDown={handleKeyDown}>
           <Typography variant="subtitle1" gutterBottom>
             Filter
           </Typography>
@@ -621,7 +605,44 @@ const isDateField = (field?: string) => {
                   />
                 </Box>
               </LocalizationProvider>
-            ) : (
+            ) :
+            (isDateField(localFilter.column?.field) && localFilter?.operator === "equals") ?
+            (
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+        label="Select Date"
+        inputFormat="MM-DD-YYYY"
+        value={
+          localFilter.value
+            ? dayjs(localFilter.value, "MM-DD-YYYY")
+            : null
+        }
+        onChange={(newValue: Dayjs | null) =>
+          handleLocalChange(
+            "value",
+            newValue ? newValue.format("MM-DD-YYYY") : ""
+          )
+        }
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            fullWidth
+            required
+            error={!!localErrors.value}
+            helperText={localErrors.value}
+            placeholder="MM-DD-YYYY"
+            sx={{
+              "& .MuiInputBase-root": { height: 40 },
+              "& .MuiInputLabel-root": { top: -4, fontSize: 14 },
+              "& .MuiInputLabel-shrink": { top: 1 },
+              mt: 2,
+            }}
+          />
+        )}
+      />
+      </LocalizationProvider>
+            ) :
+            (
               <Box sx={{ marginTop: "15px" }}>
                 <TextField
                   label="Value *"

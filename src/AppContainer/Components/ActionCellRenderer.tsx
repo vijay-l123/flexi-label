@@ -52,9 +52,6 @@ export default function ActionCellRenderer(inputParams: params) {
   };
 
   const { authData } = useAuthContext();
-  // debugger
-  // console.log("TRoleType", authData.roleId,TRoleType.Initiator,inputParams.rowParams.row.status);
-  // console.log("Cndition", authData.roleId != 1 && TRoleType.Initiator != '1' && inputParams.rowParams.row.status === "Draft");
 const shouldHideActionButton =authData.roleId != 1 && inputParams.rowParams.row.status === "Draft";
 
   return (

@@ -111,12 +111,6 @@ function SignInSide() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
 
-    // console.log({
-    //   email: data.get("email"),
-    //   password: data.get("password"),
-    //   roles: data.get("roles"),
-    // });
-
     const formData = [
       {
         target: {
@@ -130,12 +124,6 @@ function SignInSide() {
           value: data.get("password") as string,
         },
       },
-      // {
-      //   target: {
-      //     name: "roles",
-      //     value: data.get("roles") as string,
-      //   },
-      // },
     ];
 
     let temp = JSON.parse(JSON.stringify(formValues));
@@ -170,20 +158,6 @@ function SignInSide() {
       };
 
       login(inputParams);
-
-      // const response = await AuthService.authenticate(inputParams);
-      // console.log(response);
-      // const {
-      //   authToken: token,
-      //   logIn: user,
-      //   name: userName,
-      //   token_ID: tokenId,
-      //   user_Id: userId,
-      //   validTo,
-      // } = response.data;
-      // setAuth({ token, user, userName, tokenId, userId, validTo });
-      // props.setNav(true);
-      // navigate("/dashboard");
     }
   };
 
@@ -213,20 +187,6 @@ function SignInSide() {
     event.preventDefault();
   };
   return (
-    // <Grid
-    //   container
-    //   component="main"
-    //   sx={{
-    //     height: "100vh",
-    //   }}
-    // >
-    //   <CssBaseline />
-    //   <Grid item xs={6}>
-    //     <div className="loginImg">
-    //       <LoginSvg />
-    //     </div>
-    //   </Grid>
-    //   <Grid item xs={6}>
     <Grid
       container
       component="main"
@@ -284,19 +244,6 @@ function SignInSide() {
                 onChange={handleTextChange}
                 error={formValues.email.error}
               ></Controls.Input>
-              {/* <Controls.Input
-                required
-                fullWidth
-                margin="normal"
-                name="password"
-                label="Enter Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={formValues.password.value}
-                onChange={handleTextChange}
-                error={formValues.password.error}
-              /> */}
                     <FormControl variant="outlined" fullWidth required  error={!!formValues.password.error} >
   {/* <Grid container >
     <Grid item xs={12}> */}
@@ -334,50 +281,6 @@ function SignInSide() {
     {/* </Grid>
   </Grid> */}
 </FormControl>
-              {/* <Box>
-              <FormControl
-                required
-                fullWidth
-                variant="filled"
-                sx={{
-                  mt: 1,
-                  mb: 1,
-                }}
-              >
-                <InputLabel id="select-roles-input">Roles</InputLabel>
-                <Select
-                  required
-                  fullWidth
-                  labelId="select-roles-label"
-                  id="select-roles"
-                  value={formValues.roles.value}
-                  label="Roles"
-                  name="roles"
-                  onChange={handleTextChange}
-                  error={
-                    formValues.roles.error && formValues.roles.error.length > 0
-                      ? true
-                      : false
-                  }
-                >
-                  {roles.map((role, index) => (
-                    <MenuItem key={role.value} value={role.value}>
-                      {role.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <FormHelperText sx={{ color: "#D32F2F" }}>
-                  {formValues.roles.error && formValues.roles.error.length > 0
-                    ? formValues.roles.error
-                    : ""}
-                </FormHelperText>
-              </FormControl>
-            </Box> */}
-              {/* <FormControlLabel
-              control={<Controls.Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
-
               <Controls.Button
                 type="submit"
                 fullWidth
@@ -387,18 +290,6 @@ function SignInSide() {
               >
                 Login
               </Controls.Button>
-              {/* <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid> */}
             </Box>
           </div>
           <div className="loginBottom">
@@ -407,22 +298,6 @@ function SignInSide() {
           </div>
         </div>
       </Grid>
-      {/* <Box
-        sx={{
-          width: "100vw",
-          height: "100vh",
-          backgroundImage: `url(${bgIcon})`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <img
-          src={logo}
-          style={{ marginLeft: "20px", marginTop: "10px", maxWidth: "100px" }}
-          alt="FlexiELabel"
-        ></img>
-      </Box> */}
     </Grid>
   );
 }

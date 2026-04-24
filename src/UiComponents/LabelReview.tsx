@@ -42,11 +42,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 export default function CustomizedTables(props: ILabelReviewProps) {
-  // console.log("ngx-labelreviewprops", props);
   const {
     editRowState: { row },
   } = props;
-  // console.log("row111", row);
   const fileVersionId = React.useRef(0);
   const [pdfPopup, setPdfPopup] = React.useState<boolean>(false);
 
@@ -95,9 +93,10 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">PM Code</StyledTableCell>
               <StyledTableCell align="left">{row.pmCode}</StyledTableCell>
             </StyledTableRow>
-            <StyledTableRow key="tabletCount">
-              <StyledTableCell align="left">Tablet Count</StyledTableCell>
-              <StyledTableCell align="left">{row.tabletCount}</StyledTableCell>
+            <StyledTableRow key="count">
+            {/* <StyledTableRow key="tabletCount"> */}
+              <StyledTableCell align="left">Count</StyledTableCell>
+              <StyledTableCell align="left">{row.count}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="printer">
               <StyledTableCell align="left">Printer</StyledTableCell>
@@ -132,8 +131,8 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">{row.implementationDate}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="color">
-              <StyledTableCell align="left">No Of Colors</StyledTableCell>
-              <StyledTableCell align="left">{row.noOfColors}</StyledTableCell>
+              <StyledTableCell align="left">Colors</StyledTableCell>
+              <StyledTableCell align="left">{row.colors}</StyledTableCell>
             </StyledTableRow>
             <StyledTableRow key="approvedDate">
               <StyledTableCell align="left">Approved Date</StyledTableCell>
@@ -144,11 +143,6 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">
                 {row.revisionNumber}
               </StyledTableCell>
-            {/* <StyledTableRow key="currentVersion">
-              <StyledTableCell align="left">Current Version</StyledTableCell>
-              <StyledTableCell align="left">
-                {row.currentVersion}
-              </StyledTableCell> */}
             </StyledTableRow>
             <StyledTableRow key="currentVersionFile">
               <StyledTableCell align="left">
@@ -177,10 +171,6 @@ export default function CustomizedTables(props: ILabelReviewProps) {
                 </React.Fragment>
               </StyledTableCell>
             </StyledTableRow>
-            {/* <StyledTableRow key="customerCode">
-              <StyledTableCell align="left">Customer Code</StyledTableCell>
-              <StyledTableCell align="left">{row.customerCode}</StyledTableCell>
-            </StyledTableRow> */}
             <StyledTableRow key="finalHodApproved">
               <StyledTableCell align="left">Final HOD Approved</StyledTableCell>
               <StyledTableCell align="left">
@@ -198,15 +188,6 @@ export default function CustomizedTables(props: ILabelReviewProps) {
                 {row.finalHodApprovedDate}
               </StyledTableCell>
             </StyledTableRow>
-            {/* <StyledTableRow key="hodInitiated">
-              <StyledTableCell align="left">HOD Approved</StyledTableCell>
-              <StyledTableCell align="left">
-                <ApprovedCellRenderer
-                  row={row.hodInitiated}
-                  field="hodInitiated"
-                ></ApprovedCellRenderer>
-              </StyledTableCell>
-            </StyledTableRow> */}
             <StyledTableRow key="hodInitiated">
               <StyledTableCell align="left">
                 HOD Approved
@@ -294,18 +275,6 @@ export default function CustomizedTables(props: ILabelReviewProps) {
               <StyledTableCell align="left">Status</StyledTableCell>
               <StyledTableCell align="left">{row.status}</StyledTableCell>
             </StyledTableRow>
-
-            {/* {rows.map((row) => (
-            <StyledTableRow key={row.name}>
-              <StyledTableCell component="th" scope="row">
-                {row.name}
-              </StyledTableCell>
-              <StyledTableCell align="right">{row.calories}</StyledTableCell>
-              <StyledTableCell align="right">{row.fat}</StyledTableCell>
-              <StyledTableCell align="right">{row.carbs}</StyledTableCell>
-              <StyledTableCell align="right">{row.protein}</StyledTableCell>
-            </StyledTableRow>
-          ))} */}
           </TableBody>
         </Table>
       </TableContainer>

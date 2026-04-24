@@ -44,15 +44,21 @@ function User(): JSX.Element {
     if ("lastName" in fieldValues) {
       temp.lastName = fieldValues.lastName ? false : "Last Name is required.";
     }
-    if ("userName" in fieldValues) {
-      // temp.userName = fieldValues.userName
-      //   ? isValidEmail(fieldValues.userName)
-      //     ? "Enter Valid User Name."
-      //     : false
-      //   : "User Name is required.";
-      temp.userName = fieldValues.userName ? false : "User Name is required.";
-    }
-
+    // if ("userName" in fieldValues) {
+    //   // temp.userName = fieldValues.userName
+    //   //   ? isValidEmail(fieldValues.userName)
+    //   //     ? "Enter Valid User Name."
+    //   //     : false
+    //   //   : "User Name is required.";
+    //   temp.userName = fieldValues.userName ? false : "User Name is required.";
+    // }
+if ("userName" in fieldValues) {
+  temp.userName = fieldValues.userName
+    ? isValidEmail(fieldValues.userName)
+      ? false
+      : "Enter a valid email address."
+    : "User Name is required.";
+}
     if ("password" in fieldValues) {
       temp.password = fieldValues.password ? false : "Password is required.";
     }
@@ -79,7 +85,6 @@ function User(): JSX.Element {
     handleInputChange,
     resetValidationState,
   } = useFormValidation(initialFValues, true, validate);
-// console.log("User- values",values);
 
   const [isUpdate, setUpdateflag] = React.useState<boolean>(false);
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
@@ -88,7 +93,6 @@ function User(): JSX.Element {
   function updateUserData(params: any) {
     setUpdateflag(true);
     setEditState(false);
-    // console.log("ngx-edituserparams", params);
     setValues((prevState: any) => ({
       ...prevState,
       firstName: params.row.firstName,
@@ -133,20 +137,6 @@ function User(): JSX.Element {
             </React.Fragment>
           );
         },
-
-        // getActions: (params: any) => [
-        //   <GridActionsCellItem
-        //     showInMenu
-        //     icon={<BorderColorOutlinedIcon />}
-        //     label="Edit"
-        //     onClick={() => {
-        //       console.log("popupdata", params);
-        //       modalState(true);
-        //       rowState(params.row);
-        //       editState(true);
-        //     }}
-        //   />,
-        // ],
       },
       ...gridData.colDefs,
     ],
@@ -172,46 +162,6 @@ function User(): JSX.Element {
     });
     if (isValid.every((i) => i === true)) {
       const addUser = async () => {
-        // try {
-        //   const apiParams: any = {
-        //     firstName: data.get("firstName"),
-        //     lastName: data.get("lastName"),
-        //     logIn: data.get("userName"),
-        //     password: data.get("password"),
-        //     roleId: data.get("selectedRole"),
-        //     userId: 0,
-        //     roleName: roles.find(
-        //       (i) => i.value === Number(data.get("selectedRole"))
-        //     )?.name,
-        //     isActive: data.get("isActive") === "true" ? true : false,
-        //   };
-        //   let response;
-        //   if (isUpdate) {
-        //     const updateApiParams = {
-        //       ...apiParams,
-        //       userId: values?.userId,
-        //     };
-        //     response = await Services.User.updateUser(updateApiParams).then(
-        //       (success) => {
-        //         console.log("updateusertriggered");
-        //         updateUsersData(true);
-        //         handleReset();
-        //       }
-        //     );
-        //   } else {
-        //     response = await Services.User.addUser(apiParams).then(
-        //       (success) => {
-        //         console.log("updateusertriggered");
-        //         updateUsersData(true);
-        //         handleReset();
-        //       }
-        //     );
-        //   }
-        //   setUpdateflag(false);
-        //   console.log(response);
-        // } catch (error) {
-        //   console.log(error);
-        // }
          try {
           // debugger
       if (isUpdate) {
@@ -282,27 +232,6 @@ function User(): JSX.Element {
 
   return (
     <div>
-      {/* <Box
-        noValidate
-        component="form"
-        onSubmit={handleSave}
-        id="userForm"
-        sx={{
-          height: "100%",
-          width: "100%",
-          py: "0.5rem",
-          boxShadow: 6,
-          border: 1,
-          borderColor: CustomTheme.CustomColor.Primary.light,
-          "& .super-app-theme--header": {
-            backgroundColor: CustomTheme.CustomColor.Primary.main,
-            color: CustomTheme.CustomColor.Common.white,
-            "& .MuiSvgIcon-root": {
-              color: CustomTheme.CustomColor.Common.white,
-            },
-          },
-        }}
-      > */}
       <Box
       noValidate
       component="form"
@@ -311,18 +240,6 @@ function User(): JSX.Element {
       sx={{
         height: "100%",
         width: "100%",
-          //py: "0.5rem",
-          //  mt: "-0.6rem",
-          // boxShadow: 6,
-          // border: 1,
-          // borderColor: CustomTheme.CustomColor.Primary.light,
-          // "& .super-app-theme--header": {
-          //   backgroundColor: CustomTheme.CustomColor.Primary.main,
-          //   color: CustomTheme.CustomColor.Common.white,
-          //   "& .MuiSvgIcon-root": {
-          //     color: CustomTheme.CustomColor.Common.white,
-          //   },
-          // },
         display: "flex",
         flexDirection: "column",
       }}
@@ -418,7 +335,8 @@ function User(): JSX.Element {
                     required
                     name="userName"
                     label="User Name"
-                    type="text"
+                    // type="text"
+                     type="email"
                     size="small"
                     value={values.userName}
                     error={errors.userName}
@@ -544,18 +462,6 @@ function User(): JSX.Element {
                   >
                     IsActive:
                   </FormLabel>
-                  {/* <Controls.Checkbox //TODO BUG ONCHANGE
-                    name="isActive"
-                    isChecked={values.isActive || true}
-                    // isChecked={values.isActive ==="True" ? false : false}
-                    // onChange={handleInputChange}
-                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setValues((prev: any) => ({
-                    ...prev,
-                   isActive: e.target.checked,
-                   }));
-                   }}
-                  ></Controls.Checkbox> */}
                   <Checkbox 
                   name="isActive"
                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {

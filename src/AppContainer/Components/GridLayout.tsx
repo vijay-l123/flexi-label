@@ -1,4 +1,15 @@
-import { Box, FormControl, FormHelperText, FormLabel, Grid, IconButton, InputAdornment, InputLabel, OutlinedInput } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+} from "@mui/material";
 import { useDemoData } from "@mui/x-data-grid-generator";
 import { alpha, styled } from "@mui/material/styles";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
@@ -54,7 +65,8 @@ import AdvancedFilter from "../../UiComponents/AdvanceFilter";
 import { useFilterContext } from "../../Context/FilterContext";
 import AuthService from "../../Services/AuthService";
 import { useAxiosHandlerContext } from "../../AxiosHandler/AxiosHandler";
-
+import { DynamicTableWithExcelExport } from "../../Export/ExcelExport";
+import { GridColumnsPanel } from "@mui/x-data-grid";
 const {
   TLabelStatus,
   TRoleType,
@@ -78,20 +90,20 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
     "&.Mui-selected": {
       backgroundColor: alpha(
         theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity
+        ODD_OPACITY + theme.palette.action.selectedOpacity,
       ),
       "&:hover, &.Mui-hovered": {
         backgroundColor: alpha(
           theme.palette.primary.main,
           ODD_OPACITY +
             theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity
+            theme.palette.action.hoverOpacity,
         ),
         // Reset on touch devices, it doesn't add specificity
         "@media (hover: none)": {
           backgroundColor: alpha(
             theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity
+            ODD_OPACITY + theme.palette.action.selectedOpacity,
           ),
         },
       },
@@ -107,20 +119,20 @@ const StripedDataGrid = styled(DataGrid)(({ theme }) => ({
     "&.Mui-selected": {
       backgroundColor: alpha(
         theme.palette.primary.main,
-        ODD_OPACITY + theme.palette.action.selectedOpacity
+        ODD_OPACITY + theme.palette.action.selectedOpacity,
       ),
       "&:hover, &.Mui-hovered": {
         backgroundColor: alpha(
           theme.palette.primary.main,
           ODD_OPACITY +
             theme.palette.action.selectedOpacity +
-            theme.palette.action.hoverOpacity
+            theme.palette.action.hoverOpacity,
         ),
         // Reset on touch devices, it doesn't add specificity
         "@media (hover: none)": {
           backgroundColor: alpha(
             theme.palette.primary.main,
-            ODD_OPACITY + theme.palette.action.selectedOpacity
+            ODD_OPACITY + theme.palette.action.selectedOpacity,
           ),
         },
       },
@@ -180,7 +192,7 @@ export const ApprovedCellRenderer = (params: any): any => {
   return component;
 };
 
-const getColumnDefinitions = (params: IColParams,rowData:any) => {
+const getColumnDefinitions = (params: IColParams, rowData: any) => {
   const {
     modalState,
     rowState,
@@ -198,20 +210,23 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
     createNewVersionState,
     changeColorState,
     changeToLiveState,
-    changeImplementationDateState
+    changeImplementationDateState,
   } = params;
-
   const dynamicColDef: any[] = [];
-  const calculateColumnWidth = (field: string, headerName: string, rowData: any[]) => {
+  const calculateColumnWidth = (
+    field: string,
+    headerName: string,
+    rowData: any[],
+  ) => {
     const padding = 30; // space for padding, sort icons etc.
     const longestValueLength = Math.max(
       headerName.length,
-      ...rowData.map((row) => (row[field] ? String(row[field]).length : 0))
+      ...rowData.map((row) => (row[field] ? String(row[field]).length : 0)),
     );
-  
-    return Math.max(100, longestValueLength * 8 + padding); 
+
+    return Math.max(100, longestValueLength * 8 + padding);
   };
-  
+
   if (selectedTab === 1 && authData.roleId !== TRoleType.LabelViewers) {
     const historyCols = {
       headerName: "View History",
@@ -231,10 +246,8 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
                 value={id}
                 aria-label="close"
                 onClick={(e: any) => {
-                  // console.log("event", e);
                   const historyParams: IHistoryPopupParams = {
                     show: true,
-                    // fileId: +e.currentTarget.value,
                     fileId: +currentVersionId,
                   };
                   historyPopupState(historyParams);
@@ -257,7 +270,7 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
         field: item.field,
         headerName: item.name,
         fiterable: !item.name?.trim().includes("id"),
-        //hide: !item.display,
+        // hide: !item.display,
         // hideable: item.display,
         // editable: !item.display,
         headerClassName: "super-app-theme--header",
@@ -266,39 +279,39 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
         // flexGrow: 1,
         // flexShrink: 1,
         // width: "150",
-        
+        // hideable: item.display == true,
       };
-// if (item.name?.trim().toLowerCase() === "implementation date") {
-//     const updatedCols = {
-//       renderCell: (params: any) => {
-//         const dateStr = params.value; 
-//         if (!dateStr) return "";
+      // if (item.name?.trim().toLowerCase() === "implementation date") {
+      //     const updatedCols = {
+      //       renderCell: (params: any) => {
+      //         const dateStr = params.value;
+      //         if (!dateStr) return "";
 
-//         const parsedDate = new Date(dateStr);
+      //         const parsedDate = new Date(dateStr);
 
-//         // Handle invalid date (Safari/macOS case)
-//         if (isNaN(parsedDate.getTime())) {
-//           const parts = dateStr.split(" ")[0].split("/");
-//           if (parts.length === 3) {
-//             const [month, day, year] = parts.map((p:any) => parseInt(p));
-//             if (year && month && day) {
-//               const fixedDate = new Date(year, month - 1, day);
-//               return `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}-${year}`;
-//             }
-//           }
-//           return "";
-//         }
+      //         // Handle invalid date (Safari/macOS case)
+      //         if (isNaN(parsedDate.getTime())) {
+      //           const parts = dateStr.split(" ")[0].split("/");
+      //           if (parts.length === 3) {
+      //             const [month, day, year] = parts.map((p:any) => parseInt(p));
+      //             if (year && month && day) {
+      //               const fixedDate = new Date(year, month - 1, day);
+      //               return `${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}-${year}`;
+      //             }
+      //           }
+      //           return "";
+      //         }
 
-//         // Always format as MM-DD-YYYY
-//         const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
-//         const day = String(parsedDate.getDate()).padStart(2, "0");
-//         const year = parsedDate.getFullYear();
+      //         // Always format as MM-DD-YYYY
+      //         const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+      //         const day = String(parsedDate.getDate()).padStart(2, "0");
+      //         const year = parsedDate.getFullYear();
 
-//         return `${month}-${day}-${year}`;
-//       },
-//     };
-//     cols = { ...cols, ...updatedCols };
-//   }
+      //         return `${month}-${day}-${year}`;
+      //       },
+      //     };
+      //     cols = { ...cols, ...updatedCols };
+      //   }
       // if (
       //   !item.name?.trim().toLowerCase().includes("date") &&
       //   item.name?.trim().toLowerCase().includes("approved")
@@ -310,20 +323,20 @@ const getColumnDefinitions = (params: IColParams,rowData:any) => {
       //   cols = { ...cols, ...updatedCols };
       // }
 
-const name = item.name?.trim().toLowerCase() || "";
-const includeKeywords = ["approved", "hod initiated"];
-const excludeKeywords = ["date", "by"];
+      const name = item.name?.trim().toLowerCase() || "";
+      const includeKeywords = ["approved", "hod initiated"];
+      const excludeKeywords = ["date", "by"];
 
-if (
-  !excludeKeywords.some(keyword => name.includes(keyword)) &&
-  includeKeywords.some(keyword => name.includes(keyword))
-) {
-  const updatedCols = {
-    align: "center",
-    renderCell: (params: any) => <ApprovedCellRenderer {...params} />,
-  };
-  cols = { ...cols, ...updatedCols };
-}
+      if (
+        !excludeKeywords.some((keyword) => name.includes(keyword)) &&
+        includeKeywords.some((keyword) => name.includes(keyword))
+      ) {
+        const updatedCols = {
+          align: "center",
+          renderCell: (params: any) => <ApprovedCellRenderer {...params} />,
+        };
+        cols = { ...cols, ...updatedCols };
+      }
 
       if (item.field === "currentVersionFileId") {
         const updatedCols = {
@@ -341,13 +354,10 @@ if (
                       value={dFileId}
                       aria-label="close"
                       onClick={(e: any) => {
-                        // console.log("event", e);
                         const pdfParams: IPdfParams = {
                           show: true,
                           fileId: +e.currentTarget.value,
                         };
-                        // console.log("pdfParams", pdfParams);
-                        
                         pdfPopupState(pdfParams);
                       }}
                       color="error"
@@ -403,7 +413,6 @@ if (
     });
 
   const editClickEvent = (params: any): void => {
-    // console.log("popupdata", params);
     modalState(true);
     rowState(params.row);
     editState(true);
@@ -429,7 +438,6 @@ if (
   };
 
   function handleReviewClickEvent(params: any) {
-    // console.log(params);
     const popupStateParams = {
       show: true,
     };
@@ -476,33 +484,23 @@ if (
             selectedTab === 1 && authData.roleId === TRoleType.Initiator
           }
           isApproved={
-            selectedTab === 4 && authData.roleId === TRoleType.FinalHOD ||selectedTab === 4 && authData.roleId === TRoleType.Initiator
+            (selectedTab === 4 && authData.roleId === TRoleType.FinalHOD) ||
+            (selectedTab === 4 && authData.roleId === TRoleType.Initiator)
           }
           isImplementationDateChange={
-            (selectedTab === 1 && authData.roleId === TRoleType.Initiator) || (selectedTab === 1 && authData.roleId === TRoleType.FinalHOD)
+            (selectedTab === 1 && authData.roleId === TRoleType.Initiator) ||
+            (selectedTab === 1 && authData.roleId === TRoleType.FinalHOD)
           }
           createVersionClick={() => createVersionClickEvent(params)}
           changeColorClick={() => changeColorClickEvent(params)}
-                changeToLiveClick={() =>
+          changeToLiveClick={() =>
             handleWorkflowProcess(TButtonClick.Approve, params)
           }
-          changeImplemantationDateClick={() => changeImplemantationDateClickEvent(params)}
+          changeImplemantationDateClick={() =>
+            changeImplemantationDateClickEvent(params)
+          }
         />
       ),
-
-      // getActions: (params: any) => [
-      //   <GridActionsCellItem
-      //     showInMenu
-      //     icon={<BorderColorOutlinedIcon />}
-      //     label="Edit"
-      //     onClick={() => {
-      //       console.log("popupdata", params);
-      //       modalState(true);
-      //       rowState(params.row);
-      //       editState(true);
-      //     }}
-      //   />,
-      // ],
     },
     ...dynamicColDef,
   ];
@@ -545,27 +543,62 @@ function GridLayout(props: any) {
     createNewVersionState,
     changeColorState,
     changeToLiveState,
-    changeImplementationDateState
+    changeImplementationDateState,
   } = props;
-    const { setAlertMessage, setSbOpen, setAlertSeverity } =
+  const { setAlertMessage, setSbOpen, setAlertSeverity } =
     useAxiosHandlerContext();
   const { authData } = useAuthContext();
-  const { setPageSize,setPage,pageSize,setPaginationChange,page,paginationData } = useFilterContext();
+  const {
+    setPageSize,
+    setPage,
+    pageSize,
+    setPaginationChange,
+    page,
+    paginationData,
+  } = useFilterContext();
   const labelVersionId = React.useRef(0);
   const fileVersionId = React.useRef(0);
+  const [columnVisibilityModel, setColumnVisibilityModel] =
+    React.useState<GridColumnVisibilityModel>({});
+  const {
+    rowData,
+    columnData,
+    updateSelectedTab,
+    updateLabelsData,
+    columnVisibility,
+    selectedTabName,
+    setSelectedTabName,
+  } = useLabelsContext();
+  const visibleColumnData = columnData?.filter(
+    (col: any) => col.display === true,
+  );
+  const handleSaveColumns = async () => {
+    try {
+      const payload: any = {};
 
-  const { rowData, columnData, updateSelectedTab, updateLabelsData } =
-    useLabelsContext();
-  // const { data } = useDemoData({
-  //   dataSet: "Commodity",
-  //   rowLength: 100,
-  //   editable: true,
-  // });
-  // console.log("selectedTab:", selectedTab, "columnData:", columnData);
-  // console.log("paginationData:", paginationData);
-  // console.log("rowData length:", rowData?.length);
-  // console.log("rowData:", rowData);
+      columnData.forEach((col: any) => {
+        const originalName = col.name; // "PM Code"
+        const fieldName = col.field; // "pmCode"
 
+        payload[originalName] = columnVisibilityModel[fieldName] !== false;
+      });
+
+      await Services.LabelVersion.updateLabelColumns(
+        selectedTabName,
+        authData.roleId,
+        payload,
+      );
+
+      setAlertSeverity("success");
+      setAlertMessage("Column preferences saved successfully!");
+      setSbOpen(true);
+    } catch (error) {
+      console.error(error);
+      setAlertSeverity("error");
+      setAlertMessage("Failed to save column preferences");
+      setSbOpen(true);
+    }
+  };
   type IColumnState = {
     [key: string]: boolean;
   };
@@ -651,9 +684,9 @@ function GridLayout(props: any) {
       let actionColState = true;
       if (
         tabData.find(({ value }) => value === selectedTab)?.label ===
-          TLabelStatus.Active
-           &&
-        (authData.roleId !== TRoleType.Initiator && authData.roleId !== TRoleType.FinalHOD)
+          TLabelStatus.Active &&
+        authData.roleId !== TRoleType.Initiator &&
+        authData.roleId !== TRoleType.FinalHOD
       ) {
         actionColState = false;
       }
@@ -666,18 +699,12 @@ function GridLayout(props: any) {
         actionColState = false;
       }
       obj["actions"] = actionColState;
-      // console.log("columnstate", {
-      //   ...obj,
-      // });
       return obj;
     }
   }, [columnData]);
 
-  //const rowData = React.useRef([]);
-const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
-  // Reset row selection when tab changes
+  const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
   React.useEffect(() => {
-    // console.log("Tab changed to:", selectedTab, "- Clearing row selection");
     setRowSelectionModel({});
   }, [selectedTab]);
 
@@ -775,12 +802,12 @@ const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
               updateLabelsData(true);
               modalState(false);
               notesPopupState({ id: 0, show: false });
-            }
+            },
           );
           setFormValues((prev) => ({
-          ...prev,
-          notes: { value: "", error: "" },
-        }));
+            ...prev,
+            notes: { value: "", error: "" },
+          }));
           // console.log(response);
         } catch (error) {
           console.log(error);
@@ -788,61 +815,15 @@ const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
       };
 
       addNotes();
-
-      // const addNotes = async () => {
-      //   try {
-      //     const apiParams = {
-      //       labelVersionId: Number(labelVersionId.current),
-      //       remarks: data.get("remarks") as string,
-      //     };
-      //     let response = null;
-      //     if (buttonState === TButtonClick.SubmitForReview)
-      //       response = await Services.LabelVersion.submitForReview(
-      //         apiParams
-      //       ).then((success) => {
-      //         updateLabelsData(true);
-      //         modalState(false);
-      //         const popupStateParams = {
-      //           show: false,
-      //         };
-      //         reviewPopupState(popupStateParams);
-      //       });
-      //     if (
-      //       buttonState === TButtonClick.Resend ||
-      //       buttonState === TButtonClick.Approve
-      //     )
-      //       response = await Services.LabelVersion.processReview({
-      //         ...apiParams,
-      //         action: Number(buttonState),
-      //       }).then((success) => {
-      //         updateLabelsData(true);
-      //         modalState(false);
-      //         const popupStateParams = {
-      //           show: false,
-      //         };
-      //         reviewPopupState(popupStateParams);
-      //       });
-      //     console.log(response);
-      //   } catch (error) {
-      //     console.log(error);
-      //   }
-      // };
-      // updateLabelVersion();
-      // closePasswordConfirmationPopup(false);
     }
   };
 
-  const onOkClick =async (event: React.FormEvent<HTMLFormElement>) => {
+  const onOkClick = async (event: React.FormEvent<HTMLFormElement>) => {
     // debugger
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-  const password = data.get("password") as string;
-  const remarks = data.get("remarks") as string;
-    // console.log({
-    //   password: data.get("password"),
-    //   remarks: data.get("remarks"),
-    // });
-
+    const password = data.get("password") as string;
+    const remarks = data.get("remarks") as string;
     const formData = [
       {
         target: {
@@ -881,41 +862,39 @@ const [rowSelectionModel, setRowSelectionModel] = React.useState<any>({});
     Object.values(temp).forEach((item: any) => {
       if (item.error) hasError = item.error;
     });
-if (hasError) return;
+    if (hasError) return;
 
- 
-  try {
-    const response = await AuthService.passwordCheckForProcees({
-      userId: authData?.userId,
-      password,
-    });
+    try {
+      const response = await AuthService.passwordCheckForProcees({
+        userId: authData?.userId,
+        password,
+      });
 
-    const apiResult = response?.data;
+      const apiResult = response?.data;
 
-    
-    if (apiResult?.status != 200) {
-      // debugger
-      setFormValues((prev) => ({
-        ...prev,
-        password: {
-          ...prev.password,
-          error: apiResult?.message || "Invalid password. Please try again.",
-        },
-      }));
+      if (apiResult?.status != 200) {
+        // debugger
+        setFormValues((prev) => ({
+          ...prev,
+          password: {
+            ...prev.password,
+            error: apiResult?.message || "Invalid password. Please try again.",
+          },
+        }));
+        setAlertSeverity("error");
+        setAlertMessage(
+          apiResult?.message || "Invalid password. Please try again.",
+        );
+        return;
+      }
+
+      console.log("Password validated successfully!");
+    } catch (error: any) {
+      console.error("Password validation error:", error);
       setAlertSeverity("error");
-      setAlertMessage(apiResult?.message || "Invalid password. Please try again.");
-      return; 
+      setAlertMessage("Invalid password. Please try again.");
+      return;
     }
-
-    console.log("Password validated successfully!");
-  } catch (error: any) {
-    console.error("Password validation error:", error);
-    setAlertSeverity("error");
-    setAlertMessage("Invalid password. Please try again.");
-    return; 
-  }
-
-
 
     if (!hasError) {
       const updateLabelVersion = async () => {
@@ -927,7 +906,7 @@ if (hasError) return;
           let response = null;
           if (buttonState === TButtonClick.SubmitForReview)
             response = await Services.LabelVersion.submitForReview(
-              apiParams
+              apiParams,
             ).then((success) => {
               updateLabelsData(true);
               modalState(false);
@@ -937,10 +916,10 @@ if (hasError) return;
               reviewPopupState(popupStateParams);
             });
           if (
-            (((buttonState === TButtonClick.Resend) && (selectedTab != 4))) ||
-            ((buttonState === TButtonClick.Approve) && (selectedTab != 4))
-          ){
-          // debugger
+            (buttonState === TButtonClick.Resend && selectedTab != 4) ||
+            (buttonState === TButtonClick.Approve && selectedTab != 4)
+          ) {
+            // debugger
             response = await Services.LabelVersion.processReview({
               ...apiParams,
               action: Number(buttonState),
@@ -953,10 +932,8 @@ if (hasError) return;
               reviewPopupState(popupStateParams);
             });
           }
-          if (
-            ((buttonState === TButtonClick.Approve )&& (selectedTab == 4))
-          ){
-          // debugger
+          if (buttonState === TButtonClick.Approve && selectedTab == 4) {
+            // debugger
             response = await Services.LabelVersion.moveToLiveProcessReview({
               ...apiParams,
               action: Number(buttonState),
@@ -969,7 +946,7 @@ if (hasError) return;
               reviewPopupState(popupStateParams);
             });
 
-          // console.log(response);
+            // console.log(response);
           }
         } catch (error) {
           console.log(error);
@@ -998,7 +975,7 @@ if (hasError) return;
     createNewVersionState,
     changeColorState,
     changeToLiveState,
-    changeImplementationDateState
+    changeImplementationDateState,
   };
 
   const submitReviewConfirmationProps = {
@@ -1049,355 +1026,375 @@ if (hasError) return;
     form: "addNotesBox",
     maxWidth: "md",
   };
-
-  // const getRowClass = (params: any) => {
-  //   if (params.row?.hasReview && params.row?.hasReview === "True") {
-  //     return "hasReview";
-  //   }
-  //   if (params.row?.hasReview && params.row?.hasReview === "False") {
-  //     return "hasNoReview";
-  //   }
-
-  //   return params.indexRelativeToCurrentPage % 2 === 0 ? "even" : "odd";
-  // };
   const getRowClass = (params: any) => {
-  if (params.row?.colorCode) {
-    const cleanCode = params.row.colorCode.replace("#", "");
-    return `row-color-${cleanCode}`;
-  }
-  return "";
-};
-const getContrastColor = (hexColor: string) => {
-  if (!hexColor) return "#000";
-  const color = hexColor.replace("#", "");
-  const r = parseInt(color.substring(0, 2), 16);
-  const g = parseInt(color.substring(2, 4), 16);
-  const b = parseInt(color.substring(4, 6), 16);
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  return brightness > 125 ? "#000000" : "#FFFFFF";
-};
-// Create a style object dynamically before JSX
-const dynamicRowColors: Record<string, any> = {};
-rowData?.forEach((row: any) => {
-  if (row?.colorCode) {
-    const cleanCode = row.colorCode.replace("#", "");
-    dynamicRowColors[`& .row-color-${cleanCode}`] = {
-      color: row.colorCode,
-      // color: getContrastColor(row.colorCode),
-      fontWeight: 500,
-    };
-  }
-});
+    if (params.row?.colorCode) {
+      const cleanCode = params.row.colorCode.replace("#", "");
+      return `row-color-${cleanCode}`;
+    }
+    return "";
+  };
+  const getContrastColor = (hexColor: string) => {
+    if (!hexColor) return "#000";
+    const color = hexColor.replace("#", "");
+    const r = parseInt(color.substring(0, 2), 16);
+    const g = parseInt(color.substring(2, 4), 16);
+    const b = parseInt(color.substring(4, 6), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 125 ? "#000000" : "#FFFFFF";
+  };
+  // Create a style object dynamically before JSX
+  const dynamicRowColors: Record<string, any> = {};
+  rowData?.forEach((row: any) => {
+    if (row?.colorCode) {
+      const cleanCode = row.colorCode.replace("#", "");
+      dynamicRowColors[`& .row-color-${cleanCode}`] = {
+        color: row.colorCode,
+        // color: getContrastColor(row.colorCode),
+        fontWeight: 500,
+      };
+    }
+  });
 
+  const exportColumns = React.useMemo(() => {
+    if (!columnData) return [];
 
+    return columnData.filter(
+      (col: any) => columnVisibilityModel[col.field] !== false,
+    );
+  }, [columnData, columnVisibilityModel]);
+  const hiddenColumns = ["currentVersionFileId", "previousVersionFileId"];
 
-// const CustomToolbar = () => {
-//   return (
-//     <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", p: 1 }}>
-//       <GridToolbar />
+  const exportFields = React.useMemo(() => {
+    if (!columnData) return [];
 
-//       <Box sx={{ ml: 2 }}>
-//         <AdvancedFilter selectedTab={selectedTab} />
-//       </Box>
-//     </Box>
-//   );
-// };
+    return columnData
+      .filter(
+        (col: any) =>
+          columnVisibilityModel[col.field] !== false &&
+          !hiddenColumns.includes(col.field),
+      )
+      .map((col: any) => col.field);
+  }, [columnData, columnVisibilityModel]);
+  const CustomColumnsPanel = (props: any) => {
+    return (
+      <Box>
+        {/* Default Columns Panel */}
+        <GridColumnsPanel {...props} />
 
-
-const CustomToolbar = () => {
-  return (
-    <GridToolbarContainer
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        p: 1,
-      }}
-    >
-      {/* Keep only the buttons you want */}
-      <Box sx={{ display: "flex", gap: 1 }}>
-        <GridToolbarColumnsButton />
-        <GridToolbarDensitySelector />
-        <GridToolbarExport />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            p: 1,
+            borderTop: "1px solid #eee",
+          }}
+        >
+          <Button variant="contained" size="small" onClick={handleSaveColumns}>
+            Save
+          </Button>
+        </Box>
       </Box>
+    );
+  };
+  const CustomToolbar = () => {
+    return (
+      <GridToolbarContainer
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          p: 1,
+        }}
+      >
+        {/* Keep only the buttons you want */}
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <GridToolbarColumnsButton />
 
-      {/* Your custom filter */}
-      <Box sx={{ ml: 2 }}>
-        <AdvancedFilter selectedTab={selectedTab} />
-      </Box>
-    </GridToolbarContainer>
-  );
-};
+          <GridToolbarDensitySelector />
+          {/* <GridToolbarExport /> */}
+          <GridToolbarExport
+            csvOptions={{
+              fields: exportFields,
+            }}
+            printOptions={{
+              fields: exportFields,
+            }}
+          />
+          <DynamicTableWithExcelExport
+            keyValue="LabelVersionExport"
+            loadingStatus=""
+            reorderedColumns={exportColumns}
+            filteredfinalRows={rowData}
+            authData={authData}
+          />
+        </Box>
 
+        {/* Your custom filter */}
+        <Box sx={{ ml: 2 }}>
+          <AdvancedFilter selectedTab={selectedTab} />
+        </Box>
+      </GridToolbarContainer>
+    );
+  };
 
-  // Calculate rowCount properly from pagination data
+  // React.useEffect(() => {
+  //   if (columnVisibilityState) {
+  //     setColumnVisibilityModel(columnVisibilityState);
+  //   }
+  // }, [columnVisibilityState]);
+  React.useEffect(() => {
+    if (columnVisibilityState || columnVisibility) {
+      setColumnVisibilityModel({
+        ...columnVisibilityState,
+        ...columnVisibility,
+      });
+    }
+  }, [columnVisibilityState, columnVisibility]);
   const rowCount = React.useMemo(() => {
-    if (paginationData && typeof paginationData.totalRecords === 'number') {
-      // console.log("Using paginationData.totalRecords:", paginationData.totalRecords);
+    if (paginationData && typeof paginationData.totalRecords === "number") {
       return paginationData.totalRecords;
     }
-    // Fallback to current page data length
     const fallback = rowData?.length || 0;
-    // console.log("Using fallback rowCount:", fallback);
     return fallback;
   }, [paginationData, rowData]);
   const [showPassword, setShowPassword] = React.useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-  const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
     event.preventDefault();
   };
   return (
-    <Box sx={{position: 'relative'}}>
+    <Box sx={{ position: "relative" }}>
       <Box
-      sx={{
-        // height: "100%",
-        width: "100%",
-        position:'absolute',
-        boxShadow: 0,
-        border: 0,
-        borderColor: CustomTheme.CustomColor.Primary.light,
-        "& .super-app-theme--header": {
-          backgroundColor: CustomTheme.CustomColor.Primary.main,
-          color: CustomTheme.CustomColor.Common.white,
-          "& .MuiSvgIcon-root": {
+        sx={{
+          // height: "100%",
+          width: "100%",
+          position: "absolute",
+          boxShadow: 0,
+          border: 0,
+          borderColor: CustomTheme.CustomColor.Primary.light,
+          "& .super-app-theme--header": {
+            backgroundColor: CustomTheme.CustomColor.Primary.main,
             color: CustomTheme.CustomColor.Common.white,
+            "& .MuiSvgIcon-root": {
+              color: CustomTheme.CustomColor.Common.white,
+            },
           },
-        },
-      }}
-    >
-      <Popup {...notesDialogProps}>
-        <Box
-          noValidate
-          component="form"
-          onSubmit={onAddNotesClick}
-          sx={{ mx: 2 }}
-          id="addNotesBox"
-        >
-          <FormControl
-            required
-            variant="filled"
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              mt: 2,
-              mb: 2,
-            }}
+        }}
+      >
+        <Popup {...notesDialogProps}>
+          <Box
+            noValidate
+            component="form"
+            onSubmit={onAddNotesClick}
+            sx={{ mx: 2 }}
+            id="addNotesBox"
           >
-            <FormLabel
+            <FormControl
+              required
+              variant="filled"
               sx={{
-                //color: "#212B36",
-                width: "25%",
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                mt: 2,
+                mb: 2,
               }}
             >
-              Notes:
-            </FormLabel>
-            <Controls.InputTextArea
-              required
-              name="notes"
-              label="notes"
-              type="text"
-              id="notes"
-              size={"small"}
-              value={formValues.notes.value}
-              error={formValues.notes.error}
-              onChange={handleTextChange}
-              // sx={{ width: "75%" }}
-            ></Controls.InputTextArea>
-          </FormControl>
-        </Box>
-      </Popup>
-      <Popup {...submitReviewConfirmationProps}>
-        <Box
-          noValidate
-          component="form"
-          onSubmit={onOkClick}
-          sx={{ mx: 2 }}
-          id="confirmationBox"
-        >
-          {/* <FormControl required>
+              <FormLabel
+                sx={{
+                  //color: "#212B36",
+                  width: "25%",
+                }}
+              >
+                Notes:
+              </FormLabel>
+              <Controls.InputTextArea
+                required
+                name="notes"
+                label="notes"
+                type="text"
+                id="notes"
+                size={"small"}
+                value={formValues.notes.value}
+                error={formValues.notes.error}
+                onChange={handleTextChange}
+                // sx={{ width: "75%" }}
+              ></Controls.InputTextArea>
+            </FormControl>
+          </Box>
+        </Popup>
+        <Popup {...submitReviewConfirmationProps}>
+          <Box
+            noValidate
+            component="form"
+            onSubmit={onOkClick}
+            sx={{ mx: 2 }}
+            id="confirmationBox"
+          >
+            {/* <FormControl required>
             {" "}
             <Password
               formValues={formValues}
               handleTextChange={handleTextChange}
             ></Password>
           </FormControl> */}
-       <FormControl variant="outlined" fullWidth size="small" required  error={!!formValues.password.error} >
-  <Grid container sx={{ alignItems: "center" }}>
-    <Grid item xs={3}>
-      <FormLabel>Confirm Password:</FormLabel>
-    </Grid>
-    <Grid item xs={9}>
-      <OutlinedInput
-        id="password"
-        name="password"
-        type={showPassword ? "text" : "password"}
-        value={formValues.password?.value || ""}
-        onChange={handleTextChange}
-        
-        required
-        placeholder="Enter your password"
-        endAdornment={
-          <InputAdornment position="end">
-            <IconButton
-              aria-label="toggle password visibility"
-              onClick={handleClickShowPassword}
-              onMouseDown={handleMouseDownPassword}
-              edge="end"
+            <FormControl
+              variant="outlined"
+              fullWidth
+              size="small"
+              required
+              error={!!formValues.password.error}
             >
-              {showPassword ? <VisibilityOff /> : <Visibility />}
-            </IconButton>
-          </InputAdornment>
-        }
-        sx={{
-          mt: 1,
-          '& input::placeholder': {
-            opacity: 0.7,
-          },
-        }}
-      />
-            {formValues.password.error && (
-        <FormHelperText>{formValues.password.error}</FormHelperText>
-      )}
-    </Grid>
-  </Grid>
-</FormControl>
+              <Grid container sx={{ alignItems: "center" }}>
+                <Grid item xs={3}>
+                  <FormLabel>Confirm Password:</FormLabel>
+                </Grid>
+                <Grid item xs={9}>
+                  <OutlinedInput
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formValues.password?.value || ""}
+                    onChange={handleTextChange}
+                    required
+                    placeholder="Enter your password"
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    sx={{
+                      mt: 1,
+                      "& input::placeholder": {
+                        opacity: 0.7,
+                      },
+                    }}
+                  />
+                  {formValues.password.error && (
+                    <FormHelperText>{formValues.password.error}</FormHelperText>
+                  )}
+                </Grid>
+              </Grid>
+            </FormControl>
 
-          <FormControl
-            variant="filled"
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              mt: 2,
-              mb: 2,
-            }}
-          >
-            <FormLabel
+            <FormControl
+              variant="filled"
               sx={{
-                //color: "#212B36",
-                width: "25%",
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                mt: 2,
+                mb: 2,
               }}
             >
-              Remarks:
-            </FormLabel>
-            <Controls.InputTextArea
-              name="remarks"
-              label="Remarks"
-              type="text"
-              id="remarks"
-              size={"small"}
-              value={formValues.remarks.value}
-              error={formValues.remarks.error}
-              onChange={handleTextChange}
-              // sx={{ width: "75%" }}
-            ></Controls.InputTextArea>
-          </FormControl>
-        </Box>
-      </Popup>
-      <Popup {...pdfDialogProps}>
-        <PDFViewer fileId={fileVersionId.current} />
-      </Popup>
-      <Popup {...historyDialogProps}>
-        <LabelHistoryContextProvider id={historyPopup.id}>
-          {" "}
-          <LabelHistory></LabelHistory>
-        </LabelHistoryContextProvider>
-      </Popup>
-      <Popup {...reviewDialogProps}>
-        <LabelReview {...labelReviewProps}></LabelReview>
-      </Popup>
-      <div style={{ width: '100%',height:"70vh", overflowX: 'auto' }}>
-      {/* <div className="scroll-wrapper"> */}
-      
-      <StripedDataGrid
-        sx={{
-          boxShadow: 2,
-          border: 1,
-          borderColor: CustomTheme.CustomColor.Primary.light,
-          "& .MuiDataGrid-columnSeparator": {
-            color: CustomTheme.CustomColor.Common.white,
-            visibility: "visible"
-          },
-          "& .MuiDataGrid-cell:hover": {
-            color: CustomTheme.CustomColor.Primary.dark,
-          },
-      ...dynamicRowColors,
-    //          "& .MuiDataGrid-cell": {
-    //   whiteSpace: "normal",  
-    //   wordWrap: "break-word",  
-    //   overflowY: "auto",    
-    //   overflowX: "hidden",
-    //   display: "block",
-    //   lineHeight: "1.4em",
-    //   maxHeight: "70px", 
-    //   p: 1,
-    //   alignItems: "flex-start",
-    // },
-    // "& .MuiDataGrid-row": {
-    //   maxHeight: "none !important",
-    // },
-        }}
-        getRowId={(row) => row.index}
-        columns={columnData && getColumnDefinitions(colDefParams,rowData)}
-        rows={rowData && rowData}
-        //loading={rowData.length === 0}
-        rowHeight={38}
+              <FormLabel
+                sx={{
+                  //color: "#212B36",
+                  width: "25%",
+                }}
+              >
+                Remarks:
+              </FormLabel>
+              <Controls.InputTextArea
+                name="remarks"
+                label="Remarks"
+                type="text"
+                id="remarks"
+                size={"small"}
+                value={formValues.remarks.value}
+                error={formValues.remarks.error}
+                onChange={handleTextChange}
+                // sx={{ width: "75%" }}
+              ></Controls.InputTextArea>
+            </FormControl>
+          </Box>
+        </Popup>
+        <Popup {...pdfDialogProps}>
+          <PDFViewer fileId={fileVersionId.current} />
+        </Popup>
+        <Popup {...historyDialogProps}>
+          <LabelHistoryContextProvider id={historyPopup.id}>
+            {" "}
+            <LabelHistory></LabelHistory>
+          </LabelHistoryContextProvider>
+        </Popup>
+        <Popup {...reviewDialogProps}>
+          <LabelReview {...labelReviewProps}></LabelReview>
+        </Popup>
+        <div style={{ width: "100%", height: "70vh", overflowX: "auto" }}>
+          {/* <div className="scroll-wrapper"> */}
 
-        // disableSelectionOnClick
-        getRowClassName={getRowClass}
-        disableColumnSelector={true}
-        rowCount={rowCount}
-              pagination
-              paginationMode="server"
-              paginationModel={{ page, pageSize }}
-                 onPaginationModelChange={(model) => {
-            // console.log("Pagination model change:", model);
-            setPaginationChange(true);
-            if (model.pageSize !== pageSize) {
-              // console.log("Page size changed from", pageSize, "to", model.pageSize);
-            setPage(0); 
-            } else {
-              // console.log("Page changed to:", model.page);
-            setPage(model.page);
-            }
-            setPageSize(model.pageSize);
+          <StripedDataGrid
+            sx={{
+              boxShadow: 2,
+              border: 1,
+              borderColor: CustomTheme.CustomColor.Primary.light,
+              "& .MuiDataGrid-columnSeparator": {
+                color: CustomTheme.CustomColor.Common.white,
+                visibility: "visible",
+              },
+              "& .MuiDataGrid-cell:hover": {
+                color: CustomTheme.CustomColor.Primary.dark,
+              },
+              ...dynamicRowColors,
             }}
-        pageSizeOptions={[25, 50, 100]}
+            getRowId={(row) => row.index}
+            // columns={columnData && getColumnDefinitions(colDefParams,rowData)}
+            columns={
+              visibleColumnData &&
+              getColumnDefinitions(
+                { ...colDefParams, columnData: visibleColumnData },
+                rowData,
+              )
+            }
+            rows={rowData && rowData}
+            //loading={rowData.length === 0}
+            rowHeight={38}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(newModel) => {
+              setColumnVisibilityModel(newModel);
+            }}
+            // disableSelectionOnClick
+            getRowClassName={getRowClass}
+            // disableColumnSelector={true}
+            rowCount={rowCount}
+            pagination
+            paginationMode="server"
+            paginationModel={{ page, pageSize }}
+            onPaginationModelChange={(model) => {
+              setPaginationChange(true);
+              if (model.pageSize !== pageSize) {
+                setPage(0);
+              } else {
+                setPage(model.page);
+              }
+              setPageSize(model.pageSize);
+            }}
+            pageSizeOptions={[25, 50, 100]}
             slots={{
-        toolbar: CustomToolbar,
-      }}
-        // slotProps={{
-        //   toolbar: {
-        //     showQuickFilter:true,
-        //   }
-        // }}
-        columnVisibilityModel={{
-          ...columnVisibilityState,
-        }}
-        rowSelectionModel={rowSelectionModel}
-        onRowSelectionModelChange={(newSelection) => {
-          // console.log("Row selection changed:", newSelection, "for tab:", selectedTab);
-          setRowSelectionModel(newSelection);
-        }}
-        checkboxSelection={false}
-        disableRowSelectionOnClick={true}
-        // initialState={{
-        //   columns: {
-        //     columnVisibilityModel: {
-        //       ...colVisibilityState,
-        //     },
-        //     // Hide columns status and traderName, the other columns will remain visible
-        //     // andaId: false,
-        //     // previousVersionFileId: false,
-        //     // currentVersionId: false,
-        //   },
-        // }}
-      />
-      </div>
-    </Box>
+              toolbar: CustomToolbar,
+              columnsPanel: CustomColumnsPanel,
+            }}
+            rowSelectionModel={rowSelectionModel}
+            onRowSelectionModelChange={(newSelection) => {
+              setRowSelectionModel(newSelection);
+            }}
+            checkboxSelection={false}
+            disableRowSelectionOnClick={true}
+          />
+        </div>
+      </Box>
     </Box>
   );
 }

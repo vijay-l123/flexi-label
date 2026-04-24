@@ -6,21 +6,20 @@ import config from "./config";
 const baseUrl = config.baseUrl;
 
 function getLableVersionList(
-  selectedTab: number, 
-  roleId: number, 
-  pageNumber: number = 1, 
+  selectedTab: number,
+  roleId: number,
+  pageNumber: number = 1,
   itemsPerPage: number = 25,
   filterCol?: string,
   filterOperator?: string,
-  filterValue?: string
+  filterValue?: string,
 ) {
-
   const postProps: any = {
     userRole: +roleId,
     status: selectedTab,
     pageNumber: +pageNumber,
     itemsPerPage: +itemsPerPage,
-    filterCol: (filterCol),
+    filterCol: filterCol,
     filterOperator: filterOperator ?? "",
     filterValue: filterValue ?? "",
   };
@@ -39,7 +38,51 @@ function getLableVersionList(
   });
   return response;
 }
+function getLableVersionColumnList(
+  selectedTab: string,
+  roleId: number,
+  colmuns: object,
+) {
+  const postProps: any = {
+    userId: +roleId,
+    screenName: selectedTab,
+  };
 
+  const url = `LabelVersion/GetColumns`;
+
+  // console.log("API Request URL:", url);
+  // console.log("API Request Body:", postProps);
+
+  const response = axios({
+    method: "GET",
+    url: url,
+    baseURL: baseUrl,
+    params: postProps,
+    headers: { "Content-Type": "application/json" },
+    data: colmuns,
+  });
+  return response;
+}
+function updateLabelColumns(
+  selectedTab: string,
+  roleId: number,
+  columns: object,
+) {
+  const url = `LabelVersion/UpdateColumns`;
+    // debugger;
+  const payload = {
+    userId: +roleId,
+    screenName: selectedTab,
+     config: columns,
+  };
+  return axios({
+    method: "POST",
+    url,
+    baseURL: baseUrl,
+    headers: { "Content-Type": "application/json" },
+    data: payload,
+  });
+}
 function addLabelVersion(params: any) {
   // debugger
   const {
@@ -50,14 +93,14 @@ function addLabelVersion(params: any) {
     isFileInfoChanged,
     fileId,
     remarks,
-       implementationDate,
+    implementationDate,
     color,
     printer,
     proofNum,
     jobNumber,
     foldSize,
     flatSize,
-    ccf
+    ccf,
   } = params;
 
   const postProps = {
@@ -65,8 +108,8 @@ function addLabelVersion(params: any) {
     labelInfoId: labelInfoId,
     versionNo: versionNo,
     fileName: fileName,
-    implementationDate:implementationDate,
-    color:color,
+    implementationDate: implementationDate,
+    color: color,
     isFileInfoChanged: fileName === "" ? false : isFileInfoChanged,
     fileId: +fileId,
     remarks: remarks,
@@ -77,7 +120,7 @@ function addLabelVersion(params: any) {
     jobNumber: jobNumber,
     foldSize,
     flatSize,
-    ccf
+    ccf,
   };
 
   const response = axios({
@@ -111,7 +154,7 @@ function updateLabelVersion(params: any) {
     foldSize,
     flatSize,
     ccf,
-    labelDescription
+    labelDescription,
   } = params;
 
   const postProps = {
@@ -132,14 +175,14 @@ function updateLabelVersion(params: any) {
     status: 1,
     foldSize,
     flatSize,
-    implementationDate:implementationDate,
-    color:color,
+    implementationDate: implementationDate,
+    color: color,
     isFileInfoChanged: fileName === "" ? false : isFileInfoChanged,
     printer: printer,
     proofNum: proofNum,
     jobNumber: jobNumber,
     ccf,
-    labelDescription
+    labelDescription,
   };
 
   const response = axios({
@@ -166,7 +209,7 @@ function updateImplementaionDate(params: any) {
     remarks,
     foldSize,
     flatSize,
-    ccf
+    ccf,
   } = params;
 
   const postProps = {
@@ -198,13 +241,13 @@ function updateLabelVersionColorCode(params: any) {
     remarks,
     foldSize,
     flatSize,
-    ccf
+    ccf,
   } = params;
 
   const postProps = {
     id: id,
     // labelInfoId: labelInfoId,
-   colorcode: colorcode,
+    colorcode: colorcode,
     // versionNo: versionNo,
     // fileId: fileId,
     // remarks: remarks,
@@ -307,6 +350,8 @@ function addNotes(params: any) {
 
 const LabelVersion = {
   getLableVersionList,
+  getLableVersionColumnList,
+  updateLabelColumns,
   updateLabelVersion,
   updateLabelVersionColorCode,
   moveToLiveProcessReview,
